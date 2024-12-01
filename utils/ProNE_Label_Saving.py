@@ -5,19 +5,16 @@ import random
 import os
 import shutil
 
-
-
-#First, investigate the Labels of the Dataset
-
-dataset = "yago"
+# First, investigate the Labels of the Dataset
+dataset = "lubm"
 
 # Paths for loading the data and saving the results
-loading_path = "/work/schwatkm"
-embedding_path = "/work/schwatkm/"
-embedding_save_path = "/work/schwatkm/Embeddings/"
-mapping_save_path = "/work/schwatkm/Embeddings/"
+loading_path = "/home/platzer/TUM/DataEngineering"
+embedding_path = "/home/platzer/TUM/DataEngineering"
+embedding_save_path = "/home/platzer/TUM/DataEngineering/Embeddings/"
+mapping_save_path = "/home/platzer/TUM/DataEngineering/Embeddings/"
 
-file = open(loading_path + "/gcare/data/dataset/" + dataset + "/" + dataset + ".txt", "r")
+file = open(loading_path + "/Datasets/" + dataset + "/" + dataset + ".txt", "r")
 lines = file.readlines()
 file.close()
 
@@ -53,7 +50,7 @@ lines = file.readlines()
 file.close()
 
 # Cleaning the embeddings:
-for i in tqdm(range(1, len(lines))):2
+for i in tqdm(range(1, len(lines))): # 2
     lines[i] = lines[i].split("\n")[0].split(" ")
     lines[i] = [float(el) for el in lines[i]]
 

@@ -12,8 +12,11 @@ import os
 import sys
 import time
 
+project_root = "home/platzer/TUM/DataEngineering"
+datasets_path = f"{project_root}/Datasets"
+
 # Adding edited version of pyrdf2vec to path
-sys.path.append("/home/tim/pyRDF2Vec/pyrdf2vec")
+sys.path.append(f"{project_root}/pyrdf2vec")
 
 def uri_to_id(uri):
     return uri.split('/')[-1]
@@ -159,7 +162,7 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
     import os
     import shutil
     # Define the path of the walk folder
-    folder_path = "/media/tim/vol2/walks"
+    folder_path = f"{project_root}/walks"
     # Delete the folder if it exists
     if os.path.exists(folder_path):
         shutil.rmtree(folder_path)
@@ -212,7 +215,7 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
     timing_dict['n_atoms_embeddings'] = n_atoms_embeddings
     timing_dict['time_per_atom_embedding'] = time_per_atom_embedding
     timing_dict['time_per_atom_statistic'] = time_per_atom_occurrence + time_per_atom_embedding
-    with open(os.path.join("/home/tim/Datasets", dataset_name, "embedding_timing.json"), "w") as fp:
+    with open(os.path.join(f"{datasets_path}", dataset_name, "embedding_timing.json"), "w") as fp:
         json.dump(timing_dict, fp, indent=4)
 
     # Storing embeddings one by one to separate files(necessary for large KG)
@@ -221,19 +224,13 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
         statistics_dict = {"embedding": embeddings_test[i].tolist(), "occurence": occurences_test[i]}
 
         file_name = test_entities_cleaned[i].replace("/", "|")
-        with open(os.path.join("/home/tim/Datasets", dataset_name, "statistics", file_name + ".json"), "w") as fp:
+        with open(os.path.join(f"{datasets_path}", dataset_name, "statistics", file_name + ".json"), "w") as fp:
             json.dump(statistics_dict, fp)
-
-
-
-
-
-
     return
+
+
 if __name__ == "__main__":
-
-
-    #Get entities from queries:
+    # Get entities from queries:
     entities = []
     # Joined Queries
     # with open('/home/tim/Datasets/yago/flower/Joined_Queries.json', 'r') as f:
@@ -246,7 +243,7 @@ if __name__ == "__main__":
     # for query in queries:
     #    entities += query['x']
 
-    with open('/home/tim/Datasets/yago/star/Joined_Queries.json', 'r') as f:
+    with open('/home/tim/Datasets/lubm/star/Joined_Queries.json', 'r') as f:
        queries = json.load(f)
     for query in queries:
        entities += query['x']
@@ -261,7 +258,7 @@ if __name__ == "__main__":
 
 
     print('Starting...')
-    get_embeddings("yago", "/home/tim/Datasets/yago/graph/yago.ttl", remote=True, entities=entities, sparql_endpoint="http://localhost:8909/sparql/")
+    get_embeddings("lubm", f"{datasets_path}/lubm/graph/lubm.ttl", remote=True, entities=entities, sparql_endpoint="http://localhost:8909/sparql/")
 
 
 

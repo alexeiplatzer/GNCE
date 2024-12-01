@@ -1,35 +1,39 @@
 from cardinality_estimation import train_GNCE
+from LMKG.lmkgs.lmkgs import run_lmkg
+from GCARE.run_estimation import run_gcare
+from datetime import datetime
+from GNCE import PROJECT_PATH
+# from GNCE import GNCE_PATH
+import time
+import json
 import os
 import sys
 
+germana = '/home/platzer/TUM/DataEngineering/GNCE'
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
-os.chdir('/home/tim/cardinality_estimator/LMKG/lmkgs')
-sys.path.append('home/tim/cardinality_estimator/LMKG/lmkgs')
-sys.path.append('home/tim/cardinality_estimator/GCARE')
+os.chdir(germana + '/LMKG/lmkgs')
+sys.path.append(germana + '/LMKG/lmkgs')
+sys.path.append(germana + '/GCARE')
 
-from datetime import datetime
-from LMKG.lmkgs.lmkgs import run_lmkg
-from GCARE.run_estimation import run_gcare
-import time
-import json
 
 starttime = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
 
 query_filename = "Joined_Queries.json"
 
-dataset = 'swdf'
+dataset = 'lubm'
 query_type = 'star'
 
-DATASET_PATH = '/home/tim/Datasets/'
-GNCE_PATH = '/home/tim/cardinality_estimator_publication/'
+DATASET_PATH = germana + '/../Datasets/'
+GNCE_PATH = germana + '/../cardinality_estimator_publication/'
 
 run_LMKG = True
 run_GNCE = True
 run_GCARE = False
 
 # Whether to perform full inductive training
-inductive = 'false' # Choices are 'false' or 'full'. false means normal training and full means evaluating without embeddings
+# Choices are 'false' or 'full'. false means normal training and full means evaluating without embeddings
+inductive = 'false'
 
 
 if run_LMKG:
@@ -59,14 +63,13 @@ if run_GNCE:
                inductive=inductive, DATASETPATH=DATASET_PATH)
 
     end = time.time()
-    total_training_time_per_atom = (end - start)/n_atoms * 1000 #Note: start_time_gnce and end_time_gnce are the times for only the training loop, without data loading
+    total_training_time_per_atom = (end - start)/n_atoms * 1000  # Note: start_time_gnce and end_time_gnce are the times for only the training loop, without data loading
     print(f'Training GNCE took {total_training_time_per_atom} ms per atom')
     print(f'Trained on a total of {n_atoms} token')
     training_timing = {'total_training_time_per_atom': total_training_time_per_atom, "n_atoms": n_atoms,
-                       "total_time": (end_time_gnce - start_time_gnce) *1000 }
-    with open(f"/home/tim/Datasets/{dataset}/Results/{starttime}/GNCE/training_timing.json", 'w') as file:
+                       "total_time": (end_time_gnce - start_time_gnce) * 1000}
+    with open(f"{DATASET_PATH}{dataset}/Results/{starttime}/GNCE/training_timing.json", 'w') as file:
         json.dump(training_timing, file, indent=4)
-
 
 
 if run_GCARE:

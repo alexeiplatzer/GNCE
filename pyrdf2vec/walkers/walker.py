@@ -9,10 +9,13 @@ from tqdm import tqdm
 from pyrdf2vec.graphs import KG, Vertex
 from pyrdf2vec.samplers import Sampler, UniformSampler
 from pyrdf2vec.typings import Entities, EntityWalks, SWalk
+from pyrdf2vec import WALK_PATH
 
 import os
 import json
 import signal
+
+
 def handler(signum, frame):
     print("Forever is over!")
     raise Exception("end of time")
@@ -246,7 +249,7 @@ class Walker(ABC):
         global kg
         signal.signal(signal.SIGALRM, handler)
         signal.alarm(15)
-        walk_path = "/media/tim/vol2/walks"
+        walk_path = WALK_PATH
 
         lock = entity[1]
         entity = entity[0]

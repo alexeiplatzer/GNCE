@@ -12,7 +12,9 @@ from pyrdf2vec.embedders import Embedder, Word2Vec
 from pyrdf2vec.graphs import KG
 from pyrdf2vec.typings import Embeddings, Entities, Literals, SWalk
 from pyrdf2vec.walkers import RandomWalker, Walker
+from pyrdf2vec import WALK_PATH
 from tqdm import tqdm
+
 
 @attr.s
 class RDF2VecTransformer:
@@ -107,7 +109,7 @@ class RDF2VecTransformer:
 
         """
 
-        self.walk_path = "/media/tim/vol2/walks"
+        self.walk_path = WALK_PATH
         if self.verbose == 2:
             print(self.embedder)
 
@@ -118,7 +120,7 @@ class RDF2VecTransformer:
             self.get_walks(kg, entities[i:i+chunk_size])
             #Counting how many entities have been covered with the walks
             entities_done = []
-            for file in os.listdir("/media/tim/vol2/walks"):
+            for file in os.listdir(WALK_PATH):
                entities_done.append(file.replace("__", "/").replace("Y", ":").split("_")[0])
 
             entities_done = set(entities_done)

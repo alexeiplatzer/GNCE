@@ -3,6 +3,8 @@ import random
 from tqdm import tqdm
 import copy
 
+datasets_path = "/home/platzer/TUM/DataEngineering/Datasets"
+
 
 def query_remove_duplicates(data):
     # Testing with respect to invariance of triple permutation and ignoring distinction between variables
@@ -49,21 +51,21 @@ def query_remove_duplicates(data):
 if __name__ == "__main__":
     #Load Data
     data = []
-    with open("/home/tim/cardinality_estimator/Datasets/swdf/star/swdf_test_data2.json") as f:
+    with open(f"{datasets_path}/lubm/star/Joined_Queries.json") as f:
         test_data = json.load(f)
         data += test_data
-    with open("/home/tim/cardinality_estimator/Datasets/swdf/star/swdf_test_data3.json") as f:
-        test_data = json.load(f)
-        data += test_data
-    with open("/home/tim/cardinality_estimator/Datasets/swdf/star/swdf_test_data5.json") as f:
-        test_data = json.load(f)
-        data += test_data
-    with open("/home/tim/cardinality_estimator/Datasets/swdf/star/swdf_test_data8.json") as f:
-        test_data = json.load(f)
-        data += test_data
+    # with open(f"{datasets_path}/lubm/star/lubm_test_data3.json") as f:
+    #     test_data = json.load(f)
+    #     data += test_data
+    # with open(f"{datasets_path}/lubm/star/lubm_test_data5.json") as f:
+    #     test_data = json.load(f)
+    #     data += test_data
+    # with open(f"{datasets_path}/lubm/star/lubm_test_data8.json") as f:
+    #     test_data = json.load(f)
+    #     data += test_data
     new_data = query_remove_duplicates(data)
 
     #Saving Cleaned Data to file
-    with open("/home/tim/cardinality_estimator/Datasets/swdf/star/Joined_Queries.json", "w") as f:
+    with open(f"{datasets_path}/lubm/star/Joined_Queries.json", "w") as f:
         json.dump(new_data, f)
 

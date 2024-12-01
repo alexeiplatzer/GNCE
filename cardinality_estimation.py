@@ -42,7 +42,6 @@ from utils import get_query_graph_data, StatisticsLoader, get_query_graph_data_n
 import time
 
 
-
 class Q_Error(nn.Module):
     def __init__(self, epsilon=1e-7):
         super().__init__()
@@ -50,6 +49,8 @@ class Q_Error(nn.Module):
 
     def forward(self, x, y):
         return torch.max(x / (y+self.epsilon), y / (x+self.epsilon))
+
+
 class cardinality_estimator():
     """
     Base class for estimating cardinality for a given dataset.
@@ -77,8 +78,6 @@ class cardinality_estimator():
         except:
             print("No statistics found")
             exit()
-
-
 
 
     def train_GNN(self, train_data, test_data, epochs=100, train=True, eval_folder=None, inductive='false',

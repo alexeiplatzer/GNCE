@@ -9,3 +9,5 @@ __all__ = [
     "RDF2VecTransformer",
 ]
 __version__ = "0.2.3"
+
+WALK_PATH = "/home/platzer/TUM/DataEngineering/walks"

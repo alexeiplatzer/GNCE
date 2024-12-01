@@ -7,6 +7,7 @@ from gensim.models.word2vec import Word2Vec as W2V
 
 from pyrdf2vec.embedders import Embedder
 from pyrdf2vec.typings import Embeddings, Entities, SWalk
+from pyrdf2vec import WALK_PATH
 
 import random
 import json
@@ -75,7 +76,7 @@ class Word2Vec(Embedder):
 
         """
         #corpus = [walk for entity_walks in walks for walk in entity_walks]
-        corpus = MyWalks("/media/tim/vol2/walks")
+        corpus = MyWalks(WALK_PATH)
 
         print("Building Vocabulary...")
         self._model.build_vocab(corpus, update=is_update)

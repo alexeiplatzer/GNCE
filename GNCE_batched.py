@@ -12,6 +12,8 @@ from torch_geometric.nn import GINEConv
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
+datasets_path = "/home/platzer/TUM/DataEngineering/Datasets"
+
 
 def q_error(pred, gt):
     gt_exp = torch.exp(gt)
@@ -22,7 +24,7 @@ if __name__ == "__main__":
     dataset = 'swdf'
     query_type = 'star'
 
-    with open(f"/home/tim/Datasets/{dataset}/{query_type}/Joined_Queries.json") as f:
+    with open(f"{datasets_path}/{dataset}/{query_type}/Joined_Queries.json") as f:
         data = json.load(f)
 
     random.Random(4).shuffle(data)
@@ -42,7 +44,7 @@ if __name__ == "__main__":
 
     n_graphs= 1000
 
-    statistics = StatisticsLoader(os.path.join("/home/tim/Datasets", dataset, "statistics"))
+    statistics = StatisticsLoader(os.path.join(f"{datasets_path}", dataset, "statistics"))
 
     # Creating datasets
     # Preparing train set
