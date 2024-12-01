@@ -1,15 +1,16 @@
 import subprocess
 from pathlib import Path
+from GNCE import GNCE_PATH
 
 REMOTE_ADDRESS = 'XXX'
 
 def transfer_queries(dataset):
     print("Transfering queries to server...")
-    command = f"rsync -avz /home/tim/LSS/data/queryset_homo/{dataset}/paths_1 schwatkm@{REMOTE_ADDRESS}:/work/schwatkm/lss/data/queryset_homo/{dataset}"
+    command = f"rsync -avz {GNCE_PATH}/data/queryset_homo/{dataset}/paths_1 schwatkm@{REMOTE_ADDRESS}:/work/schwatkm/lss/data/queryset_homo/{dataset}"
     # Execute the command
     subprocess.run(command, shell=True)
 
-    command = f"rsync -avz /home/tim/LSS/data/true_homo/{dataset}/paths_1 schwatkm@{REMOTE_ADDRESS}:/work/schwatkm/lss/data/true_homo/{dataset}"
+    command = f"rsync -avz {GNCE_PATH}/data/true_homo/{dataset}/paths_1 schwatkm@{REMOTE_ADDRESS}:/work/schwatkm/lss/data/true_homo/{dataset}"
 
     subprocess.run(command, shell=True)
     print("Transfering queries finished")

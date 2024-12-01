@@ -1,5 +1,6 @@
 import sys
-sys.path.append('/home/tim/cardinality_estimator_publication/LMKG/lmkgs')
+from GNCE import PROJECT_PATH
+sys.path.append(f'{PROJECT_PATH}/LMKG/lmkgs')
 
 import argparse
 import os, time, numpy as np

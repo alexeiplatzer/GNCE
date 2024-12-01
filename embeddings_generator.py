@@ -11,12 +11,10 @@ from tqdm import tqdm
 import os
 import sys
 import time
-
-project_root = "home/platzer/TUM/DataEngineering"
-datasets_path = f"{project_root}/Datasets"
+from GNCE import PROJECT_PATH, DATASETS_PATH
 
 # Adding edited version of pyrdf2vec to path
-sys.path.append(f"{project_root}/pyrdf2vec")
+sys.path.append(f"{PROJECT_PATH}/pyrdf2vec")
 
 def uri_to_id(uri):
     return uri.split('/')[-1]
@@ -162,7 +160,7 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
     import os
     import shutil
     # Define the path of the walk folder
-    folder_path = f"{project_root}/walks"
+    folder_path = f"{PROJECT_PATH}/walks"
     # Delete the folder if it exists
     if os.path.exists(folder_path):
         shutil.rmtree(folder_path)
@@ -215,7 +213,7 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
     timing_dict['n_atoms_embeddings'] = n_atoms_embeddings
     timing_dict['time_per_atom_embedding'] = time_per_atom_embedding
     timing_dict['time_per_atom_statistic'] = time_per_atom_occurrence + time_per_atom_embedding
-    with open(os.path.join(f"{datasets_path}", dataset_name, "embedding_timing.json"), "w") as fp:
+    with open(os.path.join(f"{DATASETS_PATH}", dataset_name, "embedding_timing.json"), "w") as fp:
         json.dump(timing_dict, fp, indent=4)
 
     # Storing embeddings one by one to separate files(necessary for large KG)
@@ -224,7 +222,7 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
         statistics_dict = {"embedding": embeddings_test[i].tolist(), "occurence": occurences_test[i]}
 
         file_name = test_entities_cleaned[i].replace("/", "|")
-        with open(os.path.join(f"{datasets_path}", dataset_name, "statistics", file_name + ".json"), "w") as fp:
+        with open(os.path.join(f"{DATASETS_PATH}", dataset_name, "statistics", file_name + ".json"), "w") as fp:
             json.dump(statistics_dict, fp)
     return
 
@@ -258,7 +256,7 @@ if __name__ == "__main__":
 
 
     print('Starting...')
-    get_embeddings("lubm", f"{datasets_path}/lubm/graph/lubm.ttl", remote=True, entities=entities, sparql_endpoint="http://localhost:8909/sparql/")
+    get_embeddings("lubm", f"{DATASETS_PATH}/lubm/graph/lubm.ttl", remote=True, entities=entities, sparql_endpoint="http://localhost:8909/sparql/")
 
 
 

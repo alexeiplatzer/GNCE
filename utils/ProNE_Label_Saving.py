@@ -4,15 +4,16 @@ from tqdm import tqdm
 import random
 import os
 import shutil
+from GNCE import PROJECT_PATH
 
 # First, investigate the Labels of the Dataset
 dataset = "lubm"
 
 # Paths for loading the data and saving the results
-loading_path = "/home/platzer/TUM/DataEngineering"
-embedding_path = "/home/platzer/TUM/DataEngineering"
-embedding_save_path = "/home/platzer/TUM/DataEngineering/Embeddings/"
-mapping_save_path = "/home/platzer/TUM/DataEngineering/Embeddings/"
+loading_path = PROJECT_PATH
+embedding_path = PROJECT_PATH
+embedding_save_path = PROJECT_PATH + "/Embeddings/"
+mapping_save_path = PROJECT_PATH + "/Embeddings/"
 
 file = open(loading_path + "/Datasets/" + dataset + "/" + dataset + ".txt", "r")
 lines = file.readlines()
