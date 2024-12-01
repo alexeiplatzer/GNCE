@@ -1,5 +1,5 @@
 from cardinality_estimation import train_GNCE
-from LMKG.lmkgs.lmkgs import run_lmkg
+#from LMKG.lmkgs.lmkgs import run_lmkg
 from GCARE.run_estimation import run_gcare
 from datetime import datetime
 from GNCE import PROJECT_PATH
@@ -26,7 +26,7 @@ query_type = 'star'
 
 ESTIMATOR_PATH = PROJECT_PATH + '/cardinality_estimator_publication/'
 
-run_LMKG = True
+run_LMKG = False
 run_GNCE = True
 run_GCARE = False
 
@@ -50,7 +50,7 @@ if run_LMKG:
     print(f'Trained on a total of {n_atoms_lmkg} token')
 
     training_timing = {'total_training_time_per_atom': total_training_time_per_atom}
-    with open(f"{DATASETS_PATH}{dataset}/Results/{starttime}/LMKG/training_timing.json", 'w') as file:
+    with open(f"{DATASETS_PATH}/{dataset}/Results/{starttime}/LMKG/training_timing.json", 'w') as file:
         json.dump(training_timing, file, indent=4)
 
 
@@ -67,7 +67,7 @@ if run_GNCE:
     print(f'Trained on a total of {n_atoms} token')
     training_timing = {'total_training_time_per_atom': total_training_time_per_atom, "n_atoms": n_atoms,
                        "total_time": (end_time_gnce - start_time_gnce) * 1000}
-    with open(f"{DATASETS_PATH}{dataset}/Results/{starttime}/GNCE/training_timing.json", 'w') as file:
+    with open(f"{DATASETS_PATH}/{dataset}/Results/{starttime}/GNCE/training_timing.json", 'w') as file:
         json.dump(training_timing, file, indent=4)
 
 

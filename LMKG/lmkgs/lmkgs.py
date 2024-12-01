@@ -11,7 +11,7 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.optimizers import Adam
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 #from data_processor_release import read_star_graph_pattern, read_chain_graph_pattern, read_combined, read_combined_all_sizes_star_or_chain
-from estimates_file import check_network_estimates
+from GNCE.LMKG.lmkgs.estimates_file import check_network_estimates
 from tensorflow.keras import backend as K
 import complex_reader
 import store_statistics
@@ -395,7 +395,7 @@ def run_lmkg(dataset: str, query_form: str, eval_folder: str, query_filename: st
     assert DATASETPATH is not None
 
 
-    Path(f"{DATASETPATH}{dataset}/Results/{eval_folder}/LMKG").mkdir(parents=True, exist_ok=True)
+    Path(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/LMKG").mkdir(parents=True, exist_ok=True)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--training', dest='training', action='store_true')
@@ -591,10 +591,10 @@ def run_lmkg(dataset: str, query_form: str, eval_folder: str, query_filename: st
             exit(1)
 
     if inductive == 'false':
-        file_name = Path(f"{DATASETPATH}{dataset}/{query_form}/{query_filename}")
+        file_name = Path(f"{DATASETPATH}/{dataset}/{query_form}/{query_filename}")
     elif inductive == 'full':
-        file_name = (Path(f"{DATASETPATH}{dataset}/{query_form}/disjoint_train.json"),
-                     Path(f"{DATASETPATH}{dataset}/{query_form}/disjoint_test.json"))
+        file_name = (Path(f"{DATASETPATH}/{dataset}/{query_form}/disjoint_train.json"),
+                     Path(f"{DATASETPATH}/{dataset}/{query_form}/disjoint_test.json"))
 
     if "star" in query_type or "complex" in query_type and 'all' not in query_type:
         # X, A, E, y, encoding_time = complex_reader.read_queries(file_name, d, b, n, e, query_type ="star")
@@ -632,7 +632,7 @@ def run_lmkg(dataset: str, query_form: str, eval_folder: str, query_filename: st
     '''create the model'''
     print("Creating Model..")
 
-    save_path = Path(f"{DATASETPATH}{dataset}/Results/{eval_folder}/LMKG/")
+    save_path = Path(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/LMKG/")
 
     if create_new_model:
         '''create new model for the data'''

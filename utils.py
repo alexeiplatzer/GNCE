@@ -103,10 +103,12 @@ class StatisticsLoader():
     """
     def __init__(self, statistics_path):
         self.statistics_path = statistics_path
+
     def __getitem__(self, item):
         try:
-            with open(os.path.join(self.statistics_path, item.replace("/", "|") + ".json")) as f:
-                return json.load(f)
+            pass
+            # with open(os.path.join(self.statistics_path, item.replace("/", "|") + ".json")) as f:
+            #     return json.load(f)
 
         except FileNotFoundError:
             print("Cant find embedding for", item)
