@@ -1,5 +1,5 @@
 import numpy as np
-from data_processor_release import numpy_binary
+from GNCE.LMKG.lmkgs.data_processor_release import numpy_binary
 
 class QueryGraph:
     """ Query Graph: containing the query graph for learning """

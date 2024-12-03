@@ -1,5 +1,5 @@
 from cardinality_estimation import train_GNCE
-#from LMKG.lmkgs.lmkgs import run_lmkg
+from LMKG.lmkgs.lmkgs import run_lmkg
 from GCARE.run_estimation import run_gcare
 from datetime import datetime
 from GNCE import PROJECT_PATH
@@ -23,8 +23,6 @@ query_filename = "Joined_Queries.json"
 
 dataset = 'lubm'
 query_type = 'star'
-
-ESTIMATOR_PATH = PROJECT_PATH + '/cardinality_estimator_publication/'
 
 run_LMKG = False
 run_GNCE = True
@@ -56,7 +54,7 @@ if run_LMKG:
 
 if run_GNCE:
     print("**** Starting GNCE ****")
-    os.chdir(ESTIMATOR_PATH)
+    os.chdir(GNCE_PATH)
     start = time.time()
     n_atoms, start_time_gnce,  end_time_gnce = train_GNCE(dataset=dataset, query_type=query_type, query_filename=query_filename, eval_folder=starttime,
                                                           inductive=inductive, DATASETPATH=DATASETS_PATH)
@@ -73,6 +71,6 @@ if run_GNCE:
 
 if run_GCARE:
     print("**** Starting GCARE ****")
-    os.chdir(ESTIMATOR_PATH)
+    os.chdir(GNCE_PATH)
     run_gcare(dataset=dataset, query_type=query_type, eval_folder=starttime, query_filename=query_filename,
                inductive=inductive)

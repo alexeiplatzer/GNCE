@@ -13,8 +13,8 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 #from data_processor_release import read_star_graph_pattern, read_chain_graph_pattern, read_combined, read_combined_all_sizes_star_or_chain
 from GNCE.LMKG.lmkgs.estimates_file import check_network_estimates
 from tensorflow.keras import backend as K
-import complex_reader
-import store_statistics
+import GNCE.LMKG.lmkgs.complex_reader
+import GNCE.LMKG.lmkgs.store_statistics
 from pathlib import Path
 from tensorflow.keras.callbacks import LambdaCallback
 from tqdm import tqdm

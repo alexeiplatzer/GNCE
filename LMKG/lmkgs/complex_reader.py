@@ -1,6 +1,6 @@
 import numpy as np
 import time
-from query_graph import QueryGraph
+from GNCE.LMKG.lmkgs.query_graph import QueryGraph
 import json
 from tqdm import tqdm
 import random
