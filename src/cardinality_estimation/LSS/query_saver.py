@@ -2,7 +2,7 @@ import json
 import random
 from tqdm import tqdm
 import os
-from GNCE import PROJECT_PATH, DATASETS_PATH, GNCE_PATH
+from .. import PROJECT_ROOT_PATH, DATASETS_PATH, PACKAGE_PATH
 
 
 def remove_files_in_folder(folder_path):
@@ -22,7 +22,6 @@ def remove_files_in_folder(folder_path):
 
 def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicate, dataset, card):
     # Delete existing query:
-
 
     vertices = set()
     vertex_labels = {}
@@ -77,7 +76,7 @@ def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicat
         edge_list.append([vertex_dict[tp[0]][0], vertex_dict[tp[2]][0], edge_label])
 
     # Writing the Query File
-    with open(f"{GNCE_PATH}/LSS/data/queryset_homo/{dataset}/paths_1/{dataset}_{str(query_idx)}.txt", "w") as f:
+    with open(f"{PACKAGE_PATH}/LSS/data/queryset_homo/{dataset}/paths_1/{dataset}_{str(query_idx)}.txt", "w") as f:
         f.write("t # s " + str(query_idx))
         f.write("\n")
         for v in vertex_dict:
@@ -91,30 +90,30 @@ def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicat
             f.write("e " + str(e[0]) + " " + str(e[1]) + " " + str(e[2]))
             f.write("\n")
     # Saving cardinality
-    with open(f"{GNCE_PATH}/LSS/data/true_homo/{dataset}/paths_1/{dataset}_{str(query_idx)}.txt", "w") as f:
+    with open(f"{PACKAGE_PATH}/LSS/data/true_homo/{dataset}/paths_1/{dataset}_{str(query_idx)}.txt", "w") as f:
         f.write(str(card))
+
 
 def save_all_queries(dataset, query_type, query_filename):
 
     print('Removing existing queries..')
-    remove_files_in_folder(f"{GNCE_PATH}/LSS/data/queryset_homo/{dataset}/paths_1/")
-    remove_files_in_folder(f"{GNCE_PATH}/LSS/data/true_homo/{dataset}/paths_1/")
-
+    remove_files_in_folder(f"{PACKAGE_PATH}/LSS/data/queryset_homo/{dataset}/paths_1/")
+    remove_files_in_folder(f"{PACKAGE_PATH}/LSS/data/true_homo/{dataset}/paths_1/")
 
     print("Loading Data and Mappings..")
 
     if isinstance(query_filename, str):
-        with open(f"{PROJECT_PATH}/Datasets/{dataset}/{query_type}/{query_filename}") as f:
+        with open(f"{DATASETS_PATH}/{dataset}/{query_type}/{query_filename}") as f:
             data = json.load(f)
     else:
         data = []
         for file in query_filename:
-            with open(f"{PROJECT_PATH}/Datasets/{dataset}/{query_type}/{file}") as f:
+            with open(f"{DATASETS_PATH}/{dataset}/{query_type}/{file}") as f:
                 data += json.load(f)
 
-    with open(f"{PROJECT_PATH}/Datasets/{dataset}/id_to_id_mapping.json", "r") as f:
+    with open(f"{DATASETS_PATH}/{dataset}/id_to_id_mapping.json", "r") as f:
         id_to_id_mapping = json.load(f)
-    with open(f"{PROJECT_PATH}/Datasets/{dataset}/id_to_id_mapping_predicate.json", "r") as f:
+    with open(f"{DATASETS_PATH}/{dataset}/id_to_id_mapping_predicate.json", "r") as f:
         id_to_id_mapping_predicate = json.load(f)
 
     i = 0
@@ -128,16 +127,16 @@ def save_all_queries(dataset, query_type, query_filename):
 if __name__ == "__main__":
     dataset = 'wikidata'
 
-    with open(f"{PROJECT_PATH}/Datasets/{dataset}/star/Joined_Queries.json") as f:
+    with open(f"{DATASETS_PATH}/{dataset}/star/Joined_Queries.json") as f:
         data = json.load(f)
 
-    with open(f"{PROJECT_PATH}/Datasets/{dataset}/id_to_id_mapping.json", "r") as f:
+    with open(f"{DATASETS_PATH}/{dataset}/id_to_id_mapping.json", "r") as f:
         id_to_id_mapping = json.load(f)
-    with open(f"{PROJECT_PATH}/Datasets/{dataset}/id_to_id_mapping_predicate.json", "r") as f:
+    with open(f"{DATASETS_PATH}/{dataset}/id_to_id_mapping_predicate.json", "r") as f:
         id_to_id_mapping_predicate = json.load(f)
 
     query = data[0]
     print(query)
     query_to_gcare(query["triples"], 0, id_to_id_mapping=id_to_id_mapping,
-                   id_to_id_mapping_predicate= id_to_id_mapping_predicate, dataset=dataset, card = query["y"])
+                   id_to_id_mapping_predicate=id_to_id_mapping_predicate, dataset=dataset, card=query["y"])
 

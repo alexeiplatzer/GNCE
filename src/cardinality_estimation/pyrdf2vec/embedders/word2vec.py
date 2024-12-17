@@ -5,12 +5,13 @@ from typing import List
 import attr
 from gensim.models.word2vec import Word2Vec as W2V
 
-from src.pyrdf2vec.embedders import Embedder
-from src.pyrdf2vec.typings import Embeddings, Entities, SWalk
-from src.pyrdf2vec import WALK_PATH
+from ..embedders import Embedder
+from ..typings import Embeddings, Entities, SWalk
+from .. import WALK_PATH
 
 import random
 import os
+
 
 class MyWalks(object):
     def __init__(self, dirname):
@@ -101,7 +102,6 @@ class Word2Vec(Embedder):
             The features vector of the provided entities.
 
         """
-
 
         if not all([entity in self._model.wv for entity in entities]):
             raise ValueError(

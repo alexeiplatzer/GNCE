@@ -1,6 +1,6 @@
 import json
 import random
-from GNCE import GNCE_PATH
+from .. import PACKAGE_PATH
 
 import os
 
@@ -20,10 +20,9 @@ def remove_files_in_folder(folder_path):
             print(f"Skipping {file_path}, not a file")
 
 
-
 def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicate, dataset, card):
     # Delete existing query:
-    remove_files_in_folder(f"{GNCE_PATH}/GCARE/data/queryset/{dataset}")
+    remove_files_in_folder(f"{PACKAGE_PATH}/GCARE/data/queryset/{dataset}")
 
     vertices = set()
     vertex_labels = {}
@@ -79,7 +78,7 @@ def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicat
         edge_list.append([vertex_dict[tp[0]][0], vertex_dict[tp[2]][0], edge_label])
 
     # Writing the Query File
-    with open("{GNCE_PATH}/GCARE/data/queryset/" + dataset + "/" + dataset + "_" + str(query_idx) + ".txt", "w") as f:
+    with open(f"{PACKAGE_PATH}/GCARE/data/queryset/" + dataset + "/" + dataset + "_" + str(query_idx) + ".txt", "w") as f:
         f.write("t # s " + str(query_idx))
         f.write("\n")
         for v in vertex_dict:

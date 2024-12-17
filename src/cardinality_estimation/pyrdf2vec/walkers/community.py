@@ -9,9 +9,9 @@ import community
 import networkx as nx
 import numpy as np
 
-from src.pyrdf2vec.graphs import KG, Vertex
-from src.pyrdf2vec.typings import Entities, EntityWalks, SWalk, Walk
-from src.pyrdf2vec.walkers import Walker
+from ..graphs import KG, Vertex
+from ..typings import Entities, EntityWalks, SWalk, Walk
+from ..walkers import Walker
 
 
 def check_random_state(seed):

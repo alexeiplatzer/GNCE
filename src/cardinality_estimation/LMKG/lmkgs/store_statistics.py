@@ -1,7 +1,9 @@
 import math
 import numpy as np
 
-def check_network_estimates(predicted_cardinality, true_cardinality, statistics_file_name, print_time, encoding_avg_time = 0, avg_time_prediction_ms = 0, store_file_name = "name", nb_outliers = 0):
+
+def check_network_estimates(predicted_cardinality, true_cardinality, statistics_file_name, print_time,
+                            encoding_avg_time=0, avg_time_prediction_ms=0, store_file_name="name", nb_outliers=0):
     correct_estimates = 0
     wrong_estimates = 0
     max_correct = 0
@@ -30,7 +32,8 @@ def check_network_estimates(predicted_cardinality, true_cardinality, statistics_
             pred_card = float(predicted_cardinality[i][0])
             true_card = float(true_cardinality[i])
 
-            store_file.write(str(i)+','+str(pred_card) +","+str(true_card)+','+str(encoding_avg_time)+','+str(avg_time_prediction_ms)+','+str(avg_time_prediction_ms+encoding_avg_time)+'\n')
+            store_file.write(f"{i},{pred_card},{true_card},{encoding_avg_time},{avg_time_prediction_ms},"
+                             f"{avg_time_prediction_ms+encoding_avg_time}\n")
             store_file.flush()
     print('creation of statistics file done')
 
@@ -84,7 +87,8 @@ def check_network_estimates(predicted_cardinality, true_cardinality, statistics_
         else:
             print('true %d - est %d ' % (int(true_cardinality[i]), int(pred_card)))
             all_wrong_estimates.append(abs(int(true_cardinality[i]) - int(round(pred_card))))
-            # print('wrong estimate ->  true: %d - estimate: %d - estimate_real: %.2f' % (true_cardinality[i],round(float(predicted_cardinality[i][0])), float(predicted_cardinality[i][0])))
+            # print('wrong estimate ->  true: %d - estimate: %d - estimate_real: %.2f'
+            # % (true_cardinality[i],round(float(predicted_cardinality[i][0])), float(predicted_cardinality[i][0])))
             wrong_estimates += 1
             if true_cardinality[i] != 1:
                 wrong_estimates_not_one += 1
@@ -94,8 +98,6 @@ def check_network_estimates(predicted_cardinality, true_cardinality, statistics_
             if differ > max_error:
                 max_error = differ
                 max_nb = int(true_cardinality[i])
-
-
 
         if position_dictionary > 7:
             continue

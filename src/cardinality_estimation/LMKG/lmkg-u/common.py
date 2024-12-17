@@ -249,7 +249,8 @@ class CsvTable(Table):
                 # add the first reminder which will actually represent the last column
                 all_reminders.append(reminder_column)
 
-                # if the number of current columns is different than the number of columns that we want to have perform the split
+                # if the number of current columns is different than the number of columns
+                # that we want to have perform the split
                 while how_many_times_compressed < root:
                     quotient_column, reminder_column = self.call_divide_column(quotient_column,
                                                                                boundries_per_column[col], i)
@@ -275,8 +276,6 @@ class CsvTable(Table):
         print(np.shape(compressed_data))
 
         return compressed_data, modified_columns
-
-
 
     def _load(self, filename, cols, doCompression=False, compression_threshold=1000, **kwargs):
         print('Loading csv...', end=' ')

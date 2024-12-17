@@ -5,6 +5,8 @@ import time
 from datetime import datetime
 from pathlib import Path
 import json
+
+
 def remove_files_in_directory(directory_path, exclude_file='yago.txt'):
     for filename in os.listdir(directory_path):
         if filename == exclude_file:

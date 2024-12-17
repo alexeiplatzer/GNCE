@@ -2,11 +2,13 @@ import numpy as np
 import random
 import time
 
+
 def binary_representation_from_int(number, max_size=16):
     """ Returns a binary number from an integer with bits set to max size """
     return format(number,'b').zfill(max_size)
 
-def numpy_binary(number, max_size = 16):
+
+def numpy_binary(number, max_size=16):
     """
     Returns a binary representation of a given number
     :param number: needs conversion to binary representation
@@ -17,7 +19,8 @@ def numpy_binary(number, max_size = 16):
     arr = list(map(int, binary_str))
     return np.array(arr)
 
-def read_star_graph_pattern(d, b, n, e, file_name, train_tuples = 10000000, matrix_mode = 0, star_mode = 0):
+
+def read_star_graph_pattern(d, b, n, e, file_name, train_tuples=10000000, matrix_mode=0, star_mode=0):
     """
     Creates encoding from queries in the file
     :param d: int, the number of distinct nodes (subjects + objects) in KG
@@ -26,7 +29,8 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples = 10000000, matr
     :param e: int, the number of edges in the subgraph
     :param file_name: str, the input file name of the queries used for training or testing
     :param train_tuples: int, limits the training sample size, in default we train on all of them
-    :param matrix_mode: 0, 1 being two matrices 2 and 3 being with 3 matrices as reported in paper, one-hot and binary encoding
+    :param matrix_mode: 0, 1 being two matrices 2 and 3 being with 3 matrices as reported in paper,
+    one-hot and binary encoding
     :param star_mode:
     :return: encoded queries
     """
@@ -35,10 +39,10 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples = 10000000, matr
     star_node_id = 0
     star_predicate_id = 0
     # we need to add one node for star
-    X=[]
-    A=[]
-    E=[]
-    y=[]
+    X = []
+    A = []
+    E = []
+    y = []
     total_predicate_star = 0
     with open(file_name) as fp:
         line_nb = 0
@@ -115,7 +119,7 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples = 10000000, matr
                 print("Total zero "+str(total_zero))
                 exit(1)
 
-            nodes=list(nodes)
+            nodes = list(nodes)
             nodes.sort()
             id = 0
             nodes_dict = dict()
@@ -146,7 +150,6 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples = 10000000, matr
                     predicate_id = predicate
                 else:
                     predicate_id = "*p" + str(object)
-
 
                 if matrix_mode == 2:
                     subject_subgraph_id = nodes_dict[subject_id]
@@ -212,7 +215,7 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples = 10000000, matr
     return np.array(X),np.array(A),np.array(E), np.array(y), time_end
 
 
-def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples = 10000, matrix_mode = 0, star_mode = 0):
+def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples=10000, matrix_mode=0, star_mode=0):
     """
     Creates encoding from queries in the file
     :param d: int, the number of distinct nodes (subjects + objects) in KG
@@ -221,15 +224,16 @@ def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples = 10000, matrix
     :param e: int, the number of edges in the subgraph
     :param file_name: str, the input file name of the queries used for training or testing
     :param train_tuples: int, limits the training sample size, in default we train on all of them
-    :param matrix_mode: 0, 1 being two matrices 2 and 3 being with 3 matrices as reported in paper, one-hot and binary encoding
+    :param matrix_mode: 0, 1 being two matrices 2 and 3 being with 3 matrices as reported in paper,
+    one-hot and binary encoding
     :param star_mode:
     :return: encoded queries
     """
     print("started reading and creating chain patterns")
-    X=[]
-    A=[]
-    E=[]
-    y=[]
+    X = []
+    A = []
+    E = []
+    y = []
     total_predicate_star = 0
     with open(file_name) as fp:
         line_nb = 0
@@ -312,9 +316,7 @@ def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples = 10000, matrix
                 i += 2
                 first_time = False
 
-
             y.append(cardinality)
-
 
             if total_zero > 0:
                 print("Total zero "+str(total_zero))
@@ -330,7 +332,6 @@ def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples = 10000, matrix
                 nodes_dict[node]=id
                 id += 1
 
-
             predicates_list = []
             [predicates_list.append(x) for x in predicates if x not in predicates_list]
             # predicates.sort()
@@ -340,14 +341,12 @@ def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples = 10000, matrix
                 predicates_dict[predicate] = id
                 id += 1
 
-
             # creating the encodings
             for pattern in patterns:
                 subject, predicate, object = pattern.split("-")
                 subject_id = subject
                 object_id = object
                 predicate_id = predicate
-
 
                 if matrix_mode == 2:
                     subject_subgraph_id = nodes_dict[subject_id]
@@ -393,12 +392,12 @@ def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples = 10000, matrix
             E.append(ep)
             A.append(a)
 
-
     time_end = time.time() - time_start
     return np.array(X),np.array(A),np.array(E), np.array(y), time_end
 
 
-def read_combined(d, b, n, e, file_name_star, file_name_chain, train_tuples = 10000, matrix_mode = 0, star_mode = 0, test_mode = "star"):
+def read_combined(d, b, n, e, file_name_star, file_name_chain, train_tuples=10000, matrix_mode=0, star_mode=0,
+                  test_mode="star"):
     """
     Creates encoding from queries in the file
     :param d: int, the number of distinct nodes (subjects + objects) in KG
@@ -413,7 +412,6 @@ def read_combined(d, b, n, e, file_name_star, file_name_chain, train_tuples = 10
     :param test_mode: str, it can be star or chain
     :return: encoded queries
     """
-
 
     if "star" in test_mode:
         return read_star_graph_pattern(d, b, n, e, file_name_star, train_tuples, matrix_mode)
@@ -430,7 +428,8 @@ def read_combined(d, b, n, e, file_name_star, file_name_chain, train_tuples = 10
     return X, A, E, y, (time_start_star + time_start_chain)
 
 
-def read_combined_all_sizes_star_or_chain(d, b, n, e, file_names, train_tuples = 10000, matrix_mode = 0, star_mode = 0, test_mode = "star"):
+def read_combined_all_sizes_star_or_chain(d, b, n, e, file_names, train_tuples=10000, matrix_mode=0, star_mode=0,
+                                          test_mode="star"):
     """
     Creates encoding from queries in the file
     :param d: int, the number of distinct nodes (subjects + objects) in KG

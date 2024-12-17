@@ -6,10 +6,10 @@ from typing import List, Optional, Set
 import attr
 from tqdm import tqdm
 
-from src.pyrdf2vec.graphs import KG, Vertex
-from src.pyrdf2vec.samplers import Sampler, UniformSampler
-from src.pyrdf2vec.typings import Entities, EntityWalks, SWalk
-from src.pyrdf2vec import WALK_PATH
+from ..graphs import KG, Vertex
+from ..samplers import Sampler, UniformSampler
+from ..typings import Entities, EntityWalks, SWalk
+from .. import WALK_PATH
 
 import os
 import signal
@@ -20,7 +20,7 @@ def handler(signum, frame):
     raise Exception("end of time")
 
 
-from src.pyrdf2vec.utils.validation import (  # isort: skip
+from ..utils.validation import (  # isort: skip
     _check_max_depth,
     _check_jobs,
     _check_max_walks,
@@ -119,8 +119,8 @@ class Walker(ABC):
         self.sampler.random_state = self.random_state
 
     def extract(
-        self, kg: KG, entities: Entities, verbose: int = 0, walk_path=None,
-        batch_mode: str='in_memory'
+            self, kg: KG, entities: Entities, verbose: int = 0, walk_path=None,
+            batch_mode: str = 'in_memory'
     ) -> List[List[SWalk]]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
@@ -170,16 +170,16 @@ class Walker(ABC):
             lock = manager.Lock()
             entities = [(entity, lock) for entity in entities]
             with multiprocessing.Pool(process, self._init_worker, [kg]) as pool:
-                #tqdm(
-                #    pool.imap(self._proc, (entities, walk_path)),
-                #    total=len(entities),
-                #    disable=True if verbose == 0 else False,
-                #)
+                # tqdm(
+                #     pool.imap(self._proc, (entities, walk_path)),
+                #     total=len(entities),
+                #     disable=True if verbose == 0 else False,
+                # )
                 res = list(
                     tqdm(
                         pool.imap(self._proc, entities),
                         total=len(entities),
-                        #disable=True,
+                        # disable=True,
                         disable=True if verbose == 0 else False,
 
                     )
@@ -228,12 +228,11 @@ class Walker(ABC):
 
         """
         return []
-        return list(
-            walks
-            for entity_to_walks in res
-            for walks in entity_to_walks.values()
-        )
-
+        # return list(
+        #     walks
+        #     for entity_to_walks in res
+        #     for walks in entity_to_walks.values()
+        # )
 
     def _proc(self, entity: str) -> EntityWalks:
         """Executed by each process.
@@ -261,20 +260,18 @@ class Walker(ABC):
 
         w = 0
         for walk in entity_walks:
-            #with lock:
-            with open(os.path.join(walk_path, entity.replace("/", "__").replace(':', 'Y')  + "_" + str(w) + ".txt"), 'w') as f:
-            #with open(os.path.join(walk_path,
-             #                          'walks' + ".txt"), 'a') as f:
+            # with lock:
+            with open(os.path.join(walk_path, entity.replace("/", "__").replace(':', 'Y') + "_" + str(w) + ".txt"),
+                      'w') as f:
+                # with open(os.path.join(walk_path,
+                #                          'walks' + ".txt"), 'a') as f:
                 for e in walk:
-                     f.write(e.split('/')[-1])
-                     f.write(' ')
-                #f.write('\n')
-            #with open(os.path.join(walk_path, entity.replace("/", "__").replace(':', 'Y') + "_" + str(w) + ".json"), "w") as fp:
+                    f.write(e.split('/')[-1])
+                    f.write(' ')
+                # f.write('\n')
+            # with open(os.path.join(
+            # walk_path, entity.replace("/", "__").replace(':', 'Y') + "_" + str(w) + ".json"), "w") as fp:
             #    json.dump(walk, fp)
             w += 1
         return self._extract(kg, Vertex(entity))  # type: ignore
-        #return None
-
-
-
-
+        # return None

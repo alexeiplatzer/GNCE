@@ -2,9 +2,9 @@ from typing import Set
 
 import attr
 
-from src.pyrdf2vec.graphs import KG, Vertex
-from src.pyrdf2vec.typings import EntityWalks, List, SWalk
-from src.pyrdf2vec.walkers import RandomWalker
+from ..graphs import KG, Vertex
+from ..typings import EntityWalks, List, SWalk
+from ..walkers import RandomWalker
 
 
 @attr.s

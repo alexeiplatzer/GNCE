@@ -156,7 +156,6 @@ def RunEpoch(split,
             loss = F.binary_cross_entropy_with_logits(
                 xbhat, xb, size_average=False) / xbhat.size()[0]
 
-
         else:
             if model.input_bins is None:
                 # NOTE: we have to view() it in this order due to the mask
@@ -175,7 +174,8 @@ def RunEpoch(split,
         if step % log_every == 0:
             if split == 'train':
                 print(
-                    'Train Epoch {} Iter {}, {} entropy gap {:.4f} bits (loss-original: {} loss {:.3f}, data {:.3f}) {:.5f} lr'
+                    'Train Epoch {} Iter {}, {} entropy gap {:.4f} bits (loss-original: {} loss {:.3f}, data {:.3f}) '
+                    '{:.5f} lr'
                     .format(epoch_num, step, split,
                             loss.item() / np.log(2) - table_bits,
                             loss.item(),
@@ -210,6 +210,7 @@ def ReportModel(model, blacklist=None):
     print(model)
     return mb
 
+
 def MakeMade(scale, cols_to_train, seed, fixed_ordering=None):
 
     model = made.MADE(
@@ -231,6 +232,7 @@ def MakeMade(scale, cols_to_train, seed, fixed_ordering=None):
 
     return model
 
+
 def InitWeight(m):
     if type(m) == made.MaskedLinear or type(m) == nn.Linear:
         nn.init.xavier_uniform_(m.weight)
@@ -246,9 +248,8 @@ def TrainTask(seed=0):
     assert args.dataset in ['swdf_star_2', 'swdf_chain_2']
     if args.dataset == 'swdf_chain_2':
         table = datasets.LoadChain2('swdf_chain_2.csv')
-    elif args.dataset=='swdf_star_2':
+    elif args.dataset == 'swdf_star_2':
         table = datasets.LoadStar2('swdf_star_2.csv')
-
 
     table_bits = Entropy(
         table,
@@ -269,7 +270,8 @@ def TrainTask(seed=0):
     else:
         assert False, args.dataset
 
-    #report information about the model such as the number of neurons in every layer, the size of the model parameters etc..
+    # report information about the model such as the number of neurons in every layer,
+    # the size of the model parameters etc..
     mb = ReportModel(model)
 
     print('Applying InitWeight()')
@@ -317,7 +319,6 @@ def TrainTask(seed=0):
     model_nats = np.mean(all_losses)
     model_bits = model_nats / np.log(2)
     model.model_bits = model_bits
-
 
     if seed is not None:
         PATH = 'models/{}-{:.1f}MB-model{:.3f}-data{:.3f}-{}-{}epochs-seed{}.pt'.format(

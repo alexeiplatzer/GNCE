@@ -5,8 +5,8 @@ from typing import Dict, List, Optional, Set, Tuple
 import attr
 import numpy as np
 
-from src.pyrdf2vec.graphs import KG
-from src.pyrdf2vec.typings import Hop, Walk
+from ..graphs import KG
+from ..typings import Hop, Walk
 
 
 class SamplerNotSupported(Exception):

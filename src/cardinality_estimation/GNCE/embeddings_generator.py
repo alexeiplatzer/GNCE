@@ -1,15 +1,19 @@
-from src.pyrdf2vec.graphs import KG
-from src.pyrdf2vec import RDF2VecTransformer
-from src.pyrdf2vec.embedders import Word2Vec
-from src.pyrdf2vec.walkers import RandomWalker
 import json
-from tqdm import tqdm
 import sys
 import time
-from GNCE import PROJECT_PATH, DATASETS_PATH
+from tqdm import tqdm
+
+# from GNCE import PROJECT_PATH, DATASETS_PATH
+from .. import PROJECT_ROOT_PATH, DATASETS_PATH
+
+from ..pyrdf2vec.graphs import KG
+from ..pyrdf2vec import RDF2VecTransformer
+from ..pyrdf2vec.embedders import Word2Vec
+from ..pyrdf2vec.walkers import RandomWalker
 
 # Adding edited version of pyrdf2vec to path
-sys.path.append(f"{PROJECT_PATH}/pyrdf2vec")
+# sys.path.append(f"{PROJECT_PATH}/pyrdf2vec")
+
 
 def uri_to_id(uri):
     return uri.split('/')[-1]
@@ -59,12 +63,11 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
     :param sparql_endpoint: url of the remote sparql endpoint, if used
     :return: None
     """
-    #GRAPH = KG(kg_file, skip_verify=True)
+    # GRAPH = KG(kg_file, skip_verify=True)
     GRAPH = KG(sparql_endpoint, skip_verify=True)
 
     # Dict to hold several runtimes
     timing_dict = {}
-
 
     if remote:
         entities = entities
@@ -76,23 +79,21 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
             test_entities = [entity.name for entity in list(GRAPH._vertices)]
             entities = set(train_entities + test_entities)
 
-        #Create the RDF2vec model
+    # Create the RDF2vec model
     transformer = RDF2VecTransformer(
         Word2Vec(epochs=10, vector_size=100),
         walkers=[RandomWalker(4, max_walks=5, with_reverse=True, n_jobs=12, md5_bytes=None)],
         verbose=2, batch_mode='onefile'
     )
 
-
-    # Count Occurences of nodes
+    # Count occurrences of nodes
     occurrences = {}
-
 
     elements_to_remove = []
     print("Calculating Occurences")
     occurrence_from_file = True
 
-    #Start Time of Occurrence Calculation:
+    # Start Time of Occurrence Calculation:
     occurence_start_time = time.time()
 
     if occurrence_from_file:
@@ -134,11 +135,10 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
         # file.close()
     else:
         raise NotImplementedError
-    #print("Occurences")
-    #print(occurrences)
+    # print("Occurences")
+    # print(occurrences)
 
-
-    #Saving Occurences
+    # Saving occurrences
     with open(dataset_name + "_ocurrences.json", "w") as fp:
         json.dump(occurrences, fp)
 
@@ -150,12 +150,11 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
     timing_dict['n_atoms_occurrence'] = n_atoms_occurrence
     timing_dict['time_per_atom_occurrence'] = time_per_atom_occurrence
 
-
     # Deleting old walks:
     import os
     import shutil
     # Define the path of the walk folder
-    folder_path = f"{PROJECT_PATH}/walks"
+    folder_path = f"{PROJECT_ROOT_PATH}/walks"
     # Delete the folder if it exists
     if os.path.exists(folder_path):
         shutil.rmtree(folder_path)
@@ -167,10 +166,9 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
     # Timing for embedding calculation
     embedding_start_time = time.time()
 
-
     # Generate the embeddings
     print("Starting to fit model")
-    #embeddings, literals = transformer.fit(GRAPH, entities)
+    # embeddings, literals = transformer.fit(GRAPH, entities)
     transformer.fit(GRAPH, entities)
     print("Finished fitting model")
 
@@ -196,10 +194,8 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
             print(entity)
             raise
 
-
     print(len(occurrences))
     print(len(test_entities_cleaned))
-
 
     embedding_end_time = (time.time() - embedding_start_time) * 1000
     n_atoms_embeddings = len(test_entities_cleaned)
@@ -237,10 +233,9 @@ if __name__ == "__main__":
     #    entities += query['x']
 
     with open('/home/tim/Datasets/lubm/star/Joined_Queries.json', 'r') as f:
-       queries = json.load(f)
+        queries = json.load(f)
     for query in queries:
-       entities += query['x']
-
+        entities += query['x']
 
     entities = list(set(entities))
     print(entities)
@@ -249,9 +244,5 @@ if __name__ == "__main__":
 
     print('Using ', len(entities), ' entities for RDF2Vec')
 
-
     print('Starting...')
     get_embeddings("lubm", f"{DATASETS_PATH}/lubm/graph/lubm.ttl", remote=True, entities=entities, sparql_endpoint="http://localhost:8909/sparql/")
-
-
-

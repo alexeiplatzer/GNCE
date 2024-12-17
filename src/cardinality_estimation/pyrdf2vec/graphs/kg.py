@@ -9,10 +9,10 @@ import rdflib
 from cachetools import Cache, TTLCache, cachedmethod
 from tqdm import tqdm
 
-from src.pyrdf2vec.connectors import SPARQLConnector
-from src.pyrdf2vec.graphs.vertex import Vertex
-from src.pyrdf2vec.typings import Entities, Hop, Literal, Literals
-from src.pyrdf2vec.utils.validation import _check_location
+from ..connectors import SPARQLConnector
+from ..graphs.vertex import Vertex
+from ..typings import Entities, Hop, Literal, Literals
+from ..utils.validation import _check_location
 
 
 @attr.s

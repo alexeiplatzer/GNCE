@@ -2,13 +2,14 @@ import json
 import random
 from tqdm import tqdm
 import copy
-from GNCE import DATASETS_PATH
+
+from ... import DATASETS_PATH
 
 
 def query_remove_duplicates(data):
     # Testing with respect to invariance of triple permutation and ignoring distinction between variables
 
-    print("Overall Length of data: " , len(data))
+    print("Overall Length of data: ", len(data))
 
     new_data = []
 
@@ -43,12 +44,11 @@ def query_remove_duplicates(data):
     print("Found and removed ", same_queries, " duplicates !")
     print("Resulting Length of data: ", len(new_data))
 
-
     return new_data
 
 
 if __name__ == "__main__":
-    #Load Data
+    # Load Data
     data = []
     with open(f"{DATASETS_PATH}/lubm/star/Joined_Queries.json") as f:
         test_data = json.load(f)
@@ -64,7 +64,6 @@ if __name__ == "__main__":
     #     data += test_data
     new_data = query_remove_duplicates(data)
 
-    #Saving Cleaned Data to file
+    # Saving Cleaned Data to file
     with open(f"{DATASETS_PATH}/lubm/star/Joined_Queries.json", "w") as f:
         json.dump(new_data, f)
-

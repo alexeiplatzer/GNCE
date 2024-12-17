@@ -10,7 +10,7 @@ import numpy as np
 import requests
 from cachetools import Cache, TTLCache, cachedmethod
 
-from src.pyrdf2vec.typings import Literal, Response
+from typings import Literal, Response
 
 
 @attr.s

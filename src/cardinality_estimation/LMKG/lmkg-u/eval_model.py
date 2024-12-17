@@ -77,6 +77,7 @@ parser.add_argument('--query-type', type=str, default='star', help='The query ty
 
 args = parser.parse_args()
 
+
 def MakeTable():
     assert args.dataset in ['swdf_star_2', 'swdf_chain_2']
     if args.dataset == 'swdf_chain_2':
@@ -99,6 +100,7 @@ def ErrorMetric(est_card, card):
     if card == 0 and est_card == 0:
         return 1.0
     return max(est_card / card, card / est_card)
+
 
 def Query(estimators,
           do_print=False,
@@ -149,7 +151,7 @@ def RunN(table,
          oracle_est=None,
          needed_train_data=None,
          query_type='star'):
-    '''
+    """
      Read existing queries and compress, change the path to the queries
     :param table:
     :param cols:
@@ -163,7 +165,7 @@ def RunN(table,
     :param needed_train_data:
     :param query_type:
     :return:
-    '''
+    """
     log_every = 500
 
     # the element which was used for compressing the columns
@@ -194,7 +196,8 @@ def RunN(table,
 
             final_columns_for_query = list()
             final_column_values = list()
-            # cannot take 'i' since it doesn't correspond to the actual number of columns that are present after the modification
+            # cannot take 'i' since it doesn't correspond to the actual number of columns
+            # that are present after the modification
             modified_columns_index = 0
             for i, query_part in enumerate(query_parts):
                 # only take the columns that are bound (not *)
@@ -228,7 +231,8 @@ def RunN(table,
                         for num_rem, rem_val in enumerate(reversed(all_reminders)):
                             # store the id of the column
                             final_columns_for_query.append(cols[modified_columns_index])
-                            if num_rem + 1 < len(all_reminders): # do not increment for the last column, this is done outside of the if/else statement
+                            if num_rem + 1 < len(all_reminders):
+                                # do not increment for the last column, this is done outside of the if/else statement
                                 modified_columns_index += 1
                             # store the value of the column
                             final_column_values.append(int(rem_val))
@@ -254,7 +258,6 @@ def RunN(table,
             queries.append(final_column_values)
             discretized_queries.append(new_column_values)
 
-
             # create the actual query
             query = np.array(final_columns_for_query), np.array(['='] * int(len(final_columns_for_query))), np.array(
                 final_column_values), np.array(new_column_values)
@@ -263,12 +266,13 @@ def RunN(table,
             Query(estimators,
                   False,  # do not print anything
                   oracle_card=oracle_cards[i] if oracle_cards is not None and i < len(oracle_cards) else None,
-                  query=query,#custom_query
+                  query=query,  # custom_query
                   table=table,
                   oracle_est=oracle_est,
                   true_cardinality=true_card)
 
     return False
+
 
 def MakeMade(scale, cols_to_train, seed, fixed_ordering=None):
     model = made.MADE(
@@ -289,6 +293,7 @@ def MakeMade(scale, cols_to_train, seed, fixed_ordering=None):
     ).to(DEVICE)
 
     return model
+
 
 def ReportModel(model, blacklist=None):
     ps = []

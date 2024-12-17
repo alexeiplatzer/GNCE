@@ -5,15 +5,15 @@ import os
 import pickle
 import time
 from typing import List, Sequence, Tuple
+from tqdm import tqdm
 
 import attr
 
-from src.pyrdf2vec.embedders import Embedder, Word2Vec
-from src.pyrdf2vec.graphs import KG
-from src.pyrdf2vec.typings import Embeddings, Entities, Literals, SWalk
-from src.pyrdf2vec.walkers import RandomWalker, Walker
-from src.pyrdf2vec import WALK_PATH
-from tqdm import tqdm
+from embedders import Embedder, Word2Vec
+from graphs import KG
+from typings import Embeddings, Entities, Literals, SWalk
+from walkers import RandomWalker, Walker
+from . import WALK_PATH
 
 
 @attr.s
@@ -64,7 +64,6 @@ class RDF2VecTransformer:
         ),
     )
 
-
     verbose = attr.ib(
         kw_only=True,
         default=0,
@@ -73,7 +72,6 @@ class RDF2VecTransformer:
     )
 
     batch_mode = attr.ib(default='in_memory', type=str)
-
 
     _is_extract_walks_literals = attr.ib(
         init=False,
@@ -90,7 +88,6 @@ class RDF2VecTransformer:
 
     _pos_entities = attr.ib(init=False, type=List[str], factory=list)
     _pos_walks = attr.ib(init=False, type=List[int], factory=list)
-
 
     def fit(
         self, kg: KG, entities: Entities, is_update: bool = False
@@ -113,15 +110,14 @@ class RDF2VecTransformer:
         if self.verbose == 2:
             print(self.embedder)
 
-
-        #walks = self.get_walks(kg, entities)
+        # walks = self.get_walks(kg, entities)
         chunk_size = 10000
         for i in tqdm(range(0, len(entities), chunk_size)):
             self.get_walks(kg, entities[i:i+chunk_size])
-            #Counting how many entities have been covered with the walks
+            # Counting how many entities have been covered with the walks
             entities_done = []
             for file in os.listdir(WALK_PATH):
-               entities_done.append(file.replace("__", "/").replace("Y", ":").split("_")[0])
+                entities_done.append(file.replace("__", "/").replace("Y", ":").split("_")[0])
 
             entities_done = set(entities_done)
             print('Covered ', len(entities_done)/len(entities), ' of all entities')
@@ -132,7 +128,7 @@ class RDF2VecTransformer:
         toc = time.perf_counter()
 
         if self.verbose >= 1:
-            #n_walks = sum([len(entity_walks) for entity_walks in walks])
+            # n_walks = sum([len(entity_walks) for entity_walks in walks])
             n_walks = len(os.listdir(self.walk_path))
 
             print(f"Fitted {n_walks} walks ({toc - tic:0.4f}s)")
@@ -205,10 +201,10 @@ class RDF2VecTransformer:
         toc = time.perf_counter()
 
         self._update(self._entities, entities)
-        #self._update(self._walks, walks)
+        # self._update(self._walks, walks)
 
         if self.verbose >= 1:
-            #n_walks = sum([len(entity_walks) for entity_walks in walks])
+            # n_walks = sum([len(entity_walks) for entity_walks in walks])
             n_walks = len(os.listdir(self.walk_path))
             print(
                 f"Extracted {n_walks} walks "

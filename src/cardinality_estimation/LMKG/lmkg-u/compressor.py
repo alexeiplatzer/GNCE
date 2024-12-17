@@ -2,24 +2,25 @@
     Compression of columns that have large number of unique domain values
 """
 
+
 class Compressor:
     def __init__(self, root):
-        '''
+        """
         Class that splits a column into two 'root' separate columns
         :param root: the number of columns that should be created
-        '''
+        """
         self.split_columns_index = set()
         self.split_columns_dividers = dict()
         self.root = root
 
     def divide_column(self, column_values, column_divider, original_col_index):
-        '''
+        """
         Method for splitting the column value based on the largest root number.
         :param column_values: all the values from the column
         :param col_name: the column title
         :param column_divider: the number which will be used for division
         :return:
-        '''
+        """
         quotient_column = []
         reminder_column = []
 

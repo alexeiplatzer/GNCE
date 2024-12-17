@@ -1,21 +1,24 @@
 import json
 import random
-from models import TripleModelAdapt
 import torch
 from tqdm import tqdm
 import numpy as np
-from src.GNCE.utils import StatisticsLoader, get_query_graph_data_new, ToUndirectedCustom
 import os
 from torch_geometric.data import DataLoader
 from time import time
 import matplotlib.pyplot as plt
-from GNCE import DATASETS_PATH
+
+from .. import DATASETS_PATH
+
+from models import TripleModelAdapt
+from utils import StatisticsLoader, get_query_graph_data_new, ToUndirectedCustom
 
 
 def q_error(pred, gt):
     gt_exp = torch.exp(gt)
     pred_exp = torch.exp(pred.squeeze())
     return torch.max(gt_exp / pred_exp, pred_exp / gt_exp)
+
 
 if __name__ == "__main__":
     dataset = 'swdf'
@@ -29,17 +32,16 @@ if __name__ == "__main__":
     test_data = data[int(0.8 * len(data)):][:]
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    #device = 'cpu'
-
+    # device = 'cpu'
 
     model = TripleModelAdapt().to(device).double()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
-    #optimizer = torch.optim.SGD(model.parameters(), lr=0.0001)
+    # optimizer = torch.optim.SGD(model.parameters(), lr=0.0001)
 
     criterion = torch.nn.MSELoss()
     batch_size = 1
 
-    n_graphs= 1000
+    n_graphs = 1000
 
     statistics = StatisticsLoader(os.path.join(f"{DATASETS_PATH}", dataset, "statistics"))
 
@@ -54,12 +56,11 @@ if __name__ == "__main__":
         # Get graph representation of query
         data, n_atoms = get_query_graph_data_new(datapoint, statistics, device, unknown_entity='false', n_atoms=n_atoms)
 
-
         # Transform graph to undirected representation, with feature indicating edge direction
         data = ToUndirectedCustom(merge=False)(data)
         data = data.to_homogeneous()
         y = np.log(datapoint["y"])
-        #y = np.array(datapoint["y"]).astype(np.float64)
+        # y = np.array(datapoint["y"]).astype(np.float64)
 
         y = torch.tensor(y)
         data.y = y
@@ -74,7 +75,7 @@ if __name__ == "__main__":
         data = ToUndirectedCustom(merge=False)(data)
         data = data.to_homogeneous()
         y = np.log(datapoint["y"])
-        #y = np.array(datapoint["y"]).astype(np.float64)
+        # y = np.array(datapoint["y"]).astype(np.float64)
 
         y = torch.tensor(y)
         data.y = y
@@ -103,7 +104,7 @@ if __name__ == "__main__":
             batch_q_error = q_error(out, batch.y)
             train_q_error += torch.sum(batch_q_error).item()  # Sum q-errors in the batch
             num_batches += len(batch.y)
-        #print(f'Epoch {epoch+1}, Loss: {train_loss.item()}')
+        # print(f'Epoch {epoch+1}, Loss: {train_loss.item()}')
         avg_train_loss = train_loss / num_batches
         avg_train_q_error = train_q_error / num_batches
         print(f'Epoch {epoch+1}, Train Loss: {avg_train_loss}, Avg Train Q-Error: {avg_train_q_error}')
@@ -143,7 +144,6 @@ if __name__ == "__main__":
         avg_test_q_error = test_q_error / num_batches
         print(f'Epoch {epoch+1}, Test Loss: {avg_test_loss}, Avg Test Q-Error: {avg_test_q_error}')
         print('\n')
-
 
     total_time = time() - start_time
     print('Total Training Time: ', total_time)

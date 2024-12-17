@@ -3,9 +3,9 @@ from typing import DefaultDict
 
 import attr
 
-from src.pyrdf2vec.graphs import KG
-from src.pyrdf2vec.samplers import Sampler
-from src.pyrdf2vec.typings import Hop
+from ..graphs import KG
+from ..samplers import Sampler
+from ..typings import Hop
 
 
 @attr.s

@@ -9,9 +9,10 @@ import random
 from pathlib import Path
 from tqdm import tqdm
 
+
 def run_gcare(dataset, query_type, eval_folder, query_filename, inductive, DATASETPATH=None):
     methods = ['wj', 'cset', 'jsub', 'impr']
-    #methods = ['impr']
+    # methods = ['impr']
     assert DATASETPATH is not None
 
     # Loading Queries and IDX transform mappings
@@ -42,7 +43,6 @@ def run_gcare(dataset, query_type, eval_folder, query_filename, inductive, DATAS
         pred_times = []
         Path(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}").mkdir(parents=True, exist_ok=True)
 
-
         # Predicting top n queries of the testset
         for query in tqdm(data[:]):
             query_to_gcare(query["triples"], 0, id_to_id_mapping=id_to_id_mapping,
@@ -64,9 +64,9 @@ def run_gcare(dataset, query_type, eval_folder, query_filename, inductive, DATAS
         np.save(os.path.join(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/sizes.npy"), sizes)
         np.save(os.path.join(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/pred_times.npy"), pred_times)
 
-
         with open(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/results.json", 'w') as file:
             json.dump(result_data, file, indent=4)
+
 
 def predict(method:str, dataset: str):
     pass
@@ -79,12 +79,10 @@ def predict(method:str, dataset: str):
     if method == 'bsk':
         os.environ['GCARE_BSK_BUDGET'] = '4096'
 
-
     command = f'./run-exp.sh {method} {dataset} {p} {seed} {repeat} {result_dir}'
     result = subprocess.run(f'{command} | grep -A 2 "Average Time"',
                            check=True, shell=True, stdout=subprocess.PIPE)
     result = result.stdout.decode()
-
 
     lines = result.strip().split('\n')
     predicted_cardinalities = np.asarray(lines[2].split(' ')[1:], dtype=float)

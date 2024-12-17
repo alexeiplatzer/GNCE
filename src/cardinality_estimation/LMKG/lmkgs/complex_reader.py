@@ -1,9 +1,11 @@
 import numpy as np
 import time
-from GNCE.LMKG.lmkgs.query_graph import QueryGraph
 import json
 from tqdm import tqdm
 import random
+
+from .query_graph import QueryGraph
+
 
 def star_to_triples(query_parts, dict_join, store_join_ids, var_id, special_format = False):
     """
@@ -26,7 +28,6 @@ def star_to_triples(query_parts, dict_join, store_join_ids, var_id, special_form
 
     s = pattern_parts[0]
     s_var = s
-
 
     if 0 in dict_join:
         s_var = dict_join[0]
@@ -134,7 +135,6 @@ def create_var_id(var, var_id):
     return var, var_id
 
 
-
 def read_complex_queries(files, d, b, n, e, limit = 100_000_000):
     """
     Processes the example files
@@ -239,8 +239,8 @@ def custom_reader(file, d, b, n, e, train: bool = None, dataset: str = None, ind
 
     if inductive == 'false':
         with open(file) as f:
-           data = json.load(f)
-            #data = data[20000:]
+            data = json.load(f)
+            # data = data[20000:]
         random.Random(4).shuffle(data)
         if train:
             data = data[:int(0.8 * len(data))][:100]
@@ -278,8 +278,8 @@ def custom_reader(file, d, b, n, e, train: bool = None, dataset: str = None, ind
             n_atoms_query.update(tp)
             if "example" in tp[2]:
                 pass
-                #skip = True
-                #break
+                # skip = True
+                # break
             # if mapping:
             #     if not "?" in tp[1]:
             #         tp[1] = str(mapping[str(tp[1])])
@@ -293,7 +293,7 @@ def custom_reader(file, d, b, n, e, train: bool = None, dataset: str = None, ind
                         print(query)
                         raise
             if predicate_mapping:
-                if not "?" in tp[1]:
+                if "?" not in tp[1]:
                     tp[1] = str(predicate_mapping[tp[1]])
 
             if dataset == 'swdf' or dataset == 'swdf_inductive':
@@ -324,7 +324,7 @@ def custom_reader(file, d, b, n, e, train: bool = None, dataset: str = None, ind
             n_atoms)
 
 
-def read_queries(file, d, b, n, e, query_type = "star", limit = 100_000_000):
+def read_queries(file, d, b, n, e, query_type="star", limit=100_000_000):
     """
     Processes the example files
     :param files: the file contains two queries joined by the last and the first attribute
@@ -381,7 +381,6 @@ def read_queries(file, d, b, n, e, query_type = "star", limit = 100_000_000):
 
     end_time = time.time() - time_start
     return np.array(X), np.array(A), np.array(E), np.array(y), end_time
-
 
 
 def read_combined(d, b, n, e, file_name_star, file_name_chain, train_tuples = 10000, test_mode = "star"):

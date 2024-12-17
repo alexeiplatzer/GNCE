@@ -1,5 +1,6 @@
 import numpy as np
-from GNCE.LMKG.lmkgs.data_processor_release import numpy_binary
+from .data_processor_release import numpy_binary
+
 
 class QueryGraph:
     """ Query Graph: containing the query graph for learning """
@@ -44,7 +45,6 @@ class QueryGraph:
         self.edges_sorted.sort()
         # print("Sorted nodes: " + str(self.nodes_sorted) + ", Sorted edges: " + str(self.edges_sorted))
 
-
         ''' Initialization of the required matrices '''
         # matrix_mode == 3:
         bits_d = int(np.ceil(np.log2(self.d))) + 1
@@ -82,7 +82,6 @@ class QueryGraph:
                 x[n_idx][i] = arr[i]
 
         return x, ep, a, self.cardinality
-
 
     def handle_variable(self, x):
         """

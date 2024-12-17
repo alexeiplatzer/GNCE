@@ -5,7 +5,7 @@ from typing import List
 
 import attr
 
-from src.pyrdf2vec.typings import Embeddings, Entities, SWalk
+from ..typings import Embeddings, Entities, SWalk
 
 
 @attr.s

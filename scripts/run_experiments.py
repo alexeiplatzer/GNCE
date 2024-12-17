@@ -1,22 +1,22 @@
-from src.GNCE.cardinality_estimation import train_GNCE
-# from LMKG.lmkgs.lmkgs import run_lmkg
-from src.GCARE.run_estimation import run_gcare
-from datetime import datetime
-from GNCE import GNCE_PATH
-from GNCE import DATASETS_PATH
 import time
 import json
 import os
 import sys
+from datetime import datetime
+
+from src.cardinality_estimation import PACKAGE_PATH
+from src.cardinality_estimation import DATASETS_PATH
+from src.cardinality_estimation.GNCE.cardinality_estimation import train_GNCE
+from src.cardinality_estimation.LMKG.lmkgs.lmkgs import run_lmkg
+from src.cardinality_estimation.GCARE.run_estimation import run_gcare
 
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
-os.chdir(GNCE_PATH + '/LMKG/lmkgs')
-sys.path.append(GNCE_PATH + '/LMKG/lmkgs')
-sys.path.append(GNCE_PATH + '/GCARE')
+# os.chdir(GNCE_PATH + '/LMKG/lmkgs')
+# sys.path.append(GNCE_PATH + '/LMKG/lmkgs')
+# sys.path.append(GNCE_PATH + '/GCARE')
 
 
 starttime = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-
 
 query_filename = "Joined_Queries.json"
 
@@ -34,13 +34,14 @@ inductive = 'false'
 
 if run_LMKG:
     print("**** Starting LMKG ****")
+    os.chdir(PACKAGE_PATH / 'LMKG' / 'lmkgs')
     starting_time_lmkg = time.time()
     # How many atoms will be trained and evaluated on
     n_atoms_lmkg = 0
-    n_atoms_lmkg += run_lmkg(dataset=dataset, query_form=query_type, eval_folder=starttime, query_filename=query_filename, train=True,
-                             inductive=inductive, DATASETPATH=DATASETS_PATH)
-    n_atoms_lmkg += run_lmkg(dataset=dataset, query_form=query_type, eval_folder=starttime, query_filename=query_filename, train=False,
-                             inductive=inductive, DATASETPATH=DATASETS_PATH)
+    n_atoms_lmkg += run_lmkg(dataset=dataset, query_form=query_type, eval_folder=starttime,
+                             query_filename=query_filename, train=True, inductive=inductive, DATASETPATH=DATASETS_PATH)
+    n_atoms_lmkg += run_lmkg(dataset=dataset, query_form=query_type, eval_folder=starttime,
+                             query_filename=query_filename, train=False, inductive=inductive, DATASETPATH=DATASETS_PATH)
     # How long training and evaluating takes per atom in ms
     total_training_time_per_atom = (time.time() - starting_time_lmkg)/n_atoms_lmkg * 1000
     print(f'Training LMKG took {total_training_time_per_atom} ms per atom')
@@ -53,14 +54,16 @@ if run_LMKG:
 
 if run_GNCE:
     print("**** Starting GNCE ****")
-    os.chdir(GNCE_PATH)
+    os.chdir(PACKAGE_PATH / 'GNCE')
     start = time.time()
     n_atoms, start_time_gnce,  end_time_gnce = train_GNCE(dataset=dataset, query_type=query_type,
                                                           query_filename=query_filename, eval_folder=starttime,
                                                           inductive=inductive, DATASETPATH=DATASETS_PATH)
 
     end = time.time()
-    total_training_time_per_atom = (end - start)/n_atoms * 1000  # Note: start_time_gnce and end_time_gnce are the times for only the training loop, without data loading
+
+    # Note: start_time_gnce and end_time_gnce are the times for only the training loop, without data loading
+    total_training_time_per_atom = (end - start)/n_atoms * 1000
     print(f'Training GNCE took {total_training_time_per_atom} ms per atom')
     print(f'Trained on a total of {n_atoms} token')
     training_timing = {'total_training_time_per_atom': total_training_time_per_atom, "n_atoms": n_atoms,
@@ -71,6 +74,6 @@ if run_GNCE:
 
 if run_GCARE:
     print("**** Starting GCARE ****")
-    os.chdir(GNCE_PATH)
+    os.chdir(PACKAGE_PATH / 'GCARE')
     run_gcare(dataset=dataset, query_type=query_type, eval_folder=starttime, query_filename=query_filename,
-               inductive=inductive)
+              inductive=inductive)

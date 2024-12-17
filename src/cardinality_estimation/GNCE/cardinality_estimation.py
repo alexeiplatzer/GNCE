@@ -1,22 +1,25 @@
-import torch
-#from pyrdf2vec.graphs import KG, Vertex
-#from pyrdf2vec import RDF2VecTransformer
-#from pyrdf2vec.embedders import Word2Vec
-#from pyrdf2vec.walkers import RandomWalker
-import torch.nn as nn
+import json
+import os
+import time
+import random
 from datetime import datetime
 from pathlib import Path
-import git
 
-import json
-import numpy as np
-from torch.nn import MSELoss
+import git
 from tqdm import tqdm
-import os
-import random
+
+import numpy as np
+import torch
+import torch.nn as nn
+from torch.nn import MSELoss
+
 from models import TripleModel
-from src.GNCE.utils import StatisticsLoader, get_query_graph_data_new, ToUndirectedCustom
-import time
+from utils import StatisticsLoader, get_query_graph_data_new, ToUndirectedCustom
+
+# from pyrdf2vec.graphs import KG, Vertex
+# from pyrdf2vec import RDF2VecTransformer
+# from pyrdf2vec.embedders import Word2Vec
+# from pyrdf2vec.walkers import RandomWalker
 
 
 class Q_Error(nn.Module):
@@ -38,14 +41,14 @@ class cardinality_estimator():
         self.graphfile = graphfile
         self.sim_measure = sim_measure
         self.DATASETPATH = DATASETPATH
-        #self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        # self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.device = "cpu"
 
         print("Using Device: ", self.device)
 
         try:
             if os.path.exists(os.path.join("Datasets", dataset_name, dataset_name + "_embeddings.json")):
-                #Load in memory statistics
+                # Load in memory statistics
                 with open(os.path.join("Datasets", dataset_name, dataset_name + "_embeddings.json")) as f:
                     self.statistics = json.load(f)
             else:
@@ -55,7 +58,6 @@ class cardinality_estimator():
         except:
             print("No statistics found")
             exit()
-
 
     def train_GNN(self, train_data, test_data, epochs=100, train=True, eval_folder=None, inductive='false',
                   preparation_time: float = None, batch_size=32, DATASETPATH=None):
@@ -74,7 +76,9 @@ class cardinality_estimator():
         # Folder for Results
         starttime = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
         starttime = eval_folder
-        Path(f"{DATASETPATH}/{self.dataset_name}/Results/{starttime}").mkdir(parents=True, exist_ok=True)  # Create folder if it doesn't exist
+
+        # Create folder if it doesn't exist
+        Path(f"{DATASETPATH}/{self.dataset_name}/Results/{starttime}").mkdir(parents=True, exist_ok=True)
 
         print("Starting Training...")
         test_mae = []
@@ -82,11 +86,10 @@ class cardinality_estimator():
         training_progress = []
         min_q_error = 9999999
         min_mae = 9999999
-        #model = GINmodel().to(self.device).double()
+        # model = GINmodel().to(self.device).double()
         model = TripleModel().to(self.device).double()
         # Optionally, start from a checkpoint
-        #model.load_state_dict(torch.load("model.pth"))
-
+        # model.load_state_dict(torch.load("model.pth"))
 
         # Start from a checkpoint
         # try:
@@ -98,7 +101,7 @@ class cardinality_estimator():
 
         optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
         loss = MSELoss()
-        #loss = Q_Error()
+        # loss = Q_Error()
 
         # How many atoms are in total in the queries:
         n_atoms = 0
@@ -112,11 +115,10 @@ class cardinality_estimator():
             for datapoint in tqdm(train_data):
                 # Get graph representation of query
                 if inductive == 'full':
-                    data, n_atoms = get_query_graph_data_new(datapoint, self.statistics, self.device, unknown_entity='false',
-                                                    n_atoms=n_atoms)
-                else:
                     data, n_atoms = get_query_graph_data_new(datapoint, self.statistics, self.device,
-                                                    n_atoms=n_atoms)
+                                                             unknown_entity='false', n_atoms=n_atoms)
+                else:
+                    data, n_atoms = get_query_graph_data_new(datapoint, self.statistics, self.device, n_atoms=n_atoms)
 
                 # Transform graph to undirected representation, with feature indicating edge direction
                 data = ToUndirectedCustom(merge=False)(data)
@@ -131,11 +133,10 @@ class cardinality_estimator():
             for datapoint in tqdm(test_data):
                 # Get graph representation of query
                 if inductive == 'full':
-                    data, n_atoms = get_query_graph_data_new(datapoint, self.statistics, self.device, unknown_entity='true',
-                                                    n_atoms=n_atoms)
-                else:
                     data, n_atoms = get_query_graph_data_new(datapoint, self.statistics, self.device,
-                                                    n_atoms=n_atoms)
+                                                             unknown_entity='true', n_atoms=n_atoms)
+                else:
+                    data, n_atoms = get_query_graph_data_new(datapoint, self.statistics, self.device, n_atoms=n_atoms)
 
                 # Transform graph to undirected representation, with feature indicating edge direction
                 data = ToUndirectedCustom(merge=False)(data)
@@ -150,7 +151,6 @@ class cardinality_estimator():
             # Preparation Time per atom in ms
             preparation_time = preparation_time/n_atoms * 1000
 
-
             model.train()
 
             start_time_training = time.time()
@@ -164,7 +164,7 @@ class cardinality_estimator():
                 i = 0
 
                 model.train()
-                #for datapoint in train_data:
+                # for datapoint in train_data:
                 for data, y in tqdm(X):
 
                     i += 1
@@ -194,7 +194,6 @@ class cardinality_estimator():
                     train_q_errors.append(np.max([np.abs(pred) / y, y / np.abs(pred)]))
 
                 print(f'Epoch {epoch}, Train Loss: {epoch_loss / len(train_data)}, Avg Train Q-Error: {np.mean(train_q_errors)}')
-
 
                 # Evaluating on test set:
                 abs_errors = []
@@ -235,32 +234,29 @@ class cardinality_estimator():
                 # Time per atom
                 time_per_atom = epoch_time/n_atoms
 
-
                 epoch_dict = {'epoch': epoch, 'duration': epoch_time, 'qerror': np.mean(q_errors),
                               'mae': np.mean(abs_errors), 'duration_per_atom': time_per_atom,
                               'preparation_time_per_atom': preparation_time}
                 training_progress.append(epoch_dict)
 
                 # Save model if it is the best so far
-                if (np.mean(q_errors) < min_q_error):
+                if np.mean(q_errors) < min_q_error:
                     print("New smallest Q-Error, saving model and statistics")
-                    #torch.save(model.state_dict(), "model.pth")
+                    # torch.save(model.state_dict(), "model.pth")
                     torch.save(model.state_dict(), f"{DATASETPATH}/{self.dataset_name}/Results/{starttime}/model.pth")
 
                     min_q_error = np.mean(q_errors)
                     np.save(os.path.join(DATASETPATH, self.dataset_name, "Results", "preds.npy"), preds)
                     np.save(os.path.join(DATASETPATH, self.dataset_name, "Results", "gts.npy"), gts)
                     np.save(os.path.join(DATASETPATH, self.dataset_name, "Results", "sizes.npy"), sizes)
-                if (np.mean(abs_errors) < min_mae):
+                if np.mean(abs_errors) < min_mae:
                     torch.save(model.state_dict(), f"{DATASETPATH}/{self.dataset_name}/Results/{starttime}/model_mae.pth")
 
                     min_mae = np.mean(abs_errors)
 
-
         if train:
             with open(f"{DATASETPATH}/{self.dataset_name}/Results/{starttime}/training_progress.json", 'w') as file:
                 json.dump(training_progress, file, indent=4)
-
 
         training_end_time = time.time()
 
@@ -329,7 +325,6 @@ class cardinality_estimator():
         print("Mean execution time: ", np.mean(exec_times))
         print("Mean execution time total: ", np.mean(exec_times_total))
 
-
         np.save(os.path.join(f"{DATASETPATH}/{self.dataset_name}/Results/{starttime}/preds.npy"), preds)
         np.save(os.path.join(f"{DATASETPATH}/{self.dataset_name}/Results/{starttime}/gts.npy"), gts)
         np.save(os.path.join(f"{DATASETPATH}/{self.dataset_name}/Results/{starttime}/sizes.npy"), sizes)
@@ -371,17 +366,11 @@ def train_GNCE(dataset: str, query_type: str, eval_folder:str, query_filename: s
 
     preparation_time += time.time() - start_time
 
-
     print("Training on: ", len(train_data), " queries")
     print("Evaluating on: ", len(test_data), " queries")
 
-
-    n_atoms, start_time_training, end_time_training = model.train_GNN(train_data, test_data, epochs=2, train=train, eval_folder=eval_folder, inductive=inductive,
-                    preparation_time=preparation_time, DATASETPATH=DATASETPATH)
+    n_atoms, start_time_training, end_time_training = (
+        model.train_GNN(train_data, test_data, epochs=2, train=train, eval_folder=eval_folder, inductive=inductive,
+                        preparation_time=preparation_time, DATASETPATH=DATASETPATH))
 
     return n_atoms, start_time_training, end_time_training
-
-
-
-
-

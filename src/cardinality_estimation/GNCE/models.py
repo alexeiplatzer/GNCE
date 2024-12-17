@@ -114,16 +114,14 @@ class TripleConv(MessagePassing):
 
     def message(self, x_i: Tensor, x_j: Tensor, edge_attr: Tensor) -> Tensor:
 
-
         # Switch i and j based on direction of triple:
         reverse = edge_attr[:, -1] == -1
 
         if self.DIRECTIONAL:
             x_i[reverse], x_j[reverse] = x_j[reverse], x_i[reverse]
 
-        #x_i[edge_attr[:, -1] == -1] = x_j[edge_attr[:, -1] == -1]
+        # x_i[edge_attr[:, -1] == -1] = x_j[edge_attr[:, -1] == -1]
         edge_attr = edge_attr[:, :-1]
-
 
         return self.lin(torch.cat((x_i, edge_attr, x_j), 1)).relu()
 
@@ -226,7 +224,6 @@ class TripleModelAdapt(torch.nn.Module):
         x = F.relu(x)
         x = self.lin2(x)
         return torch.abs(x)
-
 
 
 class GINmodel(torch.nn.Module):

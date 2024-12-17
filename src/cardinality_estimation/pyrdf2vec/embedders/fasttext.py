@@ -10,8 +10,8 @@ from gensim.models.fasttext import FastTextKeyedVectors
 from numpy import float32 as REAL
 from numpy import ones
 
-from src.pyrdf2vec.embedders import Embedder
-from src.pyrdf2vec.typings import Embeddings, Entities, SWalk
+from ..embedders import Embedder
+from ..typings import Embeddings, Entities, SWalk
 
 
 @attr.s(init=False)

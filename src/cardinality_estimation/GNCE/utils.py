@@ -70,9 +70,9 @@ class ToUndirectedCustom(BaseTransform):
                         inv_value = copy.deepcopy(value)
                         inv_value[0, -1] = -1
                         inv_store[key] = inv_value
-                        #value[0, -1] = -1
-                        #print(value.shape)
-                        #rint(value)
+                        # value[0, -1] = -1
+                        # print(value.shape)
+                        # print(value)
 
             else:
                 keys, values = [], []
@@ -113,10 +113,8 @@ class StatisticsLoader():
             print("Cant find embedding for", item)
             raise
             # Return a random embedding
-            statistic_dict = {"embedding": [random.uniform(0, 1) for i in range(100)], "occurence": 0}
-            return statistic_dict
-
-
+            # statistic_dict = {"embedding": [random.uniform(0, 1) for i in range(100)], "occurence": 0}
+            # return statistic_dict
 
 
 def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='false', n_atoms: int = None):
@@ -134,10 +132,10 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
     data = HeteroData()
     data = data.to(device)
     node_mapping = {}
-    n_edge_variables = 0 # todo remove, for testing
-    n_entities = 0 # todo remove, only for testing
-    n_edge_variables_random = random.randint(0, 5) # todo remove, for testing
-    n_entities_random = random.randint(0, 5) # todo remove, only for testing
+    n_edge_variables = 0  # todo remove, for testing
+    n_entities = 0  # todo remove, only for testing
+    n_edge_variables_random = random.randint(0, 5)  # todo remove, for testing
+    n_entities_random = random.randint(0, 5)  # todo remove, only for testing
     node_embeddings = []
     # Embeddings for variables in edges or nodes
     # edge has an additional dimension to indicate the direction of the edge
@@ -150,7 +148,6 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
     # Random number indicating if to use embeddings or not
     rand_num = random.random()
 
-
     np.random.seed(None)
 
     # Set to count the total unique atoms in the query
@@ -162,7 +159,7 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
     USE_OCCURRENCE = True
 
     # Whether to shuffle triples and start with a random integer for variable denoting
-    shuffled =True
+    shuffled = True
 
     triple_list = query_graph["triples"]
 
@@ -205,7 +202,7 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
 
         else:
             try:
-                #p = int(triple[1].replace("<http://example.com/", "").replace(">", ""))
+                # p = int(triple[1].replace("<http://example.com/", "").replace(">", ""))
                 p = triple[1].replace("<http://example.com/", "").replace(">", "")
 
             except:
@@ -246,7 +243,7 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
                 data["entity", p, "entity"].edge_attr = torch.tensor([feature_vector])
 
         # Adding the embeddings of s and o
-        if not s in node_mapping.keys():
+        if s not in node_mapping.keys():
             node_mapping[s] = n_entities
             n_entities += 1
             if "?" in s:
@@ -254,10 +251,10 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
                 # indicate index of variable in query
 
                 if shuffled:
-                    emb[0] = n_entities_random #todo
+                    emb[0] = n_entities_random  # todo
                 else:
                     emb[0] = node_mapping[s]  # todo
-                n_entities_random +=1 #todo
+                n_entities_random += 1  # todo
                 node_embeddings.append(emb)
             else:
                 if unknown_entity == 'false':
@@ -282,16 +279,16 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
                     feature_vector = [float(i) for i in idx_bin]
 
                 node_embeddings.append(feature_vector)
-        if not o in node_mapping.keys():
+        if o not in node_mapping.keys():
             node_mapping[o] = n_entities
             n_entities += 1
             if "?" in o:
                 emb = variable_embedding
                 if shuffled:
-                    emb[0] = n_entities_random #todo
+                    emb[0] = n_entities_random  # todo
                 else:
                     emb[0] = node_mapping[o]  # todo
-                n_entities_random +=1 #todo
+                n_entities_random += 1  # todo
                 node_embeddings.append(emb)
             else:
                 if unknown_entity == 'false':
@@ -317,7 +314,6 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
 
                 node_embeddings.append(feature_vector)
 
-
         # Finally, add the edge to the graph
         try:
             tp = torch.cat(
@@ -335,6 +331,7 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
         return data, n_atoms
     else:
         return data
+
 
 def get_query_graph_data(query_graph, statistics, device):
     data = HeteroData()
@@ -376,7 +373,7 @@ def get_query_graph_data(query_graph, statistics, device):
                 data["entity", p, "entity"].edge_attr = torch.tensor([feature_vector])
 
         # Adding the embeddings of s and o to
-        if not s in node_mapping.keys():
+        if s not in node_mapping.keys():
             node_mapping[s] = n_entities
             n_entities += 1
             if "?" in s:
@@ -387,7 +384,7 @@ def get_query_graph_data(query_graph, statistics, device):
                 feature_vector = statistics[s]["embedding"].copy()
                 feature_vector.append(statistics[s]["occurence"] / 16018)
                 node_embeddings.append(feature_vector)
-        if not o in node_mapping.keys():
+        if o not in node_mapping.keys():
             node_mapping[o] = n_entities
             n_entities += 1
             if "?" in o:

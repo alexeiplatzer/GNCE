@@ -144,7 +144,7 @@ class MADE(nn.Module):
         print('nin ' + str(nin))
         hs = [nin] + hidden_sizes + [sum(encoded_bins)]
         self.net = []
-        #create a NN with all the needed layers and their number of neurons
+        # create a NN with all the needed layers and their number of neurons
         for h0, h1 in zip(hs, hs[1:]):
             if residual_connections:
                 if h0 == h1:
@@ -161,13 +161,13 @@ class MADE(nn.Module):
                     MaskedLinear(h0, h1),
                     activation(inplace=True),
                 ])
-        #remove the last activation function
+        # remove the last activation function
         if not residual_connections:
             self.net.pop()
         self.net = nn.Sequential(*self.net)
 
         # modify the input layer so that the number of neurons will reflect the encoded input
-        if self.input_encoding is not None :
+        if self.input_encoding is not None:
             # Input layer should be changed.
             assert self.input_bins is not None
             input_size = 0
@@ -179,7 +179,7 @@ class MADE(nn.Module):
         if self.output_encoding == 'embed':
             assert self.input_encoding == 'embed'
 
-        #if the input is embedded create the emebedding using nn.Embedding() class
+        # if the input is embedded create the emebedding using nn.Embedding() class
         if self.input_encoding == 'embed':
             self.embeddings = nn.ModuleList()
             for i, dist_size in enumerate(self.input_bins):
@@ -187,7 +187,7 @@ class MADE(nn.Module):
                     embed = None
                 else:
                     embed = nn.Embedding(dist_size, self.embed_size)
-                #store the embeddings
+                # store the embeddings
                 self.embeddings.append(embed)
 
         # Learnable [MASK] representation.
@@ -312,7 +312,7 @@ class MADE(nn.Module):
                                           for k in range(self.hidden_sizes[l])])
                 else:
                     # Samples from [0, ncols - 1).
-                    #populate every hidden layer with random ids representing the ids of the input values
+                    # populate every hidden layer with random ids representing the ids of the input values
                     self.m[l] = rng.randint(self.m[l - 1].min(),
                                             self.nin - 1,
                                             size=self.hidden_sizes[l])
@@ -322,11 +322,12 @@ class MADE(nn.Module):
             for l in range(L):
                 self.m[l] = np.asarray([-1] * self.hidden_sizes[l])
 
-        # connect (by True or False) every input with hidden (hidden with hidden) only if one CAN depened on the other (based on id ordering)
+        # connect (by True or False) every input with hidden (hidden with hidden) only if one CAN depened on the other
+        # (based on id ordering)
         masks = [self.m[l - 1][:, None] <= self.m[l][None, :] for l in range(L)]
         masks.append(self.m[L - 1][:, None] < self.m[-1][None, :])
 
-        #if there are more outputs than inputs do something and
+        # if there are more outputs than inputs do something and
         if self.nout > self.nin:
             # Last layer's mask needs to be changed.
             if self.input_bins is None:
@@ -574,15 +575,15 @@ class MADE(nn.Module):
                     return out
             else:
                 assert False, 'inference'
-                if out is None:
-                    y_onehot = torch.zeros(bs,
-                                           coli_dom_size,
-                                           device=data.device)
-                    y_onehot.scatter_(1, data, 1)
-                    res = y_onehot
-                    return res.to(torch.float32, non_blocking=True, copy=False)
-                out.scatter_(1, data, 1)
-                return out
+                # if out is None:
+                #     y_onehot = torch.zeros(bs,
+                #                            coli_dom_size,
+                #                            device=data.device)
+                #     y_onehot.scatter_(1, data, 1)
+                #     res = y_onehot
+                #     return res.to(torch.float32, non_blocking=True, copy=False)
+                # out.scatter_(1, data, 1)
+                # return out
 
     def EncodeInput(self, data, natural_col=None, out=None):
         """"Warning: this could take up a significant portion of a forward pass.
@@ -744,7 +745,6 @@ if __name__ == '__main__':
             print('depends', depends_ix, 'prev_idxs', prev_idxs)
             # assert len(torch.nonzero(inp.grad[0, var_idx:])) == 0
             # assert len(torch.nonzero(one_hot.grad[0, var_idx:])) == 0
-
 
         print('ok')
     print('[MADE] Passes autoregressive-ness check!')

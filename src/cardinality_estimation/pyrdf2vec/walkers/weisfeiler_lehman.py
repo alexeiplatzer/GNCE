@@ -4,9 +4,9 @@ from typing import DefaultDict, Dict, List, Set, Union
 
 import attr
 
-from src.pyrdf2vec.graphs import KG, Vertex
-from src.pyrdf2vec.typings import Entities, EntityWalks, SWalk
-from src.pyrdf2vec.walkers import RandomWalker
+from ..graphs import KG, Vertex
+from ..typings import Entities, EntityWalks, SWalk
+from ..walkers import RandomWalker
 
 
 @attr.s

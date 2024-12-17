@@ -86,6 +86,7 @@ class CardEst(object):
               "median", np.quantile(est.errs, 0.5), "time_ms",
               np.mean(est.query_dur_ms))
 
+
 def FillInUnqueriedColumnsAndDiscretized(table, columns, operators, vals, discretized_vals):
     """Allows for some terms to be unqueried (i.e., wildcard).
 
@@ -106,10 +107,11 @@ def FillInUnqueriedColumnsAndDiscretized(table, columns, operators, vals, discre
 
     return cs, os, vs, dsv
 
+
 class BaseDistributionEstimation(CardEst):
-    '''
+    """
         Distribution estimation based on the AR model.
-    '''
+    """
     def __init__(
             self,
             model,
@@ -159,7 +161,7 @@ class BaseDistributionEstimation(CardEst):
             p.requires_grad = False
         self.init_logits.detach_()
 
-        #self.inp represents the encoding for the input
+        # self.inp represents the encoding for the input
         with torch.no_grad():
             self.kZeros = torch.zeros(self.num_samples,
                                       self.model.nin,
@@ -186,7 +188,6 @@ class BaseDistributionEstimation(CardEst):
                   inp=None, doPartial=False):
         ncols = len(columns)
 
-
         # only take one example
         inp = self.inp[:1]
 
@@ -204,7 +205,7 @@ class BaseDistributionEstimation(CardEst):
                         None,
                         natural_col=0,
                         out=inp[:, :self.model.
-                            input_bins_encoded_cumsum[0]])
+                                input_bins_encoded_cumsum[0]])
                 else:
                     l = self.model.input_bins_encoded_cumsum[natural_idx -
                                                              1]
@@ -221,7 +222,7 @@ class BaseDistributionEstimation(CardEst):
                         data_to_encode,
                         natural_col=0,
                         out=inp[:, :self.model.
-                            input_bins_encoded_cumsum[0]])
+                                input_bins_encoded_cumsum[0]])
 
                 else:
                     # starting bit postion for current column
@@ -254,7 +255,7 @@ class BaseDistributionEstimation(CardEst):
         return p_x_1
 
     def Query(self, columns, operators, vals, discretized_vals):
-        '''fill the unqueried terms'''
+        """fill the unqueried terms"""
         columns, operators, vals, discretized_vals = FillInUnqueriedColumnsAndDiscretized(
             self.table, columns, operators, vals, discretized_vals)
 
@@ -294,11 +295,11 @@ class BaseDistributionEstimation(CardEst):
                     inp=inp_buf, doPartial=False)
                 self.OnEnd()
 
-                result = np.ceil(p * self.cardinality).astype(dtype=np.int32,
-                                                               copy=False)
+                result = np.ceil(p * self.cardinality).astype(dtype=np.int32, copy=False)
                 print('result %.3f' % (result if result > 0 else 1))
 
         return result if result > 0 else 1
+
 
 class Oracle(CardEst):
     """Returns true cardinalities."""

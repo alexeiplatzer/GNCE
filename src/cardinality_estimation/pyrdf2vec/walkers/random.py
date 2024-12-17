@@ -3,9 +3,9 @@ from typing import List, Optional, Set
 
 import attr
 
-from src.pyrdf2vec.graphs import KG, Vertex
-from src.pyrdf2vec.typings import EntityWalks, SWalk, Walk
-from src.pyrdf2vec.walkers import Walker
+from ..graphs import KG, Vertex
+from ..typings import EntityWalks, SWalk, Walk
+from ..walkers import Walker
 
 
 @attr.s
