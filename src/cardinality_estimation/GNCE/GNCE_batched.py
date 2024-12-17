@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 
 from .. import DATASETS_PATH
 
-from models import TripleModelAdapt
-from utils import StatisticsLoader, get_query_graph_data_new, ToUndirectedCustom
+from .models import TripleModelAdapt
+from .utils import StatisticsLoader, get_query_graph_data_new, ToUndirectedCustom
 
 
 def q_error(pred, gt):

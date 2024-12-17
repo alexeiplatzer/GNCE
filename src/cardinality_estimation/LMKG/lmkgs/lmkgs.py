@@ -21,8 +21,8 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from tqdm import tqdm
 
 from .estimates_file import check_network_estimates
-import complex_reader
-import store_statistics
+from . import complex_reader
+from . import store_statistics
 
 # sys.path.append(f'{PACKAGE_PATH}/LMKG/lmkgs')
 

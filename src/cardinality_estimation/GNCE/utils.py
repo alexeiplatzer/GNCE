@@ -111,10 +111,9 @@ class StatisticsLoader():
 
         except FileNotFoundError:
             print("Cant find embedding for", item)
-            raise
             # Return a random embedding
-            # statistic_dict = {"embedding": [random.uniform(0, 1) for i in range(100)], "occurence": 0}
-            # return statistic_dict
+            statistic_dict = {"embedding": [random.uniform(0, 1) for i in range(100)], "occurence": 0}
+            return statistic_dict
 
 
 def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='false', n_atoms: int = None):
@@ -186,19 +185,20 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
                     v[-1] = n_edge_variables
                 n_edge_variables_random +=1 #todo
                 n_edge_variables += 1
-                ea = torch.cat((data["entity", p, "entity"].edge_attr, torch.tensor([v])), dim=0)
-                data["entity", p, "entity"].edge_attr = ea
+                ea = torch.cat((data["entity", str(p), "entity"].edge_attr, torch.tensor([v])), dim=0)
+                data["entity", str(p), "entity"].edge_attr = ea
             except:
                 # If the edge does not exist yet, create it
                 v = variable_embedding_edge
                 if shuffled:
-                    v[-1] = n_edge_variables_random #todo
+                    v[-1] = n_edge_variables_random  # todo
                 else:
-                    v[-1] = n_edge_variables #todo
+                    v[-1] = n_edge_variables  # todo
 
-                n_edge_variables_random += 1 #todo
+                n_edge_variables_random += 1  # todo
                 n_edge_variables += 1
-                data["entity", p, "entity"].edge_attr = torch.tensor([v])
+
+                data["entity", str(p), "entity"].edge_attr = torch.tensor([v])
 
         else:
             try:
@@ -224,8 +224,8 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
                 # Add a dimension for the direction of the edge
                 feature_vector.append(1)
 
-                ea = torch.cat((data["entity", p, "entity"].edge_attr, torch.tensor([feature_vector])), dim=0)
-                data["entity", p, "entity"].edge_attr = ea
+                ea = torch.cat((data["entity", str(p), "entity"].edge_attr, torch.tensor([feature_vector])), dim=0)
+                data["entity", str(p), "entity"].edge_attr = ea
             except:
                 # Case if edge set does not exist yet
                 if USE_EMBEDDING:
@@ -240,7 +240,7 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
                     feature_vector.append(1)
                 feature_vector.append(1)
 
-                data["entity", p, "entity"].edge_attr = torch.tensor([feature_vector])
+                data["entity", str(p), "entity"].edge_attr = torch.tensor([feature_vector])
 
         # Adding the embeddings of s and o
         if s not in node_mapping.keys():
@@ -317,12 +317,12 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
         # Finally, add the edge to the graph
         try:
             tp = torch.cat(
-                (data['entity', p, 'entity'].edge_index, torch.tensor([[node_mapping[s]], [node_mapping[o]]])), dim=1)
-            data["entity", p, "entity"].edge_index = tp
+                (data["entity", str(p), 'entity'].edge_index, torch.tensor([[node_mapping[s]], [node_mapping[o]]])), dim=1)
+            data["entity", str(p), "entity"].edge_index = tp
 
         except:
             tp = torch.tensor([[node_mapping[s]], [node_mapping[o]]])
-            data["entity", p, "entity"].edge_index = tp
+            data["entity", str(p), "entity"].edge_index = tp
 
     data["entity"].x = torch.tensor(node_embeddings)
 
@@ -350,10 +350,10 @@ def get_query_graph_data(query_graph, statistics, device):
         if "?" in triple[1]:
             p = 237
             try:
-                ea = torch.cat((data["entity", p, "entity"].edge_attr, torch.tensor([variable_embedding])), dim=0)
-                data["entity", p, "entity"].edge_attr = ea
+                ea = torch.cat((data["entity", str(p), "entity"].edge_attr, torch.tensor([variable_embedding])), dim=0)
+                data["entity", str(p), "entity"].edge_attr = ea
             except:
-                data["entity", p, "entity"].edge_attr = torch.tensor([variable_embedding])
+                data["entity", str(p), "entity"].edge_attr = torch.tensor([variable_embedding])
 
         else:
             try:
@@ -365,12 +365,12 @@ def get_query_graph_data(query_graph, statistics, device):
                 feature_vector = statistics[triple[1].replace("<", "").replace(">", "")]["embedding"].copy()
                 feature_vector.append(statistics[triple[1].replace("<", "").replace(">", "")]["occurence"] / 16018)
 
-                ea = torch.cat((data["entity", p, "entity"].edge_attr, torch.tensor([feature_vector])), dim=0)
-                data["entity", p, "entity"].edge_attr = ea
+                ea = torch.cat((data["entity", str(p), "entity"].edge_attr, torch.tensor([feature_vector])), dim=0)
+                data["entity", str(p), "entity"].edge_attr = ea
             except:
                 feature_vector = statistics[triple[1].replace("<", "").replace(">", "")]["embedding"].copy()
                 feature_vector.append(statistics[triple[1].replace("<", "").replace(">", "")]["occurence"] / 16018)
-                data["entity", p, "entity"].edge_attr = torch.tensor([feature_vector])
+                data["entity", str(p), "entity"].edge_attr = torch.tensor([feature_vector])
 
         # Adding the embeddings of s and o to
         if s not in node_mapping.keys():
@@ -397,12 +397,12 @@ def get_query_graph_data(query_graph, statistics, device):
                 node_embeddings.append(feature_vector)
         try:
             tp = torch.cat(
-                (data['entity', p, 'entity'].edge_index, torch.tensor([[node_mapping[s]], [node_mapping[o]]])), dim=1)
-            data["entity", p, "entity"].edge_index = tp
+                (data["entity", str(p), 'entity'].edge_index, torch.tensor([[node_mapping[s]], [node_mapping[o]]])), dim=1)
+            data["entity", str(p), "entity"].edge_index = tp
 
         except:
             tp = torch.tensor([[node_mapping[s]], [node_mapping[o]]])
-            data["entity", p, "entity"].edge_index = tp
+            data["entity", str(p), "entity"].edge_index = tp
 
     data["entity"].x = torch.tensor(node_embeddings)
     return data

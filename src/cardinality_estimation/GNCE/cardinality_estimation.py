@@ -13,8 +13,8 @@ import torch
 import torch.nn as nn
 from torch.nn import MSELoss
 
-from models import TripleModel
-from utils import StatisticsLoader, get_query_graph_data_new, ToUndirectedCustom
+from .models import TripleModel
+from .utils import StatisticsLoader, get_query_graph_data_new, ToUndirectedCustom
 
 # from pyrdf2vec.graphs import KG, Vertex
 # from pyrdf2vec import RDF2VecTransformer
