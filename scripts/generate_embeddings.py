@@ -3,16 +3,12 @@ import sys
 import time
 from tqdm import tqdm
 
-# from GNCE import PROJECT_PATH, DATASETS_PATH
-from .. import PROJECT_ROOT_PATH, DATASETS_PATH
+from cardinality_estimation import PROJECT_ROOT_PATH, DATASETS_PATH
 
-from ..pyrdf2vec.graphs import KG
-from ..pyrdf2vec import RDF2VecTransformer
-from ..pyrdf2vec.embedders import Word2Vec
-from ..pyrdf2vec.walkers import RandomWalker
-
-# Adding edited version of pyrdf2vec to path
-# sys.path.append(f"{PROJECT_PATH}/pyrdf2vec")
+from cardinality_estimation.pyrdf2vec.graphs import KG
+from cardinality_estimation.pyrdf2vec import RDF2VecTransformer
+from cardinality_estimation.pyrdf2vec.embedders import Word2Vec
+from cardinality_estimation.pyrdf2vec.walkers import RandomWalker
 
 
 def uri_to_id(uri):
@@ -69,15 +65,10 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
     # Dict to hold several runtimes
     timing_dict = {}
 
-    if remote:
-        entities = entities
-    else:
-        if entities is not None:
-            entities = entities
-        else:
-            train_entities = [entity.name for entity in list(GRAPH._entities)]
-            test_entities = [entity.name for entity in list(GRAPH._vertices)]
-            entities = set(train_entities + test_entities)
+    if not remote and entities is None:
+        train_entities = [entity.name for entity in list(GRAPH._entities)]
+        test_entities = [entity.name for entity in list(GRAPH._vertices)]
+        entities = set(train_entities + test_entities)
 
     # Create the RDF2vec model
     transformer = RDF2VecTransformer(
@@ -94,7 +85,7 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
     occurrence_from_file = True
 
     # Start Time of Occurrence Calculation:
-    occurence_start_time = time.time()
+    occurrence_start_time = time.time()
 
     if occurrence_from_file:
 
@@ -143,7 +134,7 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
         json.dump(occurrences, fp)
 
     # End Time of Occurrence Calculation
-    occurence_end_time = (time.time() - occurence_start_time) * 1000
+    occurence_end_time = (time.time() - occurrence_start_time) * 1000
     n_atoms_occurrence = len(occurrences)
     time_per_atom_occurrence = occurence_end_time/n_atoms_occurrence
     timing_dict['occurrence_total_time'] = occurence_end_time
@@ -154,13 +145,13 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
     import os
     import shutil
     # Define the path of the walk folder
-    folder_path = f"{PROJECT_ROOT_PATH}/walks"
+    folder_path = PROJECT_ROOT_PATH / "walks"
     # Delete the folder if it exists
-    if os.path.exists(folder_path):
+    if folder_path.exists():
         shutil.rmtree(folder_path)
         print(f"Deleted folder: {folder_path}")
     # Create the folder again
-    os.makedirs(folder_path)
+    folder_path.mkdir(parents=True, exist_ok=True)
     print(f"Recreated folder: {folder_path}")
 
     # Timing for embedding calculation
@@ -221,18 +212,8 @@ def get_embeddings(dataset_name, kg_file, entities=None, remote=True, sparql_end
 if __name__ == "__main__":
     # Get entities from queries:
     entities = []
-    # Joined Queries
-    # with open('/home/tim/Datasets/yago/flower/Joined_Queries.json', 'r') as f:
-    #     queries = json.load(f)
-    # for query in queries:
-    #     entities += query['x']
-    #
-    # with open('/home/tim/Datasets/yago/snowflake/Joined_Queries.json', 'r') as f:
-    #    queries = json.load(f)
-    # for query in queries:
-    #    entities += query['x']
-
-    with open('/home/tim/Datasets/lubm/star/Joined_Queries.json', 'r') as f:
+    dataset_name = "lubm"
+    with open(DATASETS_PATH / dataset_name / "star" / "Joined_Queries.json", "r") as f:
         queries = json.load(f)
     for query in queries:
         entities += query['x']
@@ -245,4 +226,5 @@ if __name__ == "__main__":
     print('Using ', len(entities), ' entities for RDF2Vec')
 
     print('Starting...')
-    get_embeddings("lubm", f"{DATASETS_PATH}/lubm/graph/lubm.ttl", remote=True, entities=entities, sparql_endpoint="http://localhost:8909/sparql/")
+    get_embeddings(dataset_name, DATASETS_PATH / dataset_name / "graph" / f"{dataset_name}.ttl", remote=True,
+                   entities=entities, sparql_endpoint="http://localhost:8909/sparql/")
