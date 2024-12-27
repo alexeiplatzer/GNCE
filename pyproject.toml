@@ -7,7 +7,9 @@ name = "cardinality_estimation"
 version = "0.0.1"
 description = "A Python package with multiple modules."
 readme = "README.md"
-authors = [{}]
+authors = [
+    { name = "Author", email = "author@tum.de" }
+]
 dependencies = [
     "async-timeout",
     "backcall",

@@ -4,11 +4,11 @@ import os
 import sys
 from datetime import datetime
 
-from src.cardinality_estimation import PACKAGE_PATH
-from src.cardinality_estimation import DATASETS_PATH
-from src.cardinality_estimation.GNCE.cardinality_estimation import train_GNCE
-from src.cardinality_estimation.LMKG.lmkgs.lmkgs import run_lmkg
-from src.cardinality_estimation.GCARE.run_estimation import run_gcare
+from cardinality_estimation import PACKAGE_PATH
+from cardinality_estimation import DATASETS_PATH
+from cardinality_estimation.GNCE.cardinality_estimation import train_GNCE
+from cardinality_estimation.LMKG.lmkgs.lmkgs import run_lmkg
+from cardinality_estimation.GCARE.run_estimation import run_gcare
 
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
 # os.chdir(GNCE_PATH + '/LMKG/lmkgs')
@@ -24,7 +24,7 @@ dataset = 'lubm'
 query_type = 'star'
 
 run_LMKG = False
-run_GNCE = True
+run_GNCE = False
 run_GCARE = False
 
 # Whether to perform full inductive training

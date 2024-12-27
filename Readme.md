@@ -17,7 +17,7 @@ Paper: https://dl.acm.org/doi/abs/10.1145/3639299
 
 ### Requirements
 
-You need to have Python 3 installed. The code was tested with Python 3.8.10
+You need to have Python 3 installed. The code was tested with Python 3.12.0
 
 ### Setup
 
@@ -28,6 +28,12 @@ $ pip install -r requirements.txt
 ```
 You might adapt the version of the torch and torch-geometric packages to your needs,
 based on your CUDA version.
+
+To run the provided scripts install the project as a package with the following command:
+
+```sh
+$ pip install -e .
+```
 
 Note that we have included an adapted version of the pyrdf2vec code from
 https://github.com/IBCNServices/pyRDF2Vec that saves the random walks to disk for 
