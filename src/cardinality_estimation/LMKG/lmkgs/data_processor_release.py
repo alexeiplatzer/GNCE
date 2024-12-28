@@ -4,8 +4,8 @@ import time
 
 
 def binary_representation_from_int(number, max_size=16):
-    """ Returns a binary number from an integer with bits set to max size """
-    return format(number,'b').zfill(max_size)
+    """Returns a binary number from an integer with bits set to max size"""
+    return format(number, "b").zfill(max_size)
 
 
 def numpy_binary(number, max_size=16):
@@ -20,7 +20,9 @@ def numpy_binary(number, max_size=16):
     return np.array(arr)
 
 
-def read_star_graph_pattern(d, b, n, e, file_name, train_tuples=10000000, matrix_mode=0, star_mode=0):
+def read_star_graph_pattern(
+    d, b, n, e, file_name, train_tuples=10000000, matrix_mode=0, star_mode=0
+):
     """
     Creates encoding from queries in the file
     :param d: int, the number of distinct nodes (subjects + objects) in KG
@@ -66,15 +68,15 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples=10000000, matrix
             line_nb += 1
             patterns = patterns.split(",")
             if matrix_mode == 2:
-                x = np.zeros((n, d), dtype='uint8')
-                ep = np.zeros((e, b), dtype='uint8')
-                a = np.zeros((e, n, n), dtype='uint8')
+                x = np.zeros((n, d), dtype="uint8")
+                ep = np.zeros((e, b), dtype="uint8")
+                a = np.zeros((e, n, n), dtype="uint8")
             elif matrix_mode == 3:
                 bits_d = int(np.ceil(np.log2(d))) + 1
                 bits_b = int(np.ceil(np.log2(b))) + 1
-                x = np.zeros((n, bits_d), dtype='uint8')
-                ep = np.zeros((e, bits_b), dtype='uint8')
-                a = np.zeros((e, n, n), dtype='uint8')
+                x = np.zeros((n, bits_d), dtype="uint8")
+                ep = np.zeros((e, bits_b), dtype="uint8")
+                a = np.zeros((e, n, n), dtype="uint8")
             else:
                 print("Matrix mode unspecified")
                 exit(1)
@@ -93,7 +95,7 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples=10000000, matrix
                     else:
                         nodes.add(object)
                 else:
-                    nodes.add("*n"+str(predicate))
+                    nodes.add("*n" + str(predicate))
                     star_node_id += 1
 
                 if pattern_zero_flag:
@@ -104,7 +106,7 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples=10000000, matrix
                     else:
                         predicates.add(predicate)
                 else:
-                    predicates.add("*p"+str(object))
+                    predicates.add("*p" + str(object))
                     predicate_node_counter += 1
 
                 if pattern_zero_flag:
@@ -116,7 +118,7 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples=10000000, matrix
                 continue
 
             if total_zero > 0:
-                print("Total zero "+str(total_zero))
+                print("Total zero " + str(total_zero))
                 exit(1)
 
             nodes = list(nodes)
@@ -124,7 +126,7 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples=10000000, matrix
             id = 0
             nodes_dict = dict()
             for node in nodes:
-                nodes_dict[node]=id
+                nodes_dict[node] = id
                 id += 1
 
             predicates = list(predicates)
@@ -155,7 +157,9 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples=10000000, matrix
                     subject_subgraph_id = nodes_dict[subject_id]
                     predicate_subgraph_id = predicates_dict[predicate_id]
                     object_subgraph_id = nodes_dict[object_id]
-                    a[predicate_subgraph_id, subject_subgraph_id, object_subgraph_id] = 1
+                    a[
+                        predicate_subgraph_id, subject_subgraph_id, object_subgraph_id
+                    ] = 1
 
                     if predicate_id == star_predicate_id and star_mode == 1:
                         for pred_id in range(b):
@@ -180,7 +184,9 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples=10000000, matrix
                     subject_subgraph_id = nodes_dict[subject_id]
                     predicate_subgraph_id = predicates_dict[predicate_id]
                     object_subgraph_id = nodes_dict[object_id]
-                    a[predicate_subgraph_id, subject_subgraph_id, object_subgraph_id] = 1
+                    a[
+                        predicate_subgraph_id, subject_subgraph_id, object_subgraph_id
+                    ] = 1
 
                     predicate_nb = 0
                     if "*" not in predicate_id:
@@ -212,10 +218,12 @@ def read_star_graph_pattern(d, b, n, e, file_name, train_tuples=10000000, matrix
             A.append(a)
 
     time_end = time.time() - time_start
-    return np.array(X),np.array(A),np.array(E), np.array(y), time_end
+    return np.array(X), np.array(A), np.array(E), np.array(y), time_end
 
 
-def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples=10000, matrix_mode=0, star_mode=0):
+def read_chain_graph_pattern(
+    d, b, n, e, file_name, train_tuples=10000, matrix_mode=0, star_mode=0
+):
     """
     Creates encoding from queries in the file
     :param d: int, the number of distinct nodes (subjects + objects) in KG
@@ -253,15 +261,15 @@ def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples=10000, matrix_m
             line_nb += 1
 
             if matrix_mode == 2:
-                x = np.zeros((n, d), dtype='uint8')
-                ep = np.zeros((e, b), dtype='uint8')
-                a = np.zeros((e, n, n), dtype='uint8')
+                x = np.zeros((n, d), dtype="uint8")
+                ep = np.zeros((e, b), dtype="uint8")
+                a = np.zeros((e, n, n), dtype="uint8")
             elif matrix_mode == 3:
                 bits_d = int(np.ceil(np.log2(d))) + 1
                 bits_b = int(np.ceil(np.log2(b))) + 1
-                x = np.zeros((n, bits_d), dtype='uint8')
-                ep = np.zeros((e, bits_b), dtype='uint8')
-                a = np.zeros((e, n, n), dtype='uint8')
+                x = np.zeros((n, bits_d), dtype="uint8")
+                ep = np.zeros((e, bits_b), dtype="uint8")
+                a = np.zeros((e, n, n), dtype="uint8")
             else:
                 print("Matrix mode unspecified")
                 exit(1)
@@ -319,7 +327,7 @@ def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples=10000, matrix_m
             y.append(cardinality)
 
             if total_zero > 0:
-                print("Total zero "+str(total_zero))
+                print("Total zero " + str(total_zero))
                 exit(1)
 
             nodes_list = []
@@ -329,7 +337,7 @@ def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples=10000, matrix_m
             id = 0
             nodes_dict = dict()
             for node in nodes_list:
-                nodes_dict[node]=id
+                nodes_dict[node] = id
                 id += 1
 
             predicates_list = []
@@ -352,7 +360,9 @@ def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples=10000, matrix_m
                     subject_subgraph_id = nodes_dict[subject_id]
                     predicate_subgraph_id = predicates_dict[predicate_id]
                     object_subgraph_id = nodes_dict[object_id]
-                    a[predicate_subgraph_id, subject_subgraph_id, object_subgraph_id] = 1
+                    a[
+                        predicate_subgraph_id, subject_subgraph_id, object_subgraph_id
+                    ] = 1
                     ep[predicate_subgraph_id, predicate_id] = 1
                     x[subject_subgraph_id, subject_id] = 1
                     x[object_subgraph_id, object_id] = 1
@@ -361,7 +371,9 @@ def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples=10000, matrix_m
                     subject_subgraph_id = nodes_dict[subject_id]
                     predicate_subgraph_id = predicates_dict[predicate_id]
                     object_subgraph_id = nodes_dict[object_id]
-                    a[predicate_subgraph_id, subject_subgraph_id, object_subgraph_id] = 1
+                    a[
+                        predicate_subgraph_id, subject_subgraph_id, object_subgraph_id
+                    ] = 1
 
                     predicate_nb = 0
                     if "*" not in predicate_id:
@@ -393,11 +405,21 @@ def read_chain_graph_pattern(d, b, n, e, file_name, train_tuples=10000, matrix_m
             A.append(a)
 
     time_end = time.time() - time_start
-    return np.array(X),np.array(A),np.array(E), np.array(y), time_end
+    return np.array(X), np.array(A), np.array(E), np.array(y), time_end
 
 
-def read_combined(d, b, n, e, file_name_star, file_name_chain, train_tuples=10000, matrix_mode=0, star_mode=0,
-                  test_mode="star"):
+def read_combined(
+    d,
+    b,
+    n,
+    e,
+    file_name_star,
+    file_name_chain,
+    train_tuples=10000,
+    matrix_mode=0,
+    star_mode=0,
+    test_mode="star",
+):
     """
     Creates encoding from queries in the file
     :param d: int, the number of distinct nodes (subjects + objects) in KG
@@ -414,22 +436,39 @@ def read_combined(d, b, n, e, file_name_star, file_name_chain, train_tuples=1000
     """
 
     if "star" in test_mode:
-        return read_star_graph_pattern(d, b, n, e, file_name_star, train_tuples, matrix_mode)
+        return read_star_graph_pattern(
+            d, b, n, e, file_name_star, train_tuples, matrix_mode
+        )
     if "chain" in test_mode:
-        return read_chain_graph_pattern(d, b, n, e , file_name_chain, train_tuples, matrix_mode)
+        return read_chain_graph_pattern(
+            d, b, n, e, file_name_chain, train_tuples, matrix_mode
+        )
 
-    X_s, A_s, E_s, y_s, time_start_star = read_star_graph_pattern(d, b, n, e, file_name_star, train_tuples, matrix_mode)
-    X_c, A_c, E_c, y_c, time_start_chain = read_chain_graph_pattern(d, b, n, e , file_name_chain, train_tuples, matrix_mode)
-    X = np.concatenate([X_s, X_c], axis = 0)
-    A = np.concatenate([A_s, A_c], axis = 0)
-    E = np.concatenate([E_s, E_c], axis = 0)
-    y = np.concatenate([y_s, y_c], axis = 0)
+    X_s, A_s, E_s, y_s, time_start_star = read_star_graph_pattern(
+        d, b, n, e, file_name_star, train_tuples, matrix_mode
+    )
+    X_c, A_c, E_c, y_c, time_start_chain = read_chain_graph_pattern(
+        d, b, n, e, file_name_chain, train_tuples, matrix_mode
+    )
+    X = np.concatenate([X_s, X_c], axis=0)
+    A = np.concatenate([A_s, A_c], axis=0)
+    E = np.concatenate([E_s, E_c], axis=0)
+    y = np.concatenate([y_s, y_c], axis=0)
 
     return X, A, E, y, (time_start_star + time_start_chain)
 
 
-def read_combined_all_sizes_star_or_chain(d, b, n, e, file_names, train_tuples=10000, matrix_mode=0, star_mode=0,
-                                          test_mode="star"):
+def read_combined_all_sizes_star_or_chain(
+    d,
+    b,
+    n,
+    e,
+    file_names,
+    train_tuples=10000,
+    matrix_mode=0,
+    star_mode=0,
+    test_mode="star",
+):
     """
     Creates encoding from queries in the file
     :param d: int, the number of distinct nodes (subjects + objects) in KG
@@ -449,10 +488,14 @@ def read_combined_all_sizes_star_or_chain(d, b, n, e, file_names, train_tuples=1
     all_y = []
     time = 0
     for i in range(len(file_names)):
-        if 'star' in file_names[i]:
-            X_i, A_i, E_i, y_i, time_start_i = read_star_graph_pattern(d, b, n, e, file_names[i], train_tuples, matrix_mode)
+        if "star" in file_names[i]:
+            X_i, A_i, E_i, y_i, time_start_i = read_star_graph_pattern(
+                d, b, n, e, file_names[i], train_tuples, matrix_mode
+            )
         else:
-            X_i, A_i, E_i, y_i, time_start_i = read_chain_graph_pattern(d, b, n, e , file_names[i], train_tuples, matrix_mode)
+            X_i, A_i, E_i, y_i, time_start_i = read_chain_graph_pattern(
+                d, b, n, e, file_names[i], train_tuples, matrix_mode
+            )
         all_X.append(X_i)
         all_A.append(A_i)
         all_E.append(E_i)
@@ -460,9 +503,9 @@ def read_combined_all_sizes_star_or_chain(d, b, n, e, file_names, train_tuples=1
         time += time_start_i
         print("Read " + file_names[i])
 
-    X = np.concatenate(all_X, axis = 0)
-    A = np.concatenate(all_A, axis = 0)
-    E = np.concatenate(all_E, axis = 0)
-    y = np.concatenate(all_y, axis = 0)
+    X = np.concatenate(all_X, axis=0)
+    A = np.concatenate(all_A, axis=0)
+    E = np.concatenate(all_E, axis=0)
+    y = np.concatenate(all_y, axis=0)
 
     return X, A, E, y, time

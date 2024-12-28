@@ -45,9 +45,7 @@ class PageRankSampler(Sampler):
         validator=attr.validators.instance_of(float),
     )
 
-    _pageranks = attr.ib(
-        init=False, type=Dict[str, float], repr=False, factory=dict
-    )
+    _pageranks = attr.ib(init=False, type=Dict[str, float], repr=False, factory=dict)
 
     def fit(self, kg: KG) -> None:
         """Fits the sampling strategy by running PageRank on a provided KG

@@ -7,7 +7,7 @@ from gensim.models.word2vec import Word2Vec as W2V
 
 from ..embedders import Embedder
 from ..typings import Embeddings, Entities, SWalk
-from .. import WALK_PATH
+from ..constants import WALK_PATH
 
 import random
 import os
@@ -24,10 +24,10 @@ class MyWalks(object):
             with open(os.path.join(self.dirname, fwalk), "r") as f:
                 try:
                     # If Walks are saved as json:
-                    #walk = tuple(json.load(f))
+                    # walk = tuple(json.load(f))
 
                     # If walks are saved as txt integers
-                    walk = f.readlines()[0].split(' ')
+                    walk = f.readlines()[0].split(" ")
 
                 except:
                     print("PROBLEM WITH: ", fwalk)
@@ -60,9 +60,7 @@ class Word2Vec(Embedder):
         }
         self._model = W2V(**self.kwargs)
 
-    def fit(
-        self, walks: List[List[SWalk]], is_update: bool = False
-    ) -> Embedder:
+    def fit(self, walks: List[List[SWalk]], is_update: bool = False) -> Embedder:
         """Fits the Word2Vec model based on provided walks.
 
         Args:
@@ -75,7 +73,7 @@ class Word2Vec(Embedder):
             The fitted Word2Vec model.
 
         """
-        #corpus = [walk for entity_walks in walks for walk in entity_walks]
+        # corpus = [walk for entity_walks in walks for walk in entity_walks]
         corpus = MyWalks(WALK_PATH)
 
         print("Building Vocabulary...")
@@ -85,8 +83,7 @@ class Word2Vec(Embedder):
             corpus,
             total_examples=self._model.corpus_count,
             epochs=self._model.epochs,
-            #epochs=1,
-
+            # epochs=1,
         )
         return self
 

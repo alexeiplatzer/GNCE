@@ -2,7 +2,7 @@ import json
 import random
 from tqdm import tqdm
 import os
-from .. import PROJECT_ROOT_PATH, DATASETS_PATH, PACKAGE_PATH
+from ..constants import PROJECT_ROOT_PATH, DATASETS_PATH, PACKAGE_PATH
 
 
 def remove_files_in_folder(folder_path):
@@ -20,7 +20,9 @@ def remove_files_in_folder(folder_path):
             print(f"Skipping {file_path}, not a file")
 
 
-def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicate, dataset, card):
+def query_to_gcare(
+    query, query_idx, id_to_id_mapping, id_to_id_mapping_predicate, dataset, card
+):
     # Delete existing query:
 
     vertices = set()
@@ -29,18 +31,18 @@ def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicat
     for tp in query:
         vertices.add(tp[0])
         vertices.add(tp[2])
-        if dataset == 'yago' or 'yago_inductive':
-            rdf_type_uri = '<http://example.com/13000179>'
-        elif dataset == 'wikidata':
-            rdf_type_uri = '<http://www.wikidata.org/prop/direct/P31>'
-        elif dataset == 'swdf' or 'swdf_inductive':
-            rdf_type_uri = '<http://ex.org/03>'
-        elif dataset == 'lubm':
-            rdf_type_uri = '<http://example.org/1>'
+        if dataset == "yago" or "yago_inductive":
+            rdf_type_uri = "<http://example.com/13000179>"
+        elif dataset == "wikidata":
+            rdf_type_uri = "<http://www.wikidata.org/prop/direct/P31>"
+        elif dataset == "swdf" or "swdf_inductive":
+            rdf_type_uri = "<http://ex.org/03>"
+        elif dataset == "lubm":
+            rdf_type_uri = "<http://example.org/1>"
         else:
             raise AssertionError("rdf type uri missing !")
 
-        if (tp[1] == rdf_type_uri) and ('?' not in tp[2]):
+        if (tp[1] == rdf_type_uri) and ("?" not in tp[2]):
 
             if tp[0] in vertex_labels:
                 vertex_labels[tp[0]] += [tp[2]]
@@ -55,7 +57,7 @@ def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicat
         try:
             dvid = id_to_id_mapping[vertex] if not "?" in vertex else -1
         except KeyError:
-            dvid = 13000000 #yago
+            dvid = 13000000  # yago
         if vertex in vertex_labels:
             # print('In vertex')
             try:
@@ -76,27 +78,35 @@ def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicat
         edge_list.append([vertex_dict[tp[0]][0], vertex_dict[tp[2]][0], edge_label])
 
     # Writing the Query File
-    with open(f"{PACKAGE_PATH}/LSS/data/queryset_homo/{dataset}/paths_1/{dataset}_{str(query_idx)}.txt", "w") as f:
+    with open(
+        f"{PACKAGE_PATH}/LSS/data/queryset_homo/{dataset}/paths_1/{dataset}_{str(query_idx)}.txt",
+        "w",
+    ) as f:
         f.write("t # s " + str(query_idx))
         f.write("\n")
         for v in vertex_dict:
-            label_str = ''
+            label_str = ""
             for l in vertex_dict[v][1:-1]:
                 label_str += str(l)
-                label_str += ' '
-            f.write("v " + str(vertex_dict[v][0]) + " " + label_str + str(vertex_dict[v][2]))
+                label_str += " "
+            f.write(
+                "v " + str(vertex_dict[v][0]) + " " + label_str + str(vertex_dict[v][2])
+            )
             f.write("\n")
         for e in edge_list:
             f.write("e " + str(e[0]) + " " + str(e[1]) + " " + str(e[2]))
             f.write("\n")
     # Saving cardinality
-    with open(f"{PACKAGE_PATH}/LSS/data/true_homo/{dataset}/paths_1/{dataset}_{str(query_idx)}.txt", "w") as f:
+    with open(
+        f"{PACKAGE_PATH}/LSS/data/true_homo/{dataset}/paths_1/{dataset}_{str(query_idx)}.txt",
+        "w",
+    ) as f:
         f.write(str(card))
 
 
 def save_all_queries(dataset, query_type, query_filename):
 
-    print('Removing existing queries..')
+    print("Removing existing queries..")
     remove_files_in_folder(f"{PACKAGE_PATH}/LSS/data/queryset_homo/{dataset}/paths_1/")
     remove_files_in_folder(f"{PACKAGE_PATH}/LSS/data/true_homo/{dataset}/paths_1/")
 
@@ -119,13 +129,19 @@ def save_all_queries(dataset, query_type, query_filename):
     i = 0
     print("Generating Query Files..")
     for query in tqdm(data):
-        query_to_gcare(query["triples"], i, id_to_id_mapping=id_to_id_mapping,
-                       id_to_id_mapping_predicate=id_to_id_mapping_predicate, dataset=dataset, card=query["y"])
+        query_to_gcare(
+            query["triples"],
+            i,
+            id_to_id_mapping=id_to_id_mapping,
+            id_to_id_mapping_predicate=id_to_id_mapping_predicate,
+            dataset=dataset,
+            card=query["y"],
+        )
         i += 1
 
 
 if __name__ == "__main__":
-    dataset = 'wikidata'
+    dataset = "wikidata"
 
     with open(f"{DATASETS_PATH}/{dataset}/star/Joined_Queries.json") as f:
         data = json.load(f)
@@ -137,6 +153,11 @@ if __name__ == "__main__":
 
     query = data[0]
     print(query)
-    query_to_gcare(query["triples"], 0, id_to_id_mapping=id_to_id_mapping,
-                   id_to_id_mapping_predicate=id_to_id_mapping_predicate, dataset=dataset, card=query["y"])
-
+    query_to_gcare(
+        query["triples"],
+        0,
+        id_to_id_mapping=id_to_id_mapping,
+        id_to_id_mapping_predicate=id_to_id_mapping_predicate,
+        dataset=dataset,
+        card=query["y"],
+    )

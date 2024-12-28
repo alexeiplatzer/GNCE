@@ -13,9 +13,7 @@ class Embedder(metaclass=abc.ABCMeta):
     """Base class of the embedding techniques."""
 
     @abc.abstractmethod
-    def fit(
-        self, corpus: List[List[SWalk]], is_update: bool = False
-    ) -> Embedder:
+    def fit(self, corpus: List[List[SWalk]], is_update: bool = False) -> Embedder:
         """Fits a model based on the provided corpus.
 
         Args:

@@ -9,7 +9,7 @@ from tqdm import tqdm
 from ..graphs import KG, Vertex
 from ..samplers import Sampler, UniformSampler
 from ..typings import Entities, EntityWalks, SWalk
-from .. import WALK_PATH
+from ..constants import WALK_PATH
 
 import os
 import signal
@@ -107,9 +107,7 @@ class Walker(ABC):
         validator=attr.validators.optional(attr.validators.instance_of(int)),
     )
 
-    _is_support_remote = attr.ib(
-        init=False, repr=False, type=bool, default=True
-    )
+    _is_support_remote = attr.ib(init=False, repr=False, type=bool, default=True)
 
     _entities = attr.ib(init=False, repr=False, type=Set[str], default=set())
 
@@ -119,8 +117,12 @@ class Walker(ABC):
         self.sampler.random_state = self.random_state
 
     def extract(
-            self, kg: KG, entities: Entities, verbose: int = 0, walk_path=None,
-            batch_mode: str = 'in_memory'
+        self,
+        kg: KG,
+        entities: Entities,
+        verbose: int = 0,
+        walk_path=None,
+        batch_mode: str = "in_memory",
     ) -> List[List[SWalk]]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
@@ -181,7 +183,6 @@ class Walker(ABC):
                         total=len(entities),
                         # disable=True,
                         disable=True if verbose == 0 else False,
-
                     )
                 )
             res = []
@@ -261,13 +262,18 @@ class Walker(ABC):
         w = 0
         for walk in entity_walks:
             # with lock:
-            with open(os.path.join(walk_path, entity.replace("/", "__").replace(':', 'Y') + "_" + str(w) + ".txt"),
-                      'w') as f:
+            with open(
+                os.path.join(
+                    walk_path,
+                    entity.replace("/", "__").replace(":", "Y") + "_" + str(w) + ".txt",
+                ),
+                "w",
+            ) as f:
                 # with open(os.path.join(walk_path,
                 #                          'walks' + ".txt"), 'a') as f:
                 for e in walk:
-                    f.write(e.split('/')[-1])
-                    f.write(' ')
+                    f.write(e.split("/")[-1])
+                    f.write(" ")
                 # f.write('\n')
             # with open(os.path.join(
             # walk_path, entity.replace("/", "__").replace(':', 'Y') + "_" + str(w) + ".json"), "w") as fp:

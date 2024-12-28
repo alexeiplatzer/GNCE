@@ -92,9 +92,7 @@ class CommunityWalker(Walker):
         validator=attr.validators.instance_of(int),
     )
 
-    _is_support_remote = attr.ib(
-        init=False, repr=False, type=bool, default=False
-    )
+    _is_support_remote = attr.ib(init=False, repr=False, type=bool, default=False)
 
     def _community_detection(self, kg: KG) -> None:
         """Converts the knowledge graph to a networkX graph.
@@ -118,14 +116,10 @@ class CommunityWalker(Walker):
                 # Neighbors are predicates
                 for pred in kg.get_neighbors(vertex):
                     for obj in kg.get_neighbors(pred):
-                        nx_graph.add_edge(
-                            str(vertex), str(obj), name=str(pred)
-                        )
+                        nx_graph.add_edge(str(vertex), str(obj), name=str(pred))
 
         # Create a dictionary that maps the URI on a community
-        partition = community.best_partition(
-            nx_graph, resolution=self.resolution
-        )
+        partition = community.best_partition(nx_graph, resolution=self.resolution)
         self.labels_per_community = defaultdict(list)
 
         self.communities = {}
@@ -137,9 +131,7 @@ class CommunityWalker(Walker):
         for node in self.communities:
             self.labels_per_community[self.communities[node]].append(node)
 
-    def _bfs(
-        self, kg: KG, entity: Vertex, is_reverse: bool = False
-    ) -> List[Walk]:
+    def _bfs(self, kg: KG, entity: Vertex, is_reverse: bool = False) -> List[Walk]:
         """Extracts random walks for an entity based on Knowledge Graph using
         the Depth First Search (DFS) algorithm.
 
@@ -162,10 +154,7 @@ class CommunityWalker(Walker):
                     hops = kg.get_hops(walk[0], True)
                     for pred, obj in hops:
                         walks.add((obj, pred) + walk)
-                        if (
-                            obj in self.communities
-                            and rng.random() < self.hop_prob
-                        ):
+                        if obj in self.communities and rng.random() < self.hop_prob:
                             comm = self.communities[obj]
                             comm_labels = self.labels_per_community[comm]
                             walks.add((rng.choice(comm_labels),) + walk)
@@ -173,10 +162,7 @@ class CommunityWalker(Walker):
                     hops = kg.get_hops(walk[-1])
                     for pred, obj in hops:
                         walks.add(walk + (pred, obj))
-                        if (
-                            obj in self.communities
-                            and rng.random() < self.hop_prob
-                        ):
+                        if obj in self.communities and rng.random() < self.hop_prob:
                             comm = self.communities[obj]
                             comm_labels = self.labels_per_community[comm]
                             walks.add(walk + (rng.choice(comm_labels),))
@@ -184,9 +170,7 @@ class CommunityWalker(Walker):
                     walks.remove(walk)
         return list(walks)
 
-    def _dfs(
-        self, kg: KG, entity: Vertex, is_reverse: bool = False
-    ) -> List[Walk]:
+    def _dfs(self, kg: KG, entity: Vertex, is_reverse: bool = False) -> List[Walk]:
         """Extracts random walks for an entity based on Knowledge Graph using
         the Depth First Search (DFS) algorithm.
 
@@ -218,10 +202,7 @@ class CommunityWalker(Walker):
                     break
 
                 if is_reverse:
-                    if (
-                        pred_obj[0] in self.communities
-                        and rng.random() < self.hop_prob
-                    ):
+                    if pred_obj[0] in self.communities and rng.random() < self.hop_prob:
                         community_nodes = self.labels_per_community[
                             self.communities[pred_obj[0]]
                         ]
@@ -232,10 +213,7 @@ class CommunityWalker(Walker):
                     else:
                         sub_walk = (pred_obj[1], pred_obj[0]) + sub_walk
                 else:
-                    if (
-                        pred_obj[1] in self.communities
-                        and rng.random() < self.hop_prob
-                    ):
+                    if pred_obj[1] in self.communities and rng.random() < self.hop_prob:
                         community_nodes = self.labels_per_community[
                             self.communities[pred_obj[1]]
                         ]
@@ -313,11 +291,7 @@ class CommunityWalker(Walker):
             A hash (string) or original string representation.
 
         """
-        if (
-            entity.name in self._entities
-            or pos % 2 == 1
-            or self.md5_bytes is None
-        ):
+        if entity.name in self._entities or pos % 2 == 1 or self.md5_bytes is None:
             return entity.name
         else:
             ent_hash = md5(entity.name.encode()).digest()

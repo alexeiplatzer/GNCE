@@ -8,10 +8,14 @@ from torch_geometric.data import DataLoader
 from time import time
 import matplotlib.pyplot as plt
 
-from ..constants import DATASETS_PATH
+from cardinality_estimation.constants import DATASETS_PATH
 
-from .models import TripleModelAdapt
-from .utils import StatisticsLoader, get_query_graph_data_new, ToUndirectedCustom
+from cardinality_estimation.GNCE.models import TripleModelAdapt
+from cardinality_estimation.GNCE.utils import (
+    StatisticsLoader,
+    get_query_graph_data_new,
+    ToUndirectedCustom,
+)
 
 
 def q_error(pred, gt):

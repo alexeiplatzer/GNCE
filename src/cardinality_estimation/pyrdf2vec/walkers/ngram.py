@@ -53,9 +53,7 @@ class NGramWalker(RandomWalker):
         validator=attr.validators.optional(attr.validators.instance_of(list)),
     )
 
-    _n_gram_map = attr.ib(
-        init=False, repr=False, type=Dict[Tuple, str], factory=dict
-    )
+    _n_gram_map = attr.ib(init=False, repr=False, type=Dict[Tuple, str], factory=dict)
 
     def _take_n_grams(self, walk: Walk) -> List[str]:
         """Takes the N-Grams.
@@ -73,8 +71,7 @@ class NGramWalker(RandomWalker):
                 n_gram_walk.append(vertex.name)
             else:
                 n_gram = tuple(
-                    walk[j].name
-                    for j in range(max(0, i - (self.grams - 1)), i + 1)
+                    walk[j].name for j in range(max(0, i - (self.grams - 1)), i + 1)
                 )
                 if n_gram not in self._n_gram_map:
                     self._n_gram_map[n_gram] = str(len(self._n_gram_map))
@@ -102,9 +99,7 @@ class NGramWalker(RandomWalker):
                 continue
 
             for wildcard in self.wildcards:
-                for idx in itertools.combinations(
-                    range(1, len(walk)), wildcard
-                ):
+                for idx in itertools.combinations(range(1, len(walk)), wildcard):
                     new_walk = list(walk).copy()
                     for ix in idx:
                         new_walk[ix] = Vertex("*")

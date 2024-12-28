@@ -49,9 +49,7 @@ class WLWalker(RandomWalker):
         validator=attr.validators.instance_of(int),
     )
 
-    _is_support_remote = attr.ib(
-        init=False, repr=False, type=bool, default=False
-    )
+    _is_support_remote = attr.ib(init=False, repr=False, type=bool, default=False)
 
     _inv_label_map = attr.ib(
         init=False,
@@ -88,9 +86,7 @@ class WLWalker(RandomWalker):
                 set(
                     [
                         self._label_map[neighbor][n - 1]
-                        for neighbor in kg.get_neighbors(
-                            vertex, is_reverse=True
-                        )
+                        for neighbor in kg.get_neighbors(vertex, is_reverse=True)
                     ]
                 )
             )
@@ -115,14 +111,12 @@ class WLWalker(RandomWalker):
             for vertex in kg._vertices:
                 if self.md5_bytes:
                     self._label_map[vertex][n] = str(
-                        md5(
-                            self._create_label(kg, vertex, n).encode()
-                        ).digest()[: self.md5_bytes]
+                        md5(self._create_label(kg, vertex, n).encode()).digest()[
+                            : self.md5_bytes
+                        ]
                     )
                 else:
-                    self._label_map[vertex][n] = str(
-                        self._create_label(kg, vertex, n)
-                    )
+                    self._label_map[vertex][n] = str(self._create_label(kg, vertex, n))
 
         for vertex in kg._vertices:
             for k, v in self._label_map[vertex].items():

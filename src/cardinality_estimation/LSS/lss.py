@@ -1,4 +1,4 @@
-'''
+"""
 Main Script for automating manual processes of LSS training on INI Server
 
 1. specify your dataset and query type
@@ -9,7 +9,8 @@ Main Script for automating manual processes of LSS training on INI Server
 IMPORTANT: the last step spawns a tmux shell named 'mysession'. Make sure it does
 not exist on the server
 
-'''
+"""
+
 from query_saver import save_all_queries
 from server_transfer import *
 from datetime import datetime
@@ -38,5 +39,3 @@ if __name__ == "__main__":
     if pull_training_results:
         # Pull results from remote server
         gather_training_files(dataset, f"{starttime}_{dataset}_{query_type}")
-
-

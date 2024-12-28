@@ -7,7 +7,9 @@ import random
 from .query_graph import QueryGraph
 
 
-def star_to_triples(query_parts, dict_join, store_join_ids, var_id, special_format = False):
+def star_to_triples(
+    query_parts, dict_join, store_join_ids, var_id, special_format=False
+):
     """
     Star query converted to triples
     :param query_parts: actual star query of for s-p1-o1-p2-o2
@@ -39,7 +41,7 @@ def star_to_triples(query_parts, dict_join, store_join_ids, var_id, special_form
         store_var_dict[0] = s_var
 
     i = 1
-    times = (len(pattern_parts) - 1) /2
+    times = (len(pattern_parts) - 1) / 2
     # len_parts = len(pattern_parts)
     while times > 0:
         # print(str(i) + "/" + str(times))
@@ -93,7 +95,7 @@ def chain_to_triples(query_parts, dict_join, store_join_ids, var_id):
         store_var_dict[0] = s_var
     i = 1
 
-    times = (len(pattern_parts) - 1) /2
+    times = (len(pattern_parts) - 1) / 2
     # len_parts = len(pattern_parts)
     firstTime = True
     while times > 0:
@@ -135,7 +137,7 @@ def create_var_id(var, var_id):
     return var, var_id
 
 
-def read_complex_queries(files, d, b, n, e, limit = 100_000_000):
+def read_complex_queries(files, d, b, n, e, limit=100_000_000):
     """
     Processes the example files
     :param files: the file contains two queries joined by the last and the first attribute
@@ -172,8 +174,12 @@ def read_complex_queries(files, d, b, n, e, limit = 100_000_000):
                 join_pairs = []
                 # which ids need to be joined
                 for j in j_s:
-                    left_join_idx = 0 if j[0] == "first" else (len(query_parts1.split("-")) - 1)
-                    right_join_idx = 0 if j[1] == "first" else (len(query_parts2.split("-")) - 1)
+                    left_join_idx = (
+                        0 if j[0] == "first" else (len(query_parts1.split("-")) - 1)
+                    )
+                    right_join_idx = (
+                        0 if j[1] == "first" else (len(query_parts2.split("-")) - 1)
+                    )
                     join_pairs.append((left_join_idx, right_join_idx))
                 # print("The join pairs are " + str(join_pairs))
 
@@ -187,7 +193,9 @@ def read_complex_queries(files, d, b, n, e, limit = 100_000_000):
                 # query_parts1 = "*-1-*-2-*-2-*"
                 dict_join = dict()
                 var_id = 0
-                query_triples1, store_var_dict, var_id = star_to_triples(query_parts1, dict_join, store_join_ids, var_id)
+                query_triples1, store_var_dict, var_id = star_to_triples(
+                    query_parts1, dict_join, store_join_ids, var_id
+                )
                 # print("Query triple 1: " + str(query_triples1))
                 query_triples.extend(query_triples1)
 
@@ -200,14 +208,16 @@ def read_complex_queries(files, d, b, n, e, limit = 100_000_000):
                     dict_join[idx2] = store_var_dict[idx1]
 
                 # Processing of query 2
-                query_triples2, store_var_dict, var_id = chain_to_triples(query_parts2, dict_join, set(), var_id)
+                query_triples2, store_var_dict, var_id = chain_to_triples(
+                    query_parts2, dict_join, set(), var_id
+                )
                 # print("Query triple 2: " + str(query_triples2))
 
                 query_triples.extend(query_triples2)
                 # print("All query triples: " + str(query_triples))
 
                 # For every query we create the graph
-                graph = QueryGraph(d,b,n,e)
+                graph = QueryGraph(d, b, n, e)
                 graph.cardinality = card
                 for query_triple in query_triples:
                     graph.add_triple(query_triple)
@@ -224,8 +234,17 @@ def read_complex_queries(files, d, b, n, e, limit = 100_000_000):
     return np.array(X), np.array(A), np.array(E), np.array(y), end_time
 
 
-def custom_reader(file, d, b, n, e, train: bool = None, dataset: str = None, inductive='false',
-                  DATASETPATH=None):
+def custom_reader(
+    file,
+    d,
+    b,
+    n,
+    e,
+    train: bool = None,
+    dataset: str = None,
+    inductive="false",
+    DATASETPATH=None,
+):
 
     assert DATASETPATH is not None
     assert dataset is not None
@@ -237,16 +256,16 @@ def custom_reader(file, d, b, n, e, train: bool = None, dataset: str = None, ind
     n_atoms = 0
     X, A, E, y, sizes = [], [], [], [], []
 
-    if inductive == 'false':
+    if inductive == "false":
         with open(file) as f:
             data = json.load(f)
             # data = data[20000:]
         random.Random(4).shuffle(data)
         if train:
-            data = data[:int(0.8 * len(data))][:100]
+            data = data[: int(0.8 * len(data))][:100]
         else:
-            data = data[int(0.8 * len(data)):][:100]
-    elif inductive == 'full':
+            data = data[int(0.8 * len(data)) :][:100]
+    elif inductive == "full":
         if train:
             with open(file[0]) as f:
                 data = json.load(f)
@@ -259,7 +278,7 @@ def custom_reader(file, d, b, n, e, train: bool = None, dataset: str = None, ind
             entity_mapping = json.load(f)
         with open(f"{DATASETPATH}wikidata/predicate_mapping.json", "r") as f:
             predicate_mapping = json.load(f)
-    elif dataset == 'yago':
+    elif dataset == "yago":
         with open(f"{DATASETPATH}yago/id_to_id_mapping.json", "r") as f:
             entity_mapping = json.load(f)
         with open(f"{DATASETPATH}yago/id_to_id_mapping_predicate.json", "r") as f:
@@ -296,12 +315,30 @@ def custom_reader(file, d, b, n, e, train: bool = None, dataset: str = None, ind
                 if "?" not in tp[1]:
                     tp[1] = str(predicate_mapping[tp[1]])
 
-            if dataset == 'swdf' or dataset == 'swdf_inductive':
-                g.add_triple([el.replace("<http://ex.org/", "").replace(">", "") for el in tp if el is not "."])
+            if dataset == "swdf" or dataset == "swdf_inductive":
+                g.add_triple(
+                    [
+                        el.replace("<http://ex.org/", "").replace(">", "")
+                        for el in tp
+                        if el is not "."
+                    ]
+                )
             elif dataset == "yago":
-                g.add_triple([el.replace("<http://example.com/", "").replace(">", "") for el in tp if el is not "."])
+                g.add_triple(
+                    [
+                        el.replace("<http://example.com/", "").replace(">", "")
+                        for el in tp
+                        if el is not "."
+                    ]
+                )
             else:
-                g.add_triple([el.replace("<http://example.org/", "").replace(">", "") for el in tp if el is not "."])
+                g.add_triple(
+                    [
+                        el.replace("<http://example.org/", "").replace(">", "")
+                        for el in tp
+                        if el is not "."
+                    ]
+                )
 
         if skip:
             continue
@@ -319,9 +356,18 @@ def custom_reader(file, d, b, n, e, train: bool = None, dataset: str = None, ind
     end_time = time.time() - time_start
 
     # time it takes to encode one atom (in ms)
-    avg_encoding_time_per_atom = end_time/n_atoms * 1000
-    return (np.array(X), np.array(A), np.array(E), np.array(y), end_time, avg_encoding_time_per_atom, sizes, data,
-            n_atoms)
+    avg_encoding_time_per_atom = end_time / n_atoms * 1000
+    return (
+        np.array(X),
+        np.array(A),
+        np.array(E),
+        np.array(y),
+        end_time,
+        avg_encoding_time_per_atom,
+        sizes,
+        data,
+        n_atoms,
+    )
 
 
 def read_queries(file, d, b, n, e, query_type="star", limit=100_000_000):
@@ -357,17 +403,21 @@ def read_queries(file, d, b, n, e, query_type="star", limit=100_000_000):
             var_id = 0
 
             if query_type == "star":
-                query_triples1, store_var_dict, var_id = star_to_triples(queries, dict_join, set(), var_id, special_format=True)
+                query_triples1, store_var_dict, var_id = star_to_triples(
+                    queries, dict_join, set(), var_id, special_format=True
+                )
                 # print("Query triple 1: " + str(query_triples1))
                 query_triples.extend(query_triples1)
             elif query_type == "chain":
-                query_triples2, store_var_dict, var_id = chain_to_triples(queries, dict_join, set(), var_id)
+                query_triples2, store_var_dict, var_id = chain_to_triples(
+                    queries, dict_join, set(), var_id
+                )
                 # print("Query triple 2: " + str(query_triples2))
                 query_triples.extend(query_triples2)
             # print("All query triples: " + str(query_triples))
 
             # For every query we create the graph
-            graph = QueryGraph(d,b,n,e)
+            graph = QueryGraph(d, b, n, e)
             graph.cardinality = card
             for query_triple in query_triples:
                 graph.add_triple(query_triple)
@@ -383,7 +433,9 @@ def read_queries(file, d, b, n, e, query_type="star", limit=100_000_000):
     return np.array(X), np.array(A), np.array(E), np.array(y), end_time
 
 
-def read_combined(d, b, n, e, file_name_star, file_name_chain, train_tuples = 10000, test_mode = "star"):
+def read_combined(
+    d, b, n, e, file_name_star, file_name_chain, train_tuples=10000, test_mode="star"
+):
     """
     Creates encoding from queries in the file
     :param d: int, the number of distinct nodes (subjects + objects) in KG
@@ -401,18 +453,22 @@ def read_combined(d, b, n, e, file_name_star, file_name_chain, train_tuples = 10
     if "chain" in test_mode:
         return read_queries(file_name_chain, d, b, n, e, query_type="chain")
 
-    X_s, A_s, E_s, y_s, time_start_star = read_queries(file_name_star, d, b, n, e, query_type="star", limit = train_tuples)
-    X_c, A_c, E_c, y_c, time_start_chain = read_queries(file_name_chain, d, b, n, e, query_type="chain", limit = train_tuples)
+    X_s, A_s, E_s, y_s, time_start_star = read_queries(
+        file_name_star, d, b, n, e, query_type="star", limit=train_tuples
+    )
+    X_c, A_c, E_c, y_c, time_start_chain = read_queries(
+        file_name_chain, d, b, n, e, query_type="chain", limit=train_tuples
+    )
 
-    X = np.concatenate([X_s, X_c], axis = 0)
-    A = np.concatenate([A_s, A_c], axis = 0)
-    E = np.concatenate([E_s, E_c], axis = 0)
-    y = np.concatenate([y_s, y_c], axis = 0)
+    X = np.concatenate([X_s, X_c], axis=0)
+    A = np.concatenate([A_s, A_c], axis=0)
+    E = np.concatenate([E_s, E_c], axis=0)
+    y = np.concatenate([y_s, y_c], axis=0)
 
     return X, A, E, y, (time_start_star + time_start_chain)
 
 
-def read_combined_all_sizes_star_or_chain(d, b, n, e, file_names, train_tuples = 10000):
+def read_combined_all_sizes_star_or_chain(d, b, n, e, file_names, train_tuples=10000):
     """
     Creates encoding from queries in the file
     :param d: int, the number of distinct nodes (subjects + objects) in KG
@@ -429,19 +485,23 @@ def read_combined_all_sizes_star_or_chain(d, b, n, e, file_names, train_tuples =
     all_y = []
     time = 0
     for i in range(len(file_names)):
-        if 'star' in file_names[i]:
-            X_i, A_i, E_i, y_i, time_start_i = read_queries(file_names[i], d, b, n, e, query_type="star", limit = train_tuples)
+        if "star" in file_names[i]:
+            X_i, A_i, E_i, y_i, time_start_i = read_queries(
+                file_names[i], d, b, n, e, query_type="star", limit=train_tuples
+            )
         else:
-            X_i, A_i, E_i, y_i, time_start_i = read_queries(file_names[i], d, b, n, e, query_type="chain", limit = train_tuples)
+            X_i, A_i, E_i, y_i, time_start_i = read_queries(
+                file_names[i], d, b, n, e, query_type="chain", limit=train_tuples
+            )
         all_X.append(X_i)
         all_A.append(A_i)
         all_E.append(E_i)
         all_y.append(y_i)
         time += time_start_i
 
-    X = np.concatenate(all_X, axis = 0)
-    A = np.concatenate(all_A, axis = 0)
-    E = np.concatenate(all_E, axis = 0)
-    y = np.concatenate(all_y, axis = 0)
+    X = np.concatenate(all_X, axis=0)
+    A = np.concatenate(all_A, axis=0)
+    E = np.concatenate(all_E, axis=0)
+    y = np.concatenate(all_y, axis=0)
 
     return X, A, E, y, time

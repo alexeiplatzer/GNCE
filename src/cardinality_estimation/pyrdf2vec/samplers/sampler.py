@@ -47,9 +47,7 @@ class Sampler(ABC):
 
     split = attr.ib(default=False, validator=attr.validators.instance_of(bool))
 
-    _is_support_remote = attr.ib(
-        init=False, type=bool, repr=False, default=False
-    )
+    _is_support_remote = attr.ib(init=False, type=bool, repr=False, default=False)
 
     _random_state = attr.ib(
         init=False,
@@ -58,13 +56,9 @@ class Sampler(ABC):
         default=None,
     )
 
-    _vertices_deg = attr.ib(
-        init=False, type=Dict[str, int], repr=False, factory=dict
-    )
+    _vertices_deg = attr.ib(init=False, type=Dict[str, int], repr=False, factory=dict)
 
-    _visited = attr.ib(
-        init=False, type=Set[Tuple[Hop, int]], repr=False, factory=set
-    )
+    _visited = attr.ib(init=False, type=Set[Tuple[Hop, int]], repr=False, factory=set)
 
     @abstractmethod
     def fit(self, kg: KG) -> None:
@@ -122,18 +116,14 @@ class Sampler(ABC):
         if {} in weights:
             return []
         if self.inverse:
-            weights = [
-                max(weights) - (weight - min(weights)) for weight in weights
-            ]
+            weights = [max(weights) - (weight - min(weights)) for weight in weights]
         if self.split:
             weights = [
                 weight / self._vertices_deg[hop[1].name]
                 for weight, hop in zip(weights, hops)
                 if self._vertices_deg[hop[1].name] != 0
             ]
-        return [
-            weight / sum(weights) for weight in weights if sum(weights) != 0
-        ]
+        return [weight / sum(weights) for weight in weights if sum(weights) != 0]
 
     def sample_hop(
         self, kg: KG, walk: Walk, is_last_hop: bool, is_reverse: bool = False
@@ -164,9 +154,7 @@ class Sampler(ABC):
 
         if len(untagged_neighbors) == 0:
             if len(walk) > 2:
-                pred_obj = (
-                    (walk[1], walk[0]) if is_reverse else (walk[-2], walk[-1])
-                )
+                pred_obj = (walk[1], walk[0]) if is_reverse else (walk[-2], walk[-1])
                 self.visited.add((pred_obj, len(walk) - 2))
             return None
 

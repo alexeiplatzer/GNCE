@@ -72,9 +72,7 @@ class FastText(Embedder):
         self._model.wv.vectors_vocab_lockf = ones(1, dtype=REAL)
         self._model.wv.vectors_ngrams_lockf = ones(1, dtype=REAL)
 
-    def fit(
-        self, walks: List[List[SWalk]], is_update: bool = False
-    ) -> Embedder:
+    def fit(self, walks: List[List[SWalk]], is_update: bool = False) -> Embedder:
         """Fits the FastText model based on provided walks.
 
         Args:
@@ -132,9 +130,7 @@ class RDFFastTextKeyedVectors(FastTextKeyedVectors):
         if word in self.key_to_index:
             return super().get_vector(word, norm=norm)
         elif self.bucket == 0:
-            raise KeyError(
-                "cannot calculate vector for OOV word without ngrams"
-            )
+            raise KeyError("cannot calculate vector for OOV word without ngrams")
         else:
             word_vec = np.zeros(self.vectors_ngrams.shape[1], dtype=np.float32)
             ngram_weights = self.vectors_ngrams
@@ -162,9 +158,7 @@ class RDFFastTextKeyedVectors(FastTextKeyedVectors):
 
         """
         if self.bucket == 0:
-            self.buckets_word = [np.array([], dtype=np.uint32)] * len(
-                self.index_to_key
-            )
+            self.buckets_word = [np.array([], dtype=np.uint32)] * len(self.index_to_key)
             return
 
         self.buckets_word = [None] * len(self.index_to_key)  # type:ignore

@@ -14,11 +14,11 @@ import made
 
 # only equality (=) is needed
 OPS = {
-    '>': np.greater,
-    '<': np.less,
-    '>=': np.greater_equal,
-    '<=': np.less_equal,
-    '=': np.equal
+    ">": np.greater,
+    "<": np.less,
+    ">=": np.greater_equal,
+    "<=": np.less_equal,
+    "=": np.equal,
 }
 
 
@@ -32,10 +32,9 @@ class CardEst(object):
         self.est_cards = []
         self.true_cards = []
 
-        self.name = 'CardEst'
+        self.name = "CardEst"
 
     def Query(self, columns, operators, vals):
-
         """Estimates cardinality with the specified conditions.
 
         Args:
@@ -68,8 +67,11 @@ class CardEst(object):
 
     def get_stats(self):
         return [
-            self.query_starts, self.query_dur_ms, self.errs, self.est_cards,
-            self.true_cards
+            self.query_starts,
+            self.query_dur_ms,
+            self.errs,
+            self.est_cards,
+            self.true_cards,
         ]
 
     def merge_stats(self, state):
@@ -81,13 +83,24 @@ class CardEst(object):
 
     def report(self):
         est = self
-        print(est.name, "max", np.max(est.errs), "99th",
-              np.quantile(est.errs, 0.99), "95th", np.quantile(est.errs, 0.95),
-              "median", np.quantile(est.errs, 0.5), "time_ms",
-              np.mean(est.query_dur_ms))
+        print(
+            est.name,
+            "max",
+            np.max(est.errs),
+            "99th",
+            np.quantile(est.errs, 0.99),
+            "95th",
+            np.quantile(est.errs, 0.95),
+            "median",
+            np.quantile(est.errs, 0.5),
+            "time_ms",
+            np.mean(est.query_dur_ms),
+        )
 
 
-def FillInUnqueriedColumnsAndDiscretized(table, columns, operators, vals, discretized_vals):
+def FillInUnqueriedColumnsAndDiscretized(
+    table, columns, operators, vals, discretized_vals
+):
     """Allows for some terms to be unqueried (i.e., wildcard).
 
     Returns cols, ops, vals, where all 3 lists of all size len(table.columns),
@@ -110,17 +123,18 @@ def FillInUnqueriedColumnsAndDiscretized(table, columns, operators, vals, discre
 
 class BaseDistributionEstimation(CardEst):
     """
-        Distribution estimation based on the AR model.
+    Distribution estimation based on the AR model.
     """
+
     def __init__(
-            self,
-            model,
-            table,
-            r,
-            device=None,
-            seed=False,
-            cardinality=None,
-            shortcircuit=False  # Skip sampling on wildcards?
+        self,
+        model,
+        table,
+        r,
+        device=None,
+        seed=False,
+        cardinality=None,
+        shortcircuit=False,  # Skip sampling on wildcards?
     ):
         super(BaseDistributionEstimation, self).__init__()
         torch.set_grad_enabled(False)
@@ -138,8 +152,7 @@ class BaseDistributionEstimation(CardEst):
             self.cardinality = table.cardinality
 
         with torch.no_grad():
-            self.init_logits = self.model(
-                torch.zeros(1, self.model.nin, device=device))
+            self.init_logits = self.model(torch.zeros(1, self.model.nin, device=device))
 
         self.dom_sizes = [c.DistributionSize() for c in self.table.columns]
         self.dom_sizes = np.cumsum(self.dom_sizes)
@@ -149,12 +162,12 @@ class BaseDistributionEstimation(CardEst):
         # We can't seem to trace this because it depends on a scalar input.
         self.traced_encode_input = model.EncodeInput
 
-        if 'MADE' in str(model):
+        if "MADE" in str(model):
             for layer in model.net:
                 if type(layer) == made.MaskedLinear:
                     if layer.masked_weight is None:
                         layer.masked_weight = layer.mask * layer.weight
-                        print('Setting masked_weight in MADE, do not retrain!')
+                        print("Setting masked_weight in MADE, do not retrain!")
 
         for p in model.parameters():
             p.detach_()
@@ -163,9 +176,9 @@ class BaseDistributionEstimation(CardEst):
 
         # self.inp represents the encoding for the input
         with torch.no_grad():
-            self.kZeros = torch.zeros(self.num_samples,
-                                      self.model.nin,
-                                      device=self.device)
+            self.kZeros = torch.zeros(
+                self.num_samples, self.model.nin, device=self.device
+            )
 
             self.inp = self.traced_encode_input(self.kZeros)
 
@@ -176,16 +189,19 @@ class BaseDistributionEstimation(CardEst):
             n = self.num_samples
         else:
             n = int(self.r * self.table.columns[0].DistributionSize())
-        return 'psample_{}'.format(n)
+        return "psample_{}".format(n)
 
-    def _sample_n(self,
-                  num_samples,
-                  ordering,
-                  columns,
-                  operators,
-                  vals,
-                  discretized_vals,
-                  inp=None, doPartial=False):
+    def _sample_n(
+        self,
+        num_samples,
+        ordering,
+        columns,
+        operators,
+        vals,
+        discretized_vals,
+        inp=None,
+        doPartial=False,
+    ):
         ncols = len(columns)
 
         # only take one example
@@ -193,36 +209,37 @@ class BaseDistributionEstimation(CardEst):
 
         original_vals = vals.copy()
 
-        '''
+        """
             Do the encoding for the wildcards 
-        '''
+        """
         for i in range(ncols):
             natural_idx = i if ordering is None else ordering[i]
             if operators[natural_idx] is None:
-                '''encoding for the wildcards'''
+                """encoding for the wildcards"""
                 if natural_idx == 0:
                     self.model.EncodeInput(
                         None,
                         natural_col=0,
-                        out=inp[:, :self.model.
-                                input_bins_encoded_cumsum[0]])
+                        out=inp[:, : self.model.input_bins_encoded_cumsum[0]],
+                    )
                 else:
-                    l = self.model.input_bins_encoded_cumsum[natural_idx -
-                                                             1]
+                    l = self.model.input_bins_encoded_cumsum[natural_idx - 1]
                     r = self.model.input_bins_encoded_cumsum[natural_idx]
-                    self.model.EncodeInput(None,
-                                           natural_col=natural_idx,
-                                           out=inp[:, l:r])
+                    self.model.EncodeInput(
+                        None, natural_col=natural_idx, out=inp[:, l:r]
+                    )
             else:
                 # put them in the required format
-                data_to_encode = torch.LongTensor([discretized_vals[natural_idx]])#.view(-1, 1)
+                data_to_encode = torch.LongTensor(
+                    [discretized_vals[natural_idx]]
+                )  # .view(-1, 1)
 
                 if natural_idx == 0:
                     self.model.EncodeInput(
                         data_to_encode,
                         natural_col=0,
-                        out=inp[:, :self.model.
-                                input_bins_encoded_cumsum[0]])
+                        out=inp[:, : self.model.input_bins_encoded_cumsum[0]],
+                    )
 
                 else:
                     # starting bit postion for current column
@@ -230,9 +247,9 @@ class BaseDistributionEstimation(CardEst):
                     # ending bit postion for current column
                     r = self.model.input_bins_encoded_cumsum[natural_idx]
 
-                    self.model.EncodeInput(data_to_encode,
-                                           natural_col=natural_idx,
-                                           out=inp[:, l:r])
+                    self.model.EncodeInput(
+                        data_to_encode, natural_col=natural_idx, out=inp[:, l:r]
+                    )
 
         # create the logits for the encoded query
         logits = self.model.forward_with_encoded_input(inp)
@@ -241,12 +258,14 @@ class BaseDistributionEstimation(CardEst):
         for i in range(ncols):
             natural_idx = i if ordering is None else ordering[i]
 
-            probs_i = torch.softmax(
-                self.model.logits_for_col(natural_idx, logits), 1)
+            probs_i = torch.softmax(self.model.logits_for_col(natural_idx, logits), 1)
 
             if operators[natural_idx] is not None:
                 # the set terms
-                idx = np.where(columns[natural_idx].all_distinct_values == original_vals[natural_idx])[0]
+                idx = np.where(
+                    columns[natural_idx].all_distinct_values
+                    == original_vals[natural_idx]
+                )[0]
 
                 p_x_1 *= probs_i[0][idx].item()
             else:
@@ -256,19 +275,22 @@ class BaseDistributionEstimation(CardEst):
 
     def Query(self, columns, operators, vals, discretized_vals):
         """fill the unqueried terms"""
-        columns, operators, vals, discretized_vals = FillInUnqueriedColumnsAndDiscretized(
-            self.table, columns, operators, vals, discretized_vals)
+        columns, operators, vals, discretized_vals = (
+            FillInUnqueriedColumnsAndDiscretized(
+                self.table, columns, operators, vals, discretized_vals
+            )
+        )
 
         ordering = None
-        if hasattr(self.model, 'orderings'):
+        if hasattr(self.model, "orderings"):
             ordering = self.model.orderings[0]
             orderings = self.model.orderings
-        elif hasattr(self.model, 'm'):
+        elif hasattr(self.model, "m"):
             # MADE.
             ordering = self.model.m[-1]
             orderings = [self.model.m[-1]]
         else:
-            print('****Warning: defaulting to natural order')
+            print("****Warning: defaulting to natural order")
             ordering = np.arange(len(columns))
             orderings = [ordering]
 
@@ -292,11 +314,15 @@ class BaseDistributionEstimation(CardEst):
                     operators,
                     vals,
                     discretized_vals,
-                    inp=inp_buf, doPartial=False)
+                    inp=inp_buf,
+                    doPartial=False,
+                )
                 self.OnEnd()
 
-                result = np.ceil(p * self.cardinality).astype(dtype=np.int32, copy=False)
-                print('result %.3f' % (result if result > 0 else 1))
+                result = np.ceil(p * self.cardinality).astype(
+                    dtype=np.int32, copy=False
+                )
+                print("result %.3f" % (result if result > 0 else 1))
 
         return result if result > 0 else 1
 
@@ -310,7 +336,7 @@ class Oracle(CardEst):
         self.limit_first_n = limit_first_n
 
     def __str__(self):
-        return 'oracle-est: ' + str(self.limit_first_n)
+        return "oracle-est: " + str(self.limit_first_n)
 
     def Query(self, columns, operators, vals, return_masks=False):
         assert len(columns) == len(operators) == len(vals)
@@ -322,7 +348,7 @@ class Oracle(CardEst):
                 inds = OPS[o](c.data, v)
             else:
                 # For data shifts experiment.
-                inds = OPS[o](c.data[:self.limit_first_n], v)
+                inds = OPS[o](c.data[: self.limit_first_n], v)
 
             if bools is None:
                 bools = inds

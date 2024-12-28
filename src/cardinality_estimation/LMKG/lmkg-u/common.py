@@ -80,7 +80,7 @@ class Column(object):
         # For our purposes we always add any null value to the beginning.
         vs = np.sort(np.unique(dv_no_nan))
         if contains_nan and np.issubdtype(distinct_values.dtype, np.datetime64):
-            vs = np.insert(vs, 0, np.datetime64('NaT'))
+            vs = np.insert(vs, 0, np.datetime64("NaT"))
         elif contains_nan:
             vs = np.insert(vs, 0, np.nan)
         if self.distribution_size is not None:
@@ -99,8 +99,9 @@ class Column(object):
         return self
 
     def __repr__(self):
-        return 'Column({}, distribution_size={})'.format(
-            self.name, self.distribution_size)
+        return "Column({}, distribution_size={})".format(
+            self.name, self.distribution_size
+        )
 
 
 class Table(object):
@@ -127,7 +128,7 @@ class Table(object):
             self.pg_name = name
 
     def __repr__(self):
-        return '{}({})'.format(self.name, self.columns)
+        return "{}({})".format(self.name, self.columns)
 
     def _validate_cardinality(self, columns):
         """Checks that all the columns have same the number of rows."""
@@ -153,17 +154,19 @@ class Table(object):
 class CsvTable(Table):
     """Wraps a CSV file or pd.DataFrame as a Table."""
 
-    def __init__(self,
-                 name,
-                 filename_or_df,
-                 cols,
-                 type_casts={},
-                 pg_name=None,
-                 pg_cols=None,
-                 do_compression=None,
-                 num_submterms=2,
-                 comp_threshold=1000,
-                 **kwargs):
+    def __init__(
+        self,
+        name,
+        filename_or_df,
+        cols,
+        type_casts={},
+        pg_name=None,
+        pg_cols=None,
+        do_compression=None,
+        num_submterms=2,
+        comp_threshold=1000,
+        **kwargs
+    ):
         """Accepts the same arguments as pd.read_csv().
 
         Args:
@@ -191,9 +194,15 @@ class CsvTable(Table):
             self.compressor_element = Compressor(root_used_for_divison)
 
         if isinstance(filename_or_df, str):
-            self.data, cols = self._load(filename_or_df, cols, doCompression=do_compression, compression_threshold=comp_threshold, **kwargs)
+            self.data, cols = self._load(
+                filename_or_df,
+                cols,
+                doCompression=do_compression,
+                compression_threshold=comp_threshold,
+                **kwargs
+            )
         else:
-            assert (isinstance(filename_or_df, pd.DataFrame))
+            assert isinstance(filename_or_df, pd.DataFrame)
             self.data = filename_or_df
 
         self.columns = self._build_columns(self.data, cols, type_casts, pg_cols)
@@ -201,10 +210,12 @@ class CsvTable(Table):
         super(CsvTable, self).__init__(name, self.columns, pg_name)
 
     def call_divide_column(self, column_values, column_divider, original_col_index):
-        return self.compressor_element.divide_column(column_values, column_divider, original_col_index)
+        return self.compressor_element.divide_column(
+            column_values, column_divider, original_col_index
+        )
 
     def compressData(self, original_df, cols, root, when_to_compress):
-        '''
+        """
         Method for compressing the data. Every column that has more unique values then 'when_to_compress' is split
         into 'root' columns.
 
@@ -213,7 +224,7 @@ class CsvTable(Table):
         :param root:
         :param when_to_compress:
         :return:
-        '''
+        """
         compressed_data = pd.DataFrame()
         boundries_per_column = dict()
         modified_columns = []
@@ -222,9 +233,9 @@ class CsvTable(Table):
             max_column_value = original_df[col].max()
             # if the value satisfies the requirement then calculate the divider and update the column names
             if max_column_value > when_to_compress:
-                boundries_per_column[col] = int(max_column_value ** (1/root))
+                boundries_per_column[col] = int(max_column_value ** (1 / root))
                 for i in range(root):
-                    modified_columns.append(col + '' + str(i+1))
+                    modified_columns.append(col + "" + str(i + 1))
             else:
                 modified_columns.append(col)
 
@@ -233,12 +244,14 @@ class CsvTable(Table):
             data_column = original_df[col]
 
             if col in boundries_per_column:
-                print('compressing column: %s' % col)
+                print("compressing column: %s" % col)
                 # every column at the beginning will be split into 2 columns
                 how_many_times_compressed = 2
                 # for every column that has the potential to be split, perform the split
                 try:
-                    quotient_column, reminder_column = self.call_divide_column(data_column.values, boundries_per_column[col], i)
+                    quotient_column, reminder_column = self.call_divide_column(
+                        data_column.values, boundries_per_column[col], i
+                    )
                 except:
                     print(data_column.values)
                     print(boundries_per_column[col])
@@ -252,8 +265,9 @@ class CsvTable(Table):
                 # if the number of current columns is different than the number of columns
                 # that we want to have perform the split
                 while how_many_times_compressed < root:
-                    quotient_column, reminder_column = self.call_divide_column(quotient_column,
-                                                                               boundries_per_column[col], i)
+                    quotient_column, reminder_column = self.call_divide_column(
+                        quotient_column, boundries_per_column[col], i
+                    )
                     # store the reminder
                     all_reminders.append(reminder_column)
                     # increase the number of columns
@@ -268,38 +282,47 @@ class CsvTable(Table):
                         current_col_title += 1
             else:
                 # for the columns that should't be split, add them to the correct place
-                compressed_data[modified_columns[current_col_title]] = data_column.values
+                compressed_data[modified_columns[current_col_title]] = (
+                    data_column.values
+                )
 
             # go to the next column
             current_col_title += 1
-        print('shape of compressed data:', end=' ')
+        print("shape of compressed data:", end=" ")
         print(np.shape(compressed_data))
 
         return compressed_data, modified_columns
 
-    def _load(self, filename, cols, doCompression=False, compression_threshold=1000, **kwargs):
-        print('Loading csv...', end=' ')
+    def _load(
+        self, filename, cols, doCompression=False, compression_threshold=1000, **kwargs
+    ):
+        print("Loading csv...", end=" ")
         print()
         s = time.time()
         df = pd.read_csv(filename, usecols=cols, **kwargs)
-        print('original data shape:', end=' ')
+        print("original data shape:", end=" ")
         print(np.shape(df))
         modified_cols = cols
         if doCompression:
-            '''
-                Create a compression where we split the column into two columns such that we get the root
-                closest to the maximal number of the column. 
-                Using that we divide every number in that column with the square root and we get 
-                the multiplier and the quotient. 
-            '''
+            """
+            Create a compression where we split the column into two columns such that we get the root
+            closest to the maximal number of the column.
+            Using that we divide every number in that column with the square root and we get
+            the multiplier and the quotient.
+            """
             # represents the required number of unique values to qualify a column for compression
             min_num_unique_domain_values_column_to_qualify = compression_threshold
-            df, modified_cols = self.compressData(df,cols, self.compressor_element.root, min_num_unique_domain_values_column_to_qualify)
+            df, modified_cols = self.compressData(
+                df,
+                cols,
+                self.compressor_element.root,
+                min_num_unique_domain_values_column_to_qualify,
+            )
         else:
             if cols is not None:
                 df = df[cols]
 
-        print('done, took {:.1f}s'.format(time.time() - s))
+        print("done, took {:.1f}s".format(time.time() - s))
         return df, modified_cols
 
     def _build_columns(self, data, cols, type_casts, pg_cols):
@@ -310,7 +333,7 @@ class CsvTable(Table):
 
         Returns: a list of Columns.
         """
-        print('Parsing...', end=' ')
+        print("Parsing...", end=" ")
         s = time.time()
         for col, typ in type_casts.items():
             if col not in data:
@@ -319,9 +342,9 @@ class CsvTable(Table):
                 data[col] = data[col].astype(typ, copy=False)
             else:
                 # Both infer_datetime_format and cache are critical for perf.
-                data[col] = pd.to_datetime(data[col],
-                                           infer_datetime_format=True,
-                                           cache=True)
+                data[col] = pd.to_datetime(
+                    data[col], infer_datetime_format=True, cache=True
+                )
 
         # Discretize & create Columns.
         if cols is None:
@@ -340,7 +363,7 @@ class CsvTable(Table):
             # For datetime: np.datetime64('NaT')
             col.SetDistribution(data[c].value_counts(dropna=False).index.values)
             columns.append(col)
-        print('done, took {:.1f}s'.format(time.time() - s))
+        print("done, took {:.1f}s".format(time.time() - s))
 
         return columns
 
@@ -352,14 +375,14 @@ class TableDataset(data.Dataset):
         super(TableDataset, self).__init__()
         self.table = copy.deepcopy(table)
 
-        print('Discretizing table...', end=' ')
+        print("Discretizing table...", end=" ")
         s = time.time()
         # [cardianlity, num cols].
         self.tuples_np = np.stack(
-            [self.Discretize(c) for c in self.table.Columns()], axis=1)
-        self.tuples = torch.as_tensor(
-            self.tuples_np.astype(np.float32, copy=False))
-        print('done, took {:.1f}s'.format(time.time() - s))
+            [self.Discretize(c) for c in self.table.Columns()], axis=1
+        )
+        self.tuples = torch.as_tensor(self.tuples_np.astype(np.float32, copy=False))
+        print("done, took {:.1f}s".format(time.time() - s))
 
     def Discretize(self, col):
         """Discretize values into its Column's bins.

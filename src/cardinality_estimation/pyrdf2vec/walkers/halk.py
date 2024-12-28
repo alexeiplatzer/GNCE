@@ -56,9 +56,7 @@ class HALKWalker(RandomWalker):
         ),
     )
 
-    def build_dictionary(
-        self, walks: List[SWalk]
-    ) -> DefaultDict[str, Set[int]]:
+    def build_dictionary(self, walks: List[SWalk]) -> DefaultDict[str, Set[int]]:
         """Builds a dictionary of predicates mapped with the walk(s)
         identifiers to which it appears.
 
@@ -127,9 +125,7 @@ class HALKWalker(RandomWalker):
 
         """
         conv_res = list(
-            walks
-            for entity_to_walks in res
-            for walks in entity_to_walks.values()
+            walks for entity_to_walks in res for walks in entity_to_walks.values()
         )
         walks: List[SWalk] = [
             walk for entity_walks in conv_res for walk in entity_walks

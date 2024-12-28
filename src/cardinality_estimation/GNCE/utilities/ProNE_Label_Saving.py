@@ -24,7 +24,9 @@ file.close()
 with open(loading_path / "Datasets" / dataset / "id_to_id_mapping.json", "r") as f:
     id_to_id_mapping = json.load(f)
 
-with open(loading_path / "Datasets" / dataset / "id_to_id_mapping_predicate.json", "r") as f:
+with open(
+    loading_path / "Datasets" / dataset / "id_to_id_mapping_predicate.json", "r"
+) as f:
     id_to_id_mapping_predicate = json.load(f)
 
 id_to_id_mapping_inv = {v: k for k, v in id_to_id_mapping.items()}
@@ -42,7 +44,7 @@ for line in lines:
         break
 labels_data = set(labels_data)
 print(labels_data)
-labels_data_raw = {l: id_to_id_mapping_inv[int(l)] for l in list(labels_data)[1:] }
+labels_data_raw = {l: id_to_id_mapping_inv[int(l)] for l in list(labels_data)[1:]}
 print(labels_data_raw)
 
 

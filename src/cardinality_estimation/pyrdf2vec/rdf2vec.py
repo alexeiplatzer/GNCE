@@ -9,11 +9,11 @@ from tqdm import tqdm
 
 import attr
 
-from embedders import Embedder, Word2Vec
-from graphs import KG
-from typings import Embeddings, Entities, Literals, SWalk
-from walkers import RandomWalker, Walker
-from . import WALK_PATH
+from .embedders import Embedder, Word2Vec
+from .graphs import KG
+from .typings import Embeddings, Entities, Literals, SWalk
+from .walkers import RandomWalker, Walker
+from .constants import WALK_PATH
 
 
 @attr.s
@@ -57,9 +57,7 @@ class RDF2VecTransformer:
         factory=lambda: [RandomWalker(2)],  # type: ignore
         type=Sequence[Walker],
         validator=attr.validators.deep_iterable(
-            member_validator=attr.validators.instance_of(
-                Walker  # type: ignore
-            ),
+            member_validator=attr.validators.instance_of(Walker),  # type: ignore
             iterable_validator=attr.validators.instance_of(list),
         ),
     )
@@ -71,7 +69,7 @@ class RDF2VecTransformer:
         validator=attr.validators.in_([0, 1, 2]),
     )
 
-    batch_mode = attr.ib(default='in_memory', type=str)
+    batch_mode = attr.ib(default="in_memory", type=str)
 
     _is_extract_walks_literals = attr.ib(
         init=False,
@@ -113,14 +111,16 @@ class RDF2VecTransformer:
         # walks = self.get_walks(kg, entities)
         chunk_size = 10000
         for i in tqdm(range(0, len(entities), chunk_size)):
-            self.get_walks(kg, entities[i:i+chunk_size])
+            self.get_walks(kg, entities[i : i + chunk_size])
             # Counting how many entities have been covered with the walks
             entities_done = []
             for file in os.listdir(WALK_PATH):
-                entities_done.append(file.replace("__", "/").replace("Y", ":").split("_")[0])
+                entities_done.append(
+                    file.replace("__", "/").replace("Y", ":").split("_")[0]
+                )
 
             entities_done = set(entities_done)
-            print('Covered ', len(entities_done)/len(entities), ' of all entities')
+            print("Covered ", len(entities_done) / len(entities), " of all entities")
         walks = []
 
         tic = time.perf_counter()
@@ -133,9 +133,7 @@ class RDF2VecTransformer:
 
             print(f"Fitted {n_walks} walks ({toc - tic:0.4f}s)")
             if len(self._walks) != len(walks):
-                n_walks = sum(
-                    [len(entity_walks) for entity_walks in self._walks]
-                )
+                n_walks = sum([len(entity_walks) for entity_walks in self._walks])
                 print(
                     f"> {n_walks} walks extracted "
                     + f"for {len(self._entities)} entities."
@@ -197,7 +195,9 @@ class RDF2VecTransformer:
         walks: List[List[SWalk]] = []
         tic = time.perf_counter()
         for walker in self.walkers:
-            walks += walker.extract(kg, entities, self.verbose, self.walk_path, self.batch_mode)
+            walks += walker.extract(
+                kg, entities, self.verbose, self.walk_path, self.batch_mode
+            )
         toc = time.perf_counter()
 
         self._update(self._entities, entities)
@@ -210,17 +210,11 @@ class RDF2VecTransformer:
                 f"Extracted {n_walks} walks "
                 + f"for {len(entities)} entities ({toc - tic:0.4f}s)"
             )
-        if (
-            kg._is_remote
-            and kg.mul_req
-            and not self._is_extract_walks_literals
-        ):
+        if kg._is_remote and kg.mul_req and not self._is_extract_walks_literals:
             asyncio.run(kg.connector.close())
         return walks
 
-    def transform(
-        self, kg: KG, entities: Entities
-    ) -> Tuple[Embeddings, Literals]:
+    def transform(self, kg: KG, entities: Entities) -> Tuple[Embeddings, Literals]:
         """Transforms the provided entities into embeddings and literals.
 
         Args:
@@ -306,7 +300,5 @@ class RDF2VecTransformer:
         with open(filename, "rb") as f:
             transformer = pickle.load(f)
             if not isinstance(transformer, RDF2VecTransformer):
-                raise ValueError(
-                    "Failed to load the RDF2VecTransformer object"
-                )
+                raise ValueError("Failed to load the RDF2VecTransformer object")
             return transformer

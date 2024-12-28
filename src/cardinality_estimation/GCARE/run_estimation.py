@@ -10,20 +10,22 @@ from pathlib import Path
 from tqdm import tqdm
 
 
-def run_gcare(dataset, query_type, eval_folder, query_filename, inductive, DATASETPATH=None):
-    methods = ['wj', 'cset', 'jsub', 'impr']
+def run_gcare(
+    dataset, query_type, eval_folder, query_filename, inductive, DATASETPATH=None
+):
+    methods = ["wj", "cset", "jsub", "impr"]
     # methods = ['impr']
     assert DATASETPATH is not None
 
     # Loading Queries and IDX transform mappings
-    print(f'Loading Queries from: ')
+    print(f"Loading Queries from: ")
     print(f"{DATASETPATH}/{dataset}/{query_type}/{query_filename}")
     with open(f"{DATASETPATH}/{dataset}/{query_type}/{query_filename}") as f:
         data = json.load(f)
     # Same split as other methods
-    if not inductive == 'full':
+    if not inductive == "full":
         random.Random(4).shuffle(data)
-        data = data[int(0.8 * len(data)):]
+        data = data[int(0.8 * len(data)) :]
     else:
         with open(f"{DATASETPATH}/{dataset}/{query_type}/{query_filename}") as f:
             data = json.load(f)
@@ -41,12 +43,20 @@ def run_gcare(dataset, query_type, eval_folder, query_filename, inductive, DATAS
         sizes = []
         result_data = []
         pred_times = []
-        Path(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}").mkdir(parents=True, exist_ok=True)
+        Path(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}").mkdir(
+            parents=True, exist_ok=True
+        )
 
         # Predicting top n queries of the testset
         for query in tqdm(data[:]):
-            query_to_gcare(query["triples"], 0, id_to_id_mapping=id_to_id_mapping,
-                           id_to_id_mapping_predicate=id_to_id_mapping_predicate, dataset=dataset, card=query["y"])
+            query_to_gcare(
+                query["triples"],
+                0,
+                id_to_id_mapping=id_to_id_mapping,
+                id_to_id_mapping_predicate=id_to_id_mapping_predicate,
+                dataset=dataset,
+                card=query["y"],
+            )
             try:
                 y_pred, pred_time = predict(method=method, dataset=dataset)
             except subprocess.CalledProcessError as e:
@@ -59,38 +69,64 @@ def run_gcare(dataset, query_type, eval_folder, query_filename, inductive, DATAS
             query["y_pred"] = y_pred
             query["exec_time_total"] = pred_time
             result_data.append(query)
-        np.save(os.path.join(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/preds.npy"), preds)
-        np.save(os.path.join(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/gts.npy"), gts)
-        np.save(os.path.join(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/sizes.npy"), sizes)
-        np.save(os.path.join(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/pred_times.npy"), pred_times)
+        np.save(
+            os.path.join(
+                f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/preds.npy"
+            ),
+            preds,
+        )
+        np.save(
+            os.path.join(
+                f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/gts.npy"
+            ),
+            gts,
+        )
+        np.save(
+            os.path.join(
+                f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/sizes.npy"
+            ),
+            sizes,
+        )
+        np.save(
+            os.path.join(
+                f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/pred_times.npy"
+            ),
+            pred_times,
+        )
 
-        with open(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/results.json", 'w') as file:
+        with open(
+            f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/results.json", "w"
+        ) as file:
             json.dump(result_data, file, indent=4)
 
 
-def predict(method:str, dataset: str):
+def predict(method: str, dataset: str):
     pass
     os.chdir("/home/tim/gcare/scripts")
     seed = 0
-    now = 'current'
-    result_dir = f'/home/tim/gcare/data/result/accuracy/{now}'
+    now = "current"
+    result_dir = f"/home/tim/gcare/data/result/accuracy/{now}"
     p = 0.03
-    repeat = 1 if method in ['cset', 'bsk', 'sumrdf'] else 30
-    if method == 'bsk':
-        os.environ['GCARE_BSK_BUDGET'] = '4096'
+    repeat = 1 if method in ["cset", "bsk", "sumrdf"] else 30
+    if method == "bsk":
+        os.environ["GCARE_BSK_BUDGET"] = "4096"
 
-    command = f'./run-exp.sh {method} {dataset} {p} {seed} {repeat} {result_dir}'
-    result = subprocess.run(f'{command} | grep -A 2 "Average Time"',
-                           check=True, shell=True, stdout=subprocess.PIPE)
+    command = f"./run-exp.sh {method} {dataset} {p} {seed} {repeat} {result_dir}"
+    result = subprocess.run(
+        f'{command} | grep -A 2 "Average Time"',
+        check=True,
+        shell=True,
+        stdout=subprocess.PIPE,
+    )
     result = result.stdout.decode()
 
-    lines = result.strip().split('\n')
-    predicted_cardinalities = np.asarray(lines[2].split(' ')[1:], dtype=float)
+    lines = result.strip().split("\n")
+    predicted_cardinalities = np.asarray(lines[2].split(" ")[1:], dtype=float)
     prediction_time = float(lines[0].split(" ")[4])
     pred_cardinality = np.mean(predicted_cardinalities)
 
     # Clear the environment variable if it was set
-    if 'GCARE_BSK_BUDGET' in os.environ:
-        del os.environ['GCARE_BSK_BUDGET']
+    if "GCARE_BSK_BUDGET" in os.environ:
+        del os.environ["GCARE_BSK_BUDGET"]
 
     return pred_cardinality, prediction_time

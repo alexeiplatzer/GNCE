@@ -51,9 +51,11 @@ class AnonymousWalker(RandomWalker):
         for walk in self.extract_walks(kg, entity):
             vertex_names = [vertex.name for vertex in walk]
             canonical_walk: List[str] = [
-                vertex.name
-                if vertex.name == entity.name
-                else str(vertex_names.index(vertex.name))
+                (
+                    vertex.name
+                    if vertex.name == entity.name
+                    else str(vertex_names.index(vertex.name))
+                )
                 for vertex in walk
             ]
             canonical_walks.add(tuple(canonical_walk))

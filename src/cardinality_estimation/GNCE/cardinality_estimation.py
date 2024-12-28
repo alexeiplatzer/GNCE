@@ -28,14 +28,15 @@ class Q_Error(nn.Module):
         self.epsilon = epsilon
 
     def forward(self, x, y):
-        return torch.max(x / (y+self.epsilon), y / (x+self.epsilon))
+        return torch.max(x / (y + self.epsilon), y / (x + self.epsilon))
 
 
-class cardinality_estimator():
+class cardinality_estimator:
     """
     Base class for estimating cardinality for a given dataset.
 
     """
+
     def __init__(self, dataset_name, graphfile, sim_measure, DATASETPATH):
         self.dataset_name = dataset_name
         self.graphfile = graphfile
@@ -47,22 +48,36 @@ class cardinality_estimator():
         print("Using Device: ", self.device)
 
         try:
-            embeddings_file = self.DATASETPATH / dataset_name / f"{dataset_name}_embeddings.json"
+            embeddings_file = (
+                self.DATASETPATH / dataset_name / f"{dataset_name}_embeddings.json"
+            )
             if embeddings_file.exists():
                 # Load in-memory statistics
                 with open(embeddings_file, "r") as f:
                     self.statistics = json.load(f)
             else:
                 # Load Statistics from disk
-                self.statistics = StatisticsLoader(self.DATASETPATH / dataset_name / "statistics")
+                self.statistics = StatisticsLoader(
+                    self.DATASETPATH / dataset_name / "statistics"
+                )
             print("Successfully loaded statistics")
         except FileNotFoundError as e:
             print(e)
             print("No statistics found")
             exit()
 
-    def train_GNN(self, train_data, test_data, epochs=100, train=True, eval_folder=None, inductive='false',
-                  preparation_time: float = None, batch_size=32, DATASETPATH=None):
+    def train_GNN(
+        self,
+        train_data,
+        test_data,
+        epochs=100,
+        train=True,
+        eval_folder=None,
+        inductive="false",
+        preparation_time: float = None,
+        batch_size=32,
+        DATASETPATH=None,
+    ):
         """
         Train the model on the given train_data, or evaluate on the given test_data
         :param train_data: training data in the form of a list of query dicts
@@ -114,11 +129,18 @@ class cardinality_estimator():
             X = []
             for datapoint in tqdm(train_data):
                 # Get graph representation of query
-                if inductive == 'full':
-                    data, n_atoms = get_query_graph_data_new(datapoint, self.statistics, self.device,
-                                                             unknown_entity='false', n_atoms=n_atoms)
+                if inductive == "full":
+                    data, n_atoms = get_query_graph_data_new(
+                        datapoint,
+                        self.statistics,
+                        self.device,
+                        unknown_entity="false",
+                        n_atoms=n_atoms,
+                    )
                 else:
-                    data, n_atoms = get_query_graph_data_new(datapoint, self.statistics, self.device, n_atoms=n_atoms)
+                    data, n_atoms = get_query_graph_data_new(
+                        datapoint, self.statistics, self.device, n_atoms=n_atoms
+                    )
 
                 # Transform graph to undirected representation, with feature indicating edge direction
                 data = ToUndirectedCustom(merge=False)(data)
@@ -132,11 +154,18 @@ class cardinality_estimator():
             X_test = []
             for datapoint in tqdm(test_data):
                 # Get graph representation of query
-                if inductive == 'full':
-                    data, n_atoms = get_query_graph_data_new(datapoint, self.statistics, self.device,
-                                                             unknown_entity='true', n_atoms=n_atoms)
+                if inductive == "full":
+                    data, n_atoms = get_query_graph_data_new(
+                        datapoint,
+                        self.statistics,
+                        self.device,
+                        unknown_entity="true",
+                        n_atoms=n_atoms,
+                    )
                 else:
-                    data, n_atoms = get_query_graph_data_new(datapoint, self.statistics, self.device, n_atoms=n_atoms)
+                    data, n_atoms = get_query_graph_data_new(
+                        datapoint, self.statistics, self.device, n_atoms=n_atoms
+                    )
 
                 # Transform graph to undirected representation, with feature indicating edge direction
                 data = ToUndirectedCustom(merge=False)(data)
@@ -149,7 +178,7 @@ class cardinality_estimator():
             preparation_time += time.time() - starttime_training
 
             # Preparation Time per atom in ms
-            preparation_time = preparation_time/n_atoms * 1000
+            preparation_time = preparation_time / n_atoms * 1000
 
             model.train()
 
@@ -170,7 +199,12 @@ class cardinality_estimator():
                     i += 1
 
                     # Predict logarithm of cardinality
-                    out = model(data.x.double(), data.edge_index, data.edge_type, data.edge_attr.double())
+                    out = model(
+                        data.x.double(),
+                        data.edge_index,
+                        data.edge_type,
+                        data.edge_attr.double(),
+                    )
 
                     # Calculate loss
                     l = loss(out, torch.tensor(y).to(self.device))
@@ -190,8 +224,10 @@ class cardinality_estimator():
                     y = np.exp(y)
                     train_q_errors.append(np.max([np.abs(pred) / y, y / np.abs(pred)]))
 
-                print(f'Epoch {epoch}, Train Loss: {epoch_loss / len(train_data)}, '
-                      f'Avg Train Q-Error: {np.mean(train_q_errors)}')
+                print(
+                    f"Epoch {epoch}, Train Loss: {epoch_loss / len(train_data)}, "
+                    f"Avg Train Q-Error: {np.mean(train_q_errors)}"
+                )
 
                 # Evaluating on test set:
                 abs_errors = []
@@ -204,7 +240,12 @@ class cardinality_estimator():
 
                 for data, y in X_test:
 
-                    out = model(data.x.double(), data.edge_index, data.edge_type, data.edge_attr.double())
+                    out = model(
+                        data.x.double(),
+                        data.edge_index,
+                        data.edge_type,
+                        data.edge_attr.double(),
+                    )
 
                     y = np.exp(y)
 
@@ -220,9 +261,9 @@ class cardinality_estimator():
                     points_processed += 1
 
                 # Calculate mean absolute error and q-error
-                print('MAE: ', np.mean(abs_errors))
+                print("MAE: ", np.mean(abs_errors))
                 test_mae.append(np.mean(abs_errors))
-                print('Qerror: ', np.mean(q_errors))
+                print("Qerror: ", np.mean(q_errors))
                 test_q_error.append(np.mean(q_errors))
 
                 end_time2 = time.time()
@@ -230,11 +271,16 @@ class cardinality_estimator():
                 print("Time taken for one epoch:", epoch_time, "seconds")
 
                 # Time per atom
-                time_per_atom = epoch_time/n_atoms
+                time_per_atom = epoch_time / n_atoms
 
-                epoch_dict = {'epoch': epoch, 'duration': epoch_time, 'qerror': np.mean(q_errors),
-                              'mae': np.mean(abs_errors), 'duration_per_atom': time_per_atom,
-                              'preparation_time_per_atom': preparation_time}
+                epoch_dict = {
+                    "epoch": epoch,
+                    "duration": epoch_time,
+                    "qerror": np.mean(q_errors),
+                    "mae": np.mean(abs_errors),
+                    "duration_per_atom": time_per_atom,
+                    "preparation_time_per_atom": preparation_time,
+                }
                 training_progress.append(epoch_dict)
 
                 # Save model if it is the best so far
@@ -253,7 +299,7 @@ class cardinality_estimator():
                     min_mae = np.mean(abs_errors)
 
         if train:
-            with open(results_path / "training_progress.json", 'w') as file:
+            with open(results_path / "training_progress.json", "w") as file:
                 json.dump(training_progress, file, indent=4)
 
         training_end_time = time.time()
@@ -267,7 +313,8 @@ class cardinality_estimator():
             text_file.write(f"Git hash: {sha}\n\n")
             text_file.write("\n\n\n\n\n\n\n\n")
             text_file.write(
-                f"Diff between commit stated above and code that is currently executed:\n\n{repo.git.diff()}")
+                f"Diff between commit stated above and code that is currently executed:\n\n{repo.git.diff()}"
+            )
 
         model.load_state_dict(torch.load(results_path / "model.pth"))
 
@@ -285,18 +332,24 @@ class cardinality_estimator():
         exec_times_total = []
         for datapoint in test_data:
             start = time.time()
-            if inductive == 'full':
-                data = get_query_graph_data_new(datapoint, self.statistics, self.device,
-                                                unknown_entity='true')
+            if inductive == "full":
+                data = get_query_graph_data_new(
+                    datapoint, self.statistics, self.device, unknown_entity="true"
+                )
             else:
-                data = get_query_graph_data_new(datapoint, self.statistics, self.device )
+                data = get_query_graph_data_new(datapoint, self.statistics, self.device)
             data = ToUndirectedCustom(merge=False)(data)
             data = data.to_homogeneous()
             data = data.to(self.device)
 
             # Measure execution time of model
             start2 = time.time()
-            out = model(data.x.double(), data.edge_index, data.edge_type, data.edge_attr.double())
+            out = model(
+                data.x.double(),
+                data.edge_index,
+                data.edge_type,
+                data.edge_attr.double(),
+            )
             end = time.time()
             exec_times.append((end - start2) * 1000)  # Convert to ms
             exec_times_total.append((end - start) * 1000)
@@ -309,9 +362,9 @@ class cardinality_estimator():
             # Storing results to np arrays and full result dict:
             preds.append(pred)
             gts.append(y)
-            datapoint['y_pred'] = pred
-            datapoint['exec_time'] = (end - start2) * 1000
-            datapoint['exec_time_total'] = (end - start) * 1000
+            datapoint["y_pred"] = pred
+            datapoint["exec_time"] = (end - start2) * 1000
+            datapoint["exec_time_total"] = (end - start) * 1000
 
             result_data.append(datapoint)
             y = torch.tensor(y).double()
@@ -329,30 +382,39 @@ class cardinality_estimator():
         np.save(results_path / "pred_times.npy", exec_times)
         np.save(results_path / "pred_times_total.npy", exec_times_total)
 
-        with open(results_path / "results.json", 'w') as file:
+        with open(results_path / "results.json", "w") as file:
             json.dump(result_data, file, indent=4)
 
         return n_atoms, start_time_training, training_end_time
 
 
-def train_GNCE(dataset: str, query_type: str, eval_folder: str, query_filename: str, train: bool = True,
-               inductive: str = 'false', DATASETPATH: Path = None):
+def train_GNCE(
+    dataset: str,
+    query_type: str,
+    eval_folder: str,
+    query_filename: str,
+    train: bool = True,
+    inductive: str = "false",
+    DATASETPATH: Path = None,
+):
 
     # Total counter for preparation, i.e. data loading and transforming to PyG graphs
     preparation_time = 0
-    assert inductive in ['false', 'full']
-    model = cardinality_estimator(dataset, None, sim_measure="cosine", DATASETPATH=DATASETPATH)
+    assert inductive in ["false", "full"]
+    model = cardinality_estimator(
+        dataset, None, sim_measure="cosine", DATASETPATH=DATASETPATH
+    )
 
     eval_folder = Path(f"{eval_folder}/GNCE")
 
     start_time = time.time()
-    if inductive == 'false':
+    if inductive == "false":
         with open(DATASETPATH / dataset / query_type / query_filename, "r") as f:
             data = json.load(f)
 
         random.Random(4).shuffle(data)
-        train_data = data[:int(0.8 * len(data))][:100]
-        test_data = data[int(0.8 * len(data)):][:100]
+        train_data = data[: int(0.8 * len(data))][:100]
+        test_data = data[int(0.8 * len(data)) :][:100]
 
     else:
         with open(DATASETPATH / dataset / query_type / "disjoint_train.json", "r") as f:
@@ -367,8 +429,15 @@ def train_GNCE(dataset: str, query_type: str, eval_folder: str, query_filename: 
     print("Training on: ", len(train_data), " queries")
     print("Evaluating on: ", len(test_data), " queries")
 
-    n_atoms, start_time_training, end_time_training = (
-        model.train_GNN(train_data, test_data, epochs=2, train=train, eval_folder=eval_folder, inductive=inductive,
-                        preparation_time=preparation_time, DATASETPATH=DATASETPATH))
+    n_atoms, start_time_training, end_time_training = model.train_GNN(
+        train_data,
+        test_data,
+        epochs=2,
+        train=train,
+        eval_folder=eval_folder,
+        inductive=inductive,
+        preparation_time=preparation_time,
+        DATASETPATH=DATASETPATH,
+    )
 
     return n_atoms, start_time_training, end_time_training

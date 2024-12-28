@@ -111,9 +111,7 @@ class KG:
         validator=attr.validators.optional(attr.validators.instance_of(Cache)),
     )
 
-    connector = attr.ib(
-        init=False, default=None, type=SPARQLConnector, repr=False
-    )
+    connector = attr.ib(init=False, default=None, type=SPARQLConnector, repr=False)
 
     _is_remote = attr.ib(
         default=False, type=bool, validator=attr.validators.instance_of(bool)
@@ -146,9 +144,7 @@ class KG:
             ) or self.location.startswith("https://")
 
             if self._is_remote is True:
-                self.connector = SPARQLConnector(
-                    self.location, cache=self.cache
-                )
+                self.connector = SPARQLConnector(self.location, cache=self.cache)
             elif self.location is not None:
                 for subj, pred, obj in rdflib.Graph().parse(
                     self.location, format=self.fmt
@@ -157,9 +153,7 @@ class KG:
                     obj = Vertex(str(obj))
                     self.add_walk(
                         subj,
-                        Vertex(
-                            str(pred), predicate=True, vprev=subj, vnext=obj
-                        ),
+                        Vertex(str(pred), predicate=True, vprev=subj, vnext=obj),
                         obj,
                     )
 
@@ -231,9 +225,7 @@ class KG:
             return hops
         elif vertex.name in self._entity_hops:
             return self._entity_hops[vertex.name]
-        elif vertex.name.startswith("http://") or vertex.name.startswith(
-            "https://"
-        ):
+        elif vertex.name.startswith("http://") or vertex.name.startswith("https://"):
             res = self.connector.fetch(self.connector.get_query(vertex.name))
             hops = self._res2hops(vertex, res["results"]["bindings"])
         return hops
@@ -276,9 +268,7 @@ class KG:
         if self._is_remote:
             queries = [
                 self.connector.get_query(entity, pchain)
-                for entity in tqdm(
-                    entities, disable=True if verbose == 0 else False
-                )
+                for entity in tqdm(entities, disable=True if verbose == 0 else False)
                 for pchain in self.literals
                 if len(pchain) > 0
             ]
@@ -289,9 +279,7 @@ class KG:
                 responses = [self.connector.fetch(query) for query in queries]
 
             literals_responses = [
-                self.connector.res2literals(
-                    res["results"]["bindings"]  # type: ignore
-                )
+                self.connector.res2literals(res["results"]["bindings"])  # type: ignore
                 for res in responses
             ]
             return [
@@ -308,9 +296,7 @@ class KG:
             entity_literals.append(self._cast_literals(entity_literal))
         return entity_literals
 
-    def get_neighbors(
-        self, vertex: Vertex, is_reverse: bool = False
-    ) -> Set[Vertex]:
+    def get_neighbors(self, vertex: Vertex, is_reverse: bool = False) -> Set[Vertex]:
         """Gets the children or parents neighbors of a vertex.
 
         Args:
@@ -360,9 +346,7 @@ class KG:
 
         """
         if self._is_remote:
-            queries = [
-                f"ASK WHERE {{ <{entity}> ?p ?o . }}" for entity in entities
-            ]
+            queries = [f"ASK WHERE {{ <{entity}> ?p ?o . }}" for entity in entities]
             if self.mul_req:
                 responses = [
                     res["boolean"]  # type: ignore
@@ -386,9 +370,7 @@ class KG:
 
         """
         if self._is_remote:
-            raise ValueError(
-                "Can remove an edge only for a local Knowledge Graph."
-            )
+            raise ValueError("Can remove an edge only for a local Knowledge Graph.")
 
         if v2 in self._transition_matrix[v1]:
             self._transition_matrix[v1].remove(v2)

@@ -1,6 +1,14 @@
 import torch
 import torch.nn.functional as F
-from torch_geometric.nn import HGTConv, Linear, RGCNConv, RGATConv, HEATConv, GATConv, GINEConv
+from torch_geometric.nn import (
+    HGTConv,
+    Linear,
+    RGCNConv,
+    RGATConv,
+    HEATConv,
+    GATConv,
+    GINEConv,
+)
 from torch_geometric.nn import global_mean_pool, global_max_pool, global_add_pool
 from torch_geometric.nn.conv import MessagePassing
 from typing import Callable, Optional, Union
@@ -60,10 +68,15 @@ class TripleConv(MessagePassing):
           :math:`(|\mathcal{V}_t|, F_{out})` if bipartite
     """
 
-    def __init__(self, nn: torch.nn.Module, eps: float = 0.,
-                 train_eps: bool = False, edge_dim: Optional[int] = None,
-                 **kwargs):
-        kwargs.setdefault('aggr', 'add')
+    def __init__(
+        self,
+        nn: torch.nn.Module,
+        eps: float = 0.0,
+        train_eps: bool = False,
+        edge_dim: Optional[int] = None,
+        **kwargs,
+    ):
+        kwargs.setdefault("aggr", "add")
         super().__init__(**kwargs)
         self.nn = nn
         self.initial_eps = eps
@@ -74,13 +87,13 @@ class TripleConv(MessagePassing):
         if train_eps:
             self.eps = torch.nn.Parameter(torch.Tensor([eps]))
         else:
-            self.register_buffer('eps', torch.Tensor([eps]))
+            self.register_buffer("eps", torch.Tensor([eps]))
         if edge_dim is not None:
             if isinstance(self.nn, torch.nn.Sequential):
                 nn = self.nn[0]
-            if hasattr(nn, 'in_features'):
+            if hasattr(nn, "in_features"):
                 in_channels = nn.in_features
-            elif hasattr(nn, 'in_channels'):
+            elif hasattr(nn, "in_channels"):
                 in_channels = nn.in_channels
             else:
                 raise ValueError("Could not infer input channels from `nn`.")
@@ -97,8 +110,13 @@ class TripleConv(MessagePassing):
         if self.lin is not None:
             self.lin.reset_parameters()
 
-    def forward(self, x: Union[Tensor, OptPairTensor], edge_index: Adj,
-                edge_attr: OptTensor = None, size: Size = None) -> Tensor:
+    def forward(
+        self,
+        x: Union[Tensor, OptPairTensor],
+        edge_index: Adj,
+        edge_attr: OptTensor = None,
+        size: Size = None,
+    ) -> Tensor:
         """"""
         if isinstance(x, Tensor):
             x: OptPairTensor = (x, x)
@@ -126,7 +144,7 @@ class TripleConv(MessagePassing):
         return self.lin(torch.cat((x_i, edge_attr, x_j), 1)).relu()
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(nn={self.nn})'
+        return f"{self.__class__.__name__}(nn={self.nn})"
 
 
 class TripleModel(torch.nn.Module):
@@ -139,6 +157,7 @@ class TripleModel(torch.nn.Module):
 
 
     """
+
     def __init__(self):
         super().__init__()
         torch.manual_seed(12345)
@@ -187,6 +206,7 @@ class TripleModelAdapt(torch.nn.Module):
 
 
     """
+
     def __init__(self):
         super().__init__()
         torch.manual_seed(12345)
@@ -215,7 +235,12 @@ class TripleModelAdapt(torch.nn.Module):
         self.dropout = torch.nn.Dropout(p=0.2)
 
     def forward(self, data):
-        x, edge_index, edge_attr, batch = data.x, data.edge_index, data.edge_attr, data.batch
+        x, edge_index, edge_attr, batch = (
+            data.x,
+            data.edge_index,
+            data.edge_attr,
+            data.batch,
+        )
         x = F.relu(self.conv1(x, edge_index, edge_attr=edge_attr))
         x = F.relu(self.conv2(x, edge_index, edge_attr=edge_attr))
         x = global_add_pool(x, batch=batch)
@@ -263,4 +288,3 @@ class GINmodel(torch.nn.Module):
         x = F.relu(x)
         x = self.lin2(x)
         return torch.abs(x)
-

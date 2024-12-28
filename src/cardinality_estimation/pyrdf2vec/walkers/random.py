@@ -47,9 +47,7 @@ class RandomWalker(Walker):
         repr=False,
     )
 
-    def _bfs(
-        self, kg: KG, entity: Vertex, is_reverse: bool = False
-    ) -> List[Walk]:
+    def _bfs(self, kg: KG, entity: Vertex, is_reverse: bool = False) -> List[Walk]:
         """Extracts random walks for an entity based on Knowledge Graph using
         the Breadth First Search (BFS) algorithm.
 
@@ -80,9 +78,7 @@ class RandomWalker(Walker):
                     walks.remove(walk)
         return list(walks)
 
-    def _dfs(
-        self, kg: KG, entity: Vertex, is_reverse: bool = False
-    ) -> List[Walk]:
+    def _dfs(self, kg: KG, entity: Vertex, is_reverse: bool = False) -> List[Walk]:
         """Extracts random walks for an entity based on Knowledge Graph using
         the Depth First Search (DFS) algorithm.
 
@@ -152,11 +148,7 @@ class RandomWalker(Walker):
             A hash (string) or original string representation.
 
         """
-        if (
-            entity.name in self._entities
-            or pos % 2 == 1
-            or self.md5_bytes is None
-        ):
+        if entity.name in self._entities or pos % 2 == 1 or self.md5_bytes is None:
             return entity.name
         else:
             ent_hash = md5(entity.name.encode()).digest()

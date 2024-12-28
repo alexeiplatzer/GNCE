@@ -98,9 +98,7 @@ class SplitWalker(RandomWalker):
                     except ValueError:
                         vertices = re.sub("[^A-Za-z0-9]+", " ", name).split()
                         if len(vertices) == 1:
-                            match = re.match(
-                                r"([a-z]+)([0-9]+)", vertices[0], re.I
-                            )
+                            match = re.match(r"([a-z]+)([0-9]+)", vertices[0], re.I)
                             if match:
                                 vertices = list(match.groups())
 
@@ -119,9 +117,7 @@ class SplitWalker(RandomWalker):
                         canonical_walk += [vertex.lower()]
             if self.with_reverse:
                 canonical_walk += [walk[0].name]
-            canonical_walks.add(
-                tuple(list(dict(zip(canonical_walk, canonical_walk))))
-            )
+            canonical_walks.add(tuple(list(dict(zip(canonical_walk, canonical_walk)))))
         return canonical_walks
 
     def _extract(self, kg: KG, entity: Vertex) -> EntityWalks:

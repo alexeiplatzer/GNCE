@@ -51,13 +51,9 @@ def _check_location(self, attribute: attr.Attribute, location: str) -> None:
 
     """
     if location is not None:
-        is_remote = location.startswith("http://") or location.startswith(
-            "https://"
-        )
+        is_remote = location.startswith("http://") or location.startswith("https://")
         if is_remote and not is_valid_url(location):
-            raise ValueError(
-                f"'location' must be a valid URL (got {location})"
-            )
+            raise ValueError(f"'location' must be a valid URL (got {location})")
         elif not is_remote:
             if not os.path.exists(location) or not os.path.isfile(location):
                 raise FileNotFoundError(

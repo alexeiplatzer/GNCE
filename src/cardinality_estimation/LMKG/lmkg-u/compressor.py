@@ -48,8 +48,10 @@ class Compressor:
 
         return multiplier, reminder
 
-    def return_original_value_when_column_split_in_two(self, reminder_column_value, quotient_column_value, original_column_id):
-        original_value = (quotient_column_value-1)*self.split_columns_dividers[original_column_id] + (reminder_column_value-1)
+    def return_original_value_when_column_split_in_two(
+        self, reminder_column_value, quotient_column_value, original_column_id
+    ):
+        original_value = (quotient_column_value - 1) * self.split_columns_dividers[
+            original_column_id
+        ] + (reminder_column_value - 1)
         return original_value
-
-

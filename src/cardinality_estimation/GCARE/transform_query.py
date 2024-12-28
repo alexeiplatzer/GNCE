@@ -1,6 +1,6 @@
 import json
 import random
-from .. import PACKAGE_PATH
+from ..constants import PACKAGE_PATH
 
 import os
 
@@ -20,7 +20,9 @@ def remove_files_in_folder(folder_path):
             print(f"Skipping {file_path}, not a file")
 
 
-def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicate, dataset, card):
+def query_to_gcare(
+    query, query_idx, id_to_id_mapping, id_to_id_mapping_predicate, dataset, card
+):
     # Delete existing query:
     remove_files_in_folder(f"{PACKAGE_PATH}/GCARE/data/queryset/{dataset}")
 
@@ -30,18 +32,18 @@ def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicat
     for tp in query:
         vertices.add(tp[0])
         vertices.add(tp[2])
-        if dataset == 'yago' or 'yago_inductive':
-            rdf_type_uri = '<http://example.com/13000179>'
-        elif dataset == 'wikidata':
-            rdf_type_uri = '<http://www.wikidata.org/prop/direct/P31>'
-        elif dataset == 'swdf' or dataset == 'swdf_inductive':
-            rdf_type_uri = '<http://ex.org/03>'
-        elif dataset == 'lubm':
-            rdf_type_uri = '<http://example.org/1>'
+        if dataset == "yago" or "yago_inductive":
+            rdf_type_uri = "<http://example.com/13000179>"
+        elif dataset == "wikidata":
+            rdf_type_uri = "<http://www.wikidata.org/prop/direct/P31>"
+        elif dataset == "swdf" or dataset == "swdf_inductive":
+            rdf_type_uri = "<http://ex.org/03>"
+        elif dataset == "lubm":
+            rdf_type_uri = "<http://example.org/1>"
         else:
             raise AssertionError("rdf type uri missing !")
 
-        if (tp[1] == rdf_type_uri) and ('?' not in tp[2]):
+        if (tp[1] == rdf_type_uri) and ("?" not in tp[2]):
 
             if tp[0] in vertex_labels:
                 vertex_labels[tp[0]] += [tp[2]]
@@ -78,19 +80,27 @@ def query_to_gcare(query, query_idx, id_to_id_mapping, id_to_id_mapping_predicat
         edge_list.append([vertex_dict[tp[0]][0], vertex_dict[tp[2]][0], edge_label])
 
     # Writing the Query File
-    with open(f"{PACKAGE_PATH}/GCARE/data/queryset/" + dataset + "/" + dataset + "_" + str(query_idx) + ".txt", "w") as f:
+    with open(
+        f"{PACKAGE_PATH}/GCARE/data/queryset/"
+        + dataset
+        + "/"
+        + dataset
+        + "_"
+        + str(query_idx)
+        + ".txt",
+        "w",
+    ) as f:
         f.write("t # s " + str(query_idx))
         f.write("\n")
         for v in vertex_dict:
-            label_str = ''
+            label_str = ""
             for l in vertex_dict[v][1:-1]:
                 label_str += str(l)
-                label_str += ' '
-            f.write("v " + str(vertex_dict[v][0]) + " " + label_str + str(vertex_dict[v][2]))
+                label_str += " "
+            f.write(
+                "v " + str(vertex_dict[v][0]) + " " + label_str + str(vertex_dict[v][2])
+            )
             f.write("\n")
         for e in edge_list:
             f.write("e " + str(e[0]) + " " + str(e[1]) + " " + str(e[2]))
             f.write("\n")
-
-
-

@@ -18,7 +18,7 @@ class MaskedLinear(nn.Linear):
 
     def __init__(self, in_features, out_features, bias=True):
         super().__init__(in_features, out_features, bias)
-        self.register_buffer('mask', torch.ones(out_features, in_features))
+        self.register_buffer("mask", torch.ones(out_features, in_features))
 
         self.masked_weight = None
 
@@ -60,23 +60,23 @@ class MaskedResidualBlock(nn.Module):
 class MADE(nn.Module):
 
     def __init__(
-            self,
-            nin,
-            hidden_sizes,
-            nout,
-            num_masks=1,
-            natural_ordering=True,
-            input_bins=None,
-            activation=nn.ReLU,
-            do_direct_io_connections=False,
-            input_encoding=None,
-            output_encoding='one_hot',
-            embed_size=32,
-            input_no_emb_if_leq=True,
-            residual_connections=False,
-            column_masking=False,
-            seed=11123,
-            fixed_ordering=None,
+        self,
+        nin,
+        hidden_sizes,
+        nout,
+        num_masks=1,
+        natural_ordering=True,
+        input_bins=None,
+        activation=nn.ReLU,
+        do_direct_io_connections=False,
+        input_encoding=None,
+        output_encoding="one_hot",
+        embed_size=32,
+        input_no_emb_if_leq=True,
+        residual_connections=False,
+        column_masking=False,
+        seed=11123,
+        fixed_ordering=None,
     ):
         """MADE.
 
@@ -114,9 +114,9 @@ class MADE(nn.Module):
         """
         super().__init__()
         self.nin = nin
-        assert input_encoding in [None, 'one_hot', 'binary', 'embed']
+        assert input_encoding in [None, "one_hot", "binary", "embed"]
         self.input_encoding = input_encoding
-        assert output_encoding in ['one_hot', 'embed', 'binary']
+        assert output_encoding in ["one_hot", "embed", "binary"]
         self.embed_size = self.emb_dim = embed_size
         self.output_encoding = output_encoding
         self.activation = activation
@@ -132,35 +132,43 @@ class MADE(nn.Module):
 
         assert self.input_bins
         # based on the user requirement encode the inputs and outputs
-        encoded_bins = list(
-            map(self._get_output_encoded_dist_size, self.input_bins))
+        encoded_bins = list(map(self._get_output_encoded_dist_size, self.input_bins))
         self.input_bins_encoded = list(
-            map(self._get_input_encoded_dist_size, self.input_bins))
+            map(self._get_input_encoded_dist_size, self.input_bins)
+        )
         self.input_bins_encoded_cumsum = np.cumsum(
-            list(map(self._get_input_encoded_dist_size, self.input_bins)))
-        print('encoded_bins (input)', self.input_bins_encoded)
-        print('encoded_bins (output)', encoded_bins)
+            list(map(self._get_input_encoded_dist_size, self.input_bins))
+        )
+        print("encoded_bins (input)", self.input_bins_encoded)
+        print("encoded_bins (output)", encoded_bins)
 
-        print('nin ' + str(nin))
+        print("nin " + str(nin))
         hs = [nin] + hidden_sizes + [sum(encoded_bins)]
         self.net = []
         # create a NN with all the needed layers and their number of neurons
         for h0, h1 in zip(hs, hs[1:]):
             if residual_connections:
                 if h0 == h1:
-                    self.net.extend([
-                        MaskedResidualBlock(
-                            h0, h1, activation=activation(inplace=False))
-                    ])
+                    self.net.extend(
+                        [
+                            MaskedResidualBlock(
+                                h0, h1, activation=activation(inplace=False)
+                            )
+                        ]
+                    )
                 else:
-                    self.net.extend([
-                        MaskedLinear(h0, h1),
-                    ])
+                    self.net.extend(
+                        [
+                            MaskedLinear(h0, h1),
+                        ]
+                    )
             else:
-                self.net.extend([
-                    MaskedLinear(h0, h1),
-                    activation(inplace=True),
-                ])
+                self.net.extend(
+                    [
+                        MaskedLinear(h0, h1),
+                        activation(inplace=True),
+                    ]
+                )
         # remove the last activation function
         if not residual_connections:
             self.net.pop()
@@ -176,11 +184,11 @@ class MADE(nn.Module):
             new_layer0 = MaskedLinear(input_size, self.net[0].out_features)
             self.net[0] = new_layer0
 
-        if self.output_encoding == 'embed':
-            assert self.input_encoding == 'embed'
+        if self.output_encoding == "embed":
+            assert self.input_encoding == "embed"
 
         # if the input is embedded create the emebedding using nn.Embedding() class
-        if self.input_encoding == 'embed':
+        if self.input_encoding == "embed":
             self.embeddings = nn.ModuleList()
             for i, dist_size in enumerate(self.input_bins):
                 if dist_size <= self.embed_size and self.input_no_emb_if_leq:
@@ -195,7 +203,8 @@ class MADE(nn.Module):
             self.unk_embeddings = nn.ParameterList()
             for i, dist_size in enumerate(self.input_bins):
                 self.unk_embeddings.append(
-                    nn.Parameter(torch.zeros(1, self.input_bins_encoded[i])))
+                    nn.Parameter(torch.zeros(1, self.input_bins_encoded[i]))
+                )
 
         self.natural_ordering = natural_ordering
         self.num_masks = num_masks
@@ -222,24 +231,23 @@ class MADE(nn.Module):
 
         curr = 0
         for i in range(self.nin):
-            dist_size = self._get_input_encoded_dist_size(
-                self.input_bins[i])
+            dist_size = self._get_input_encoded_dist_size(self.input_bins[i])
             # Input i connects to groups > i.
-            mask[self.logit_indices[i]:, curr:dist_size] = 1
+            mask[self.logit_indices[i] :, curr:dist_size] = 1
             curr += dist_size
 
         mask = mask.T
         self.direct_io_layer.set_mask(mask)
 
     def _get_input_encoded_dist_size(self, dist_size):
-        if self.input_encoding == 'embed':
+        if self.input_encoding == "embed":
             if self.input_no_emb_if_leq:
                 dist_size = min(dist_size, self.embed_size)
             else:
                 dist_size = self.embed_size
-        elif self.input_encoding == 'one_hot':
+        elif self.input_encoding == "one_hot":
             pass
-        elif self.input_encoding == 'binary':
+        elif self.input_encoding == "binary":
             dist_size = max(1, int(np.ceil(np.log2(dist_size))))
         elif self.input_encoding is None:
             return 1
@@ -248,14 +256,14 @@ class MADE(nn.Module):
         return dist_size
 
     def _get_output_encoded_dist_size(self, dist_size):
-        if self.output_encoding == 'embed':
+        if self.output_encoding == "embed":
             if self.input_no_emb_if_leq:
                 dist_size = min(dist_size, self.embed_size)
             else:
                 dist_size = self.embed_size
-        elif self.output_encoding == 'one_hot':
+        elif self.output_encoding == "one_hot":
             pass
-        elif self.output_encoding == 'binary':
+        elif self.output_encoding == "binary":
             dist_size = max(1, int(np.ceil(np.log2(dist_size))))
         return dist_size
 
@@ -283,14 +291,13 @@ class MADE(nn.Module):
                 if np.array_equal(self.orderings[i], invoke_order):
                     found = True
                     break
-            assert found, 'specified={}, avail={}'.format(
-                ordering, self.orderings)
+            assert found, "specified={}, avail={}".format(ordering, self.orderings)
             # orderings = [ o0, o1, o2, ... ]
             # seeds = [ init_seed, init_seed+1, init_seed+2, ... ]
             rng = np.random.RandomState(self.init_seed + i)
             self.seed = (self.init_seed + i + 1) % self.num_masks
             self.m[-1] = invoke_order
-        elif hasattr(self, 'orderings'):
+        elif hasattr(self, "orderings"):
             # Cycle through the special orderings.
             rng = np.random.RandomState(self.seed)
             self.seed = (self.seed + 1) % self.num_masks
@@ -298,9 +305,11 @@ class MADE(nn.Module):
         else:
             rng = np.random.RandomState(self.seed)
             self.seed = (self.seed + 1) % self.num_masks
-            self.m[-1] = np.arange(
-                self.nin) if self.natural_ordering else rng.permutation(
-                    self.nin)
+            self.m[-1] = (
+                np.arange(self.nin)
+                if self.natural_ordering
+                else rng.permutation(self.nin)
+            )
             if self.fixed_ordering is not None:
                 self.m[-1] = np.asarray(self.fixed_ordering)
 
@@ -308,14 +317,15 @@ class MADE(nn.Module):
             for l in range(L):
                 if self.residual_connections:
                     # Sequential assignment for ResMade: https://arxiv.org/pdf/1904.05626.pdf
-                    self.m[l] = np.array([(k - 1) % (self.nin - 1)
-                                          for k in range(self.hidden_sizes[l])])
+                    self.m[l] = np.array(
+                        [(k - 1) % (self.nin - 1) for k in range(self.hidden_sizes[l])]
+                    )
                 else:
                     # Samples from [0, ncols - 1).
                     # populate every hidden layer with random ids representing the ids of the input values
-                    self.m[l] = rng.randint(self.m[l - 1].min(),
-                                            self.nin - 1,
-                                            size=self.hidden_sizes[l])
+                    self.m[l] = rng.randint(
+                        self.m[l - 1].min(), self.nin - 1, size=self.hidden_sizes[l]
+                    )
         else:
             # This should result in first layer's masks == 0.
             # So output units are disconnected to any inputs.
@@ -342,8 +352,7 @@ class MADE(nn.Module):
                 for k in range(masks[-1].shape[0]):
                     tmp_mask = []
                     for idx, x in enumerate(zip(masks[-1][k], self.input_bins)):
-                        mval, nbins = x[0], self._get_output_encoded_dist_size(
-                            x[1])
+                        mval, nbins = x[0], self._get_output_encoded_dist_size(x[1])
                         tmp_mask.extend([mval] * nbins)
                     tmp_mask = np.asarray(tmp_mask)
                     if k == 0:
@@ -364,15 +373,16 @@ class MADE(nn.Module):
                 dist_size = self._get_input_encoded_dist_size(dist_size)
                 # [dist size, hidden]
                 new_mask0.append(
-                    np.concatenate([mask0[i].reshape(1, -1)] * dist_size,
-                                   axis=0))
+                    np.concatenate([mask0[i].reshape(1, -1)] * dist_size, axis=0)
+                )
             # [sum(dist size), hidden]
             new_mask0 = np.vstack(new_mask0)
             masks[0] = new_mask0
 
         layers = [
-            l for l in self.net if isinstance(l, MaskedLinear) or
-            isinstance(l, MaskedResidualBlock)
+            l
+            for l in self.net
+            if isinstance(l, MaskedLinear) or isinstance(l, MaskedResidualBlock)
         ]
         assert len(layers) == len(masks), (len(layers), len(masks))
         for l, m in zip(layers, masks):
@@ -382,21 +392,21 @@ class MADE(nn.Module):
             self._build_or_update_direct_io()
 
     def name(self):
-        n = 'made'
+        n = "made"
         if self.residual_connections:
-            n += '-resmade'
-        n += '-hidden' + '_'.join(str(h) for h in self.hidden_sizes)
-        n += '-emb' + str(self.embed_size)
+            n += "-resmade"
+        n += "-hidden" + "_".join(str(h) for h in self.hidden_sizes)
+        n += "-emb" + str(self.embed_size)
         if self.num_masks > 1:
-            n += '-{}masks'.format(self.num_masks)
+            n += "-{}masks".format(self.num_masks)
         if not self.natural_ordering:
-            n += '-nonNatural'
-        n += ('-no' if not self.do_direct_io_connections else '-') + 'directIo'
-        n += '-{}In{}Out'.format(self.input_encoding, self.output_encoding)
+            n += "-nonNatural"
+        n += ("-no" if not self.do_direct_io_connections else "-") + "directIo"
+        n += "-{}In{}Out".format(self.input_encoding, self.output_encoding)
         if self.input_no_emb_if_leq:
-            n += '-inputNoEmbIfLeq'
+            n += "-inputNoEmbIfLeq"
         if self.column_masking:
-            n += '-colmask'
+            n += "-colmask"
         return n
 
     def Embed(self, data, natural_col=None, out=None):
@@ -417,7 +427,11 @@ class MADE(nn.Module):
             coli_dom_size = self.input_bins[natural_col]
             # Embed?
             if coli_dom_size >= self.embed_size or not self.input_no_emb_if_leq:
-                res = self.embeddings[natural_col](data.view(-1,))
+                res = self.embeddings[natural_col](
+                    data.view(
+                        -1,
+                    )
+                )
                 if out is not None:
                     out.copy_(res)
                     return out
@@ -448,18 +462,22 @@ class MADE(nn.Module):
                         # During training, non-dropped 1's are scaled by
                         # 1/(1-p), so we clamp back to 1.
                         batch_mask = torch.clamp(
-                            torch.dropout(torch.ones(bs, 1, device=data.device),
-                                          p=dropout_p(),
-                                          train=self.training), 0, 1)
-                        y_embed.append(batch_mask * col_i_embs +
-                                       (1. - batch_mask) * dropped_repr)
+                            torch.dropout(
+                                torch.ones(bs, 1, device=data.device),
+                                p=dropout_p(),
+                                train=self.training,
+                            ),
+                            0,
+                            1,
+                        )
+                        y_embed.append(
+                            batch_mask * col_i_embs + (1.0 - batch_mask) * dropped_repr
+                        )
                 else:
                     if skip:
                         y_embed.append(self.unk_embeddings[i])
                         continue
-                    y_onehot = torch.zeros(bs,
-                                           coli_dom_size,
-                                           device=data.device)
+                    y_onehot = torch.zeros(bs, coli_dom_size, device=data.device)
                     y_onehot.scatter_(1, data[:, i].view(-1, 1), 1)
                     if self.column_masking:
 
@@ -469,18 +487,24 @@ class MADE(nn.Module):
                         # During training, non-dropped 1's are scaled by
                         # 1/(1-p), so we clamp back to 1.
                         batch_mask = torch.clamp(
-                            torch.dropout(torch.ones(bs, 1, device=data.device),
-                                          p=dropout_p(),
-                                          train=self.training), 0, 1)
-                        y_embed.append(batch_mask * y_onehot +
-                                       (1. - batch_mask) *
-                                       self.unk_embeddings[i])
+                            torch.dropout(
+                                torch.ones(bs, 1, device=data.device),
+                                p=dropout_p(),
+                                train=self.training,
+                            ),
+                            0,
+                            1,
+                        )
+                        y_embed.append(
+                            batch_mask * y_onehot
+                            + (1.0 - batch_mask) * self.unk_embeddings[i]
+                        )
                     else:
                         y_embed.append(y_onehot)
             return torch.cat(y_embed, 1)
 
     def ToOneHot(self, data):
-        assert not self.column_masking, 'not implemented'
+        assert not self.column_masking, "not implemented"
         bs = data.size()[0]
         y_onehots = []
         data = data.long()
@@ -515,7 +539,8 @@ class MADE(nn.Module):
                 one_hot_dims = max(1, int(np.ceil(np.log2(coli_dom_size))))
 
                 self.bin_as_onehot_shifts[i] = const_one << torch.arange(
-                    one_hot_dims, device=data.device)
+                    one_hot_dims, device=data.device
+                )
 
         if natural_col is None:
             # Train path.
@@ -537,20 +562,24 @@ class MADE(nn.Module):
                         # During training, non-dropped 1's are scaled by
                         # 1/(1-p), so we clamp back to 1.
                         batch_mask = torch.clamp(
-                            torch.dropout(torch.ones(bs, 1, device=data.device),
-                                          p=dropout_p(),
-                                          train=self.training), 0, 1)
-                        binaries = binaries.to(torch.float32,
-                                               non_blocking=True,
-                                               copy=False)
-                        y_onehots[i] = batch_mask * binaries + (
-                            1. - batch_mask) * dropped_repr
+                            torch.dropout(
+                                torch.ones(bs, 1, device=data.device),
+                                p=dropout_p(),
+                                train=self.training,
+                            ),
+                            0,
+                            1,
+                        )
+                        binaries = binaries.to(
+                            torch.float32, non_blocking=True, copy=False
+                        )
+                        y_onehots[i] = (
+                            batch_mask * binaries + (1.0 - batch_mask) * dropped_repr
+                        )
 
                 else:
                     # Encode as plain one-hot.
-                    y_onehot = torch.zeros(bs,
-                                           coli_dom_size,
-                                           device=data.device)
+                    y_onehot = torch.zeros(bs, coli_dom_size, device=data.device)
                     y_onehot.scatter_(1, data[:, i].view(-1, 1), 1)
                     y_onehots[i] = y_onehot
 
@@ -570,11 +599,10 @@ class MADE(nn.Module):
                 else:
                     # & between two torch objects translates them into binary representation and for every
                     # position on which they agree (have 1 in the binary representation) the result is 1
-                    out.copy_(
-                        (data_np & self.bin_as_onehot_shifts[natural_idx]) > 0)
+                    out.copy_((data_np & self.bin_as_onehot_shifts[natural_idx]) > 0)
                     return out
             else:
-                assert False, 'inference'
+                assert False, "inference"
                 # if out is None:
                 #     y_onehot = torch.zeros(bs,
                 #                            coli_dom_size,
@@ -586,20 +614,20 @@ class MADE(nn.Module):
                 # return out
 
     def EncodeInput(self, data, natural_col=None, out=None):
-        """"Warning: this could take up a significant portion of a forward pass.
+        """ "Warning: this could take up a significant portion of a forward pass.
 
         Args:
           natural_col: if specified, 'data' has shape [N, 1] corresponding to
               col-'natural-col'.  Otherwise 'data' corresponds to all cols.
           out: if specified, assign results into this Tensor storage.
         """
-        if self.input_encoding == 'binary':
+        if self.input_encoding == "binary":
             return self.ToBinaryAsOneHot(data, natural_col=natural_col, out=out)
-        elif self.input_encoding == 'embed':
+        elif self.input_encoding == "embed":
             return self.Embed(data, natural_col=natural_col, out=out)
         elif self.input_encoding is None:
             return data
-        elif self.input_encoding == 'one_hot':
+        elif self.input_encoding == "one_hot":
             return self.ToOneHot(data)
         else:
             assert False, self.input_encoding
@@ -649,12 +677,13 @@ class MADE(nn.Module):
 
         assert self.input_bins is not None
         if idx == 0:
-            logits_for_var = logits[:, :self.logit_indices[0]]
+            logits_for_var = logits[:, : self.logit_indices[0]]
         else:
-            logits_for_var = logits[:, self.logit_indices[idx - 1]:self.
-                                    logit_indices[idx]]
+            logits_for_var = logits[
+                :, self.logit_indices[idx - 1] : self.logit_indices[idx]
+            ]
 
-        if self.output_encoding != 'embed':
+        if self.output_encoding != "embed":
             return logits_for_var
 
         embed = self.embeddings[idx]
@@ -682,7 +711,7 @@ class MADE(nn.Module):
         for i in range(self.nin):
             logits_i = self.logits_for_col(i, logits)
 
-            nll_val = F.cross_entropy(logits_i, data[:, i], reduction='none')
+            nll_val = F.cross_entropy(logits_i, data[:, i], reduction="none")
             nll += nll_val
 
         return nll
@@ -696,12 +725,15 @@ class MADE(nn.Module):
             for i in range(self.nin):
                 logits = self.forward(sampled)
                 s = torch.multinomial(
-                    torch.softmax(self.logits_for_i(i, logits), -1), 1)
-                sampled[:, i] = s.view(-1,)
+                    torch.softmax(self.logits_for_i(i, logits), -1), 1
+                )
+                sampled[:, i] = s.view(
+                    -1,
+                )
         return sampled
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Checks for the autoregressive property.
     rng = np.random.RandomState(14)
     # (nin, hiddens, nout, input_bins, direct_io)
@@ -718,19 +750,20 @@ if __name__ == '__main__':
         # (4, [16, 8, 16], 2 + 3 + 1 + 2, [2, 3, 1, 2], True),
     ]
     for nin, hiddens, nout, input_bins, direct_io in configs_with_input_bins:
-        print(nin, hiddens, nout, input_bins, direct_io, '...', end='')
+        print(nin, hiddens, nout, input_bins, direct_io, "...", end="")
 
-        model = MADE(nin,
-                     hiddens,
-                     nout,
-                     input_bins=input_bins,
-                     natural_ordering=True,
-                     do_direct_io_connections=direct_io)
+        model = MADE(
+            nin,
+            hiddens,
+            nout,
+            input_bins=input_bins,
+            natural_ordering=True,
+            do_direct_io_connections=direct_io,
+        )
         model.eval()
         print(model)
         for k in range(nout):
-            inp = torch.tensor(rng.rand(1, nin).astype(np.float32),
-                               requires_grad=True)
+            inp = torch.tensor(rng.rand(1, nin).astype(np.float32), requires_grad=True)
             loss = model(inp)
             l = loss[0, k]
             l.backward()
@@ -742,9 +775,9 @@ if __name__ == '__main__':
             prev_idxs = np.arange(var_idx).astype(np.int32)
 
             # Asserts that k depends only on < var_idx.
-            print('depends', depends_ix, 'prev_idxs', prev_idxs)
+            print("depends", depends_ix, "prev_idxs", prev_idxs)
             # assert len(torch.nonzero(inp.grad[0, var_idx:])) == 0
             # assert len(torch.nonzero(one_hot.grad[0, var_idx:])) == 0
 
-        print('ok')
-    print('[MADE] Passes autoregressive-ness check!')
+        print("ok")
+    print("[MADE] Passes autoregressive-ness check!")

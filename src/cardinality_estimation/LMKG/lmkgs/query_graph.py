@@ -3,7 +3,8 @@ from .data_processor_release import numpy_binary
 
 
 class QueryGraph:
-    """ Query Graph: containing the query graph for learning """
+    """Query Graph: containing the query graph for learning"""
+
     def __init__(self, d, b, n, e):
         """
         Initialization of the query graph variables
@@ -33,7 +34,14 @@ class QueryGraph:
         self.edges.add(triple[1])
 
     def print(self):
-        print("Nodes " + str(self.nodes) + ", Edges " + str(self.edges) + ", Triples " + str(self.all_triples))
+        print(
+            "Nodes "
+            + str(self.nodes)
+            + ", Edges "
+            + str(self.edges)
+            + ", Triples "
+            + str(self.all_triples)
+        )
 
     def create_graph(self):
         """
@@ -45,17 +53,17 @@ class QueryGraph:
         self.edges_sorted.sort()
         # print("Sorted nodes: " + str(self.nodes_sorted) + ", Sorted edges: " + str(self.edges_sorted))
 
-        ''' Initialization of the required matrices '''
+        """ Initialization of the required matrices """
         # matrix_mode == 3:
         bits_d = int(np.ceil(np.log2(self.d))) + 1
         bits_b = int(np.ceil(np.log2(self.b))) + 1
         # print("Bits d %d" % bits_d + ", Bits b %d" % bits_b)
-        x = np.zeros((self.n, bits_d), dtype='uint8')
-        ep = np.zeros((self.e, bits_b), dtype='uint8')
-        a = np.zeros((self.e, self.n, self.n), dtype='uint8')
+        x = np.zeros((self.n, bits_d), dtype="uint8")
+        ep = np.zeros((self.e, bits_b), dtype="uint8")
+        a = np.zeros((self.e, self.n, self.n), dtype="uint8")
         # print("Shape of x is " + str(np.shape(x)) + ", Shape of ep is " + str(np.shape(ep)))
 
-        ''' Setting a '''
+        """ Setting a """
         for triple in self.all_triples:
             s, p, o = triple
             s_idx = self.nodes_sorted.index(s)
@@ -65,7 +73,7 @@ class QueryGraph:
             a[p_idx, s_idx, o_idx] = 1
         # print("Shape of x is " + str(np.shape(x)) + ", Shape of ep is " + str(np.shape(ep)))
 
-        ''' Setting ep '''
+        """ Setting ep """
         for p_idx, predicate in enumerate(self.edges_sorted):
             e_number = self.handle_variable(predicate)
             arr = numpy_binary(e_number, bits_b)
@@ -73,7 +81,7 @@ class QueryGraph:
             for i in range(len(arr)):
                 ep[p_idx][i] = arr[i]
 
-        ''' Setting x '''
+        """ Setting x """
         for n_idx, node in enumerate(self.nodes_sorted):
             n_number = self.handle_variable(node)
             arr = numpy_binary(n_number, bits_d)

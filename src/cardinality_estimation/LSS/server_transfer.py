@@ -1,8 +1,8 @@
 import subprocess
 from pathlib import Path
-from .. import PROJECT_ROOT_PATH, DATASETS_PATH
+from ..constants import PROJECT_ROOT_PATH, DATASETS_PATH
 
-REMOTE_ADDRESS = 'XXX'
+REMOTE_ADDRESS = "XXX"
 
 
 def transfer_queries(dataset):

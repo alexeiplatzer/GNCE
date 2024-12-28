@@ -42,29 +42,31 @@ class ToUndirectedCustom(BaseTransform):
             :class:`~torch_geometric.data.HeteroData` graph data.
             (default: :obj:`True`)
     """
+
     def __init__(self, reduce: str = "add", merge: bool = True):
         self.reduce = reduce
         self.merge = merge
 
     def __call__(self, data: Union[Data, HeteroData]):
         for store in data.edge_stores:
-            if 'edge_index' not in store:
+            if "edge_index" not in store:
                 continue
 
             nnz = store.edge_index.size(1)
 
-            if isinstance(data, HeteroData) and (store.is_bipartite()
-                                                 or not self.merge):
+            if isinstance(data, HeteroData) and (
+                store.is_bipartite() or not self.merge
+            ):
                 src, rel, dst = store._key
 
                 # Just reverse the connectivity and add edge attributes:
                 row, col = store.edge_index
                 rev_edge_index = torch.stack([col, row], dim=0)
 
-                inv_store = data[dst, f'rev_{rel}', src]
+                inv_store = data[dst, f"rev_{rel}", src]
                 inv_store.edge_index = rev_edge_index
                 for key, value in store.items():
-                    if key == 'edge_index':
+                    if key == "edge_index":
                         continue
                     if isinstance(value, Tensor) and value.size(0) == nnz:
                         inv_value = copy.deepcopy(value)
@@ -77,7 +79,7 @@ class ToUndirectedCustom(BaseTransform):
             else:
                 keys, values = [], []
                 for key, value in store.items():
-                    if key == 'edge_index':
+                    if key == "edge_index":
                         continue
 
                     if store.is_edge_attr(key):
@@ -85,7 +87,8 @@ class ToUndirectedCustom(BaseTransform):
                         values.append(value)
 
                 store.edge_index, values = to_undirected(
-                    store.edge_index, values, reduce=self.reduce)
+                    store.edge_index, values, reduce=self.reduce
+                )
 
                 for key, value in zip(keys, values):
                     store[key] = value
@@ -93,30 +96,38 @@ class ToUndirectedCustom(BaseTransform):
         return data
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}()'
+        return f"{self.__class__.__name__}()"
 
 
-class StatisticsLoader():
+class StatisticsLoader:
     """
     This class is used to load the statistics of the dataset
     It wraps the folder containing the statistics in a dict like object
     """
+
     def __init__(self, statistics_path):
         self.statistics_path = statistics_path
 
     def __getitem__(self, item):
         try:
-            f = open(os.path.join(self.statistics_path, item.replace("/", "|") + ".json"))
+            f = open(
+                os.path.join(self.statistics_path, item.replace("/", "|") + ".json")
+            )
             return json.load(f)
 
         except FileNotFoundError:
             print("Cant find embedding for", item)
             # Return a random embedding
-            statistic_dict = {"embedding": [random.uniform(0, 1) for i in range(100)], "occurence": 0}
+            statistic_dict = {
+                "embedding": [random.uniform(0, 1) for i in range(100)],
+                "occurence": 0,
+            }
             return statistic_dict
 
 
-def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='false', n_atoms: int = None):
+def get_query_graph_data_new(
+    query_graph, statistics, device, unknown_entity="false", n_atoms: int = None
+):
     """
     This function is used to get the graph data object from a query graph
     :param query_graph: Dict representing the query graph of the form {"triples": [triple1, triple2, ...], "y": cardinality,
@@ -180,12 +191,15 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
             try:
                 v = variable_embedding_edge
                 if shuffled:
-                    v[-1] = n_edge_variables_random #todo
+                    v[-1] = n_edge_variables_random  # todo
                 else:
                     v[-1] = n_edge_variables
-                n_edge_variables_random +=1 #todo
+                n_edge_variables_random += 1  # todo
                 n_edge_variables += 1
-                ea = torch.cat((data["entity", str(p), "entity"].edge_attr, torch.tensor([v])), dim=0)
+                ea = torch.cat(
+                    (data["entity", str(p), "entity"].edge_attr, torch.tensor([v])),
+                    dim=0,
+                )
                 data["entity", str(p), "entity"].edge_attr = ea
             except:
                 # If the edge does not exist yet, create it
@@ -211,36 +225,58 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
             try:
                 # Get the embedding of the predicate
                 if USE_EMBEDDING:
-                    feature_vector = statistics[triple[1].replace("<", "").replace(">", "")]["embedding"].copy()
+                    feature_vector = statistics[
+                        triple[1].replace("<", "").replace(">", "")
+                    ]["embedding"].copy()
                 else:
                     idx = int(triple[1].replace(">", "").split("/")[-1])
                     idx_bin = bin(idx)[2:].zfill(100)
                     feature_vector = [float(i) for i in idx_bin]
                 # Add the occurence of the predicate to the embedding
                 if USE_OCCURRENCE:
-                    feature_vector.append(statistics[triple[1].replace("<", "").replace(">", "")]["occurence"] / 16018)
+                    feature_vector.append(
+                        statistics[triple[1].replace("<", "").replace(">", "")][
+                            "occurence"
+                        ]
+                        / 16018
+                    )
                 else:
                     feature_vector.append(1)
                 # Add a dimension for the direction of the edge
                 feature_vector.append(1)
 
-                ea = torch.cat((data["entity", str(p), "entity"].edge_attr, torch.tensor([feature_vector])), dim=0)
+                ea = torch.cat(
+                    (
+                        data["entity", str(p), "entity"].edge_attr,
+                        torch.tensor([feature_vector]),
+                    ),
+                    dim=0,
+                )
                 data["entity", str(p), "entity"].edge_attr = ea
             except:
                 # Case if edge set does not exist yet
                 if USE_EMBEDDING:
-                    feature_vector = statistics[triple[1].replace("<", "").replace(">", "")]["embedding"].copy()
+                    feature_vector = statistics[
+                        triple[1].replace("<", "").replace(">", "")
+                    ]["embedding"].copy()
                 else:
                     idx = int(triple[1].replace(">", "").split("/")[-1])
                     idx_bin = bin(idx)[2:].zfill(100)
                     feature_vector = [float(i) for i in idx_bin]
                 if USE_OCCURRENCE:
-                    feature_vector.append(statistics[triple[1].replace("<", "").replace(">", "")]["occurence"] / 16018)
+                    feature_vector.append(
+                        statistics[triple[1].replace("<", "").replace(">", "")][
+                            "occurence"
+                        ]
+                        / 16018
+                    )
                 else:
                     feature_vector.append(1)
                 feature_vector.append(1)
 
-                data["entity", str(p), "entity"].edge_attr = torch.tensor([feature_vector])
+                data["entity", str(p), "entity"].edge_attr = torch.tensor(
+                    [feature_vector]
+                )
 
         # Adding the embeddings of s and o
         if s not in node_mapping.keys():
@@ -257,13 +293,13 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
                 n_entities_random += 1  # todo
                 node_embeddings.append(emb)
             else:
-                if unknown_entity == 'false':
+                if unknown_entity == "false":
                     feature_vector = statistics[s]["embedding"].copy()
                     feature_vector.append(statistics[s]["occurence"] / 16018)
-                elif unknown_entity == 'true':
+                elif unknown_entity == "true":
                     feature_vector = unknown_entity_embedding.copy()
                     feature_vector.append(1)
-                elif unknown_entity == 'random':
+                elif unknown_entity == "random":
                     # Generate a random float between 0 and 1
 
                     # 70% chance of being True
@@ -291,13 +327,13 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
                 n_entities_random += 1  # todo
                 node_embeddings.append(emb)
             else:
-                if unknown_entity == 'false':
+                if unknown_entity == "false":
                     feature_vector = statistics[o]["embedding"].copy()
                     feature_vector.append(statistics[o]["occurence"] / 16018)
-                elif unknown_entity == 'true':
+                elif unknown_entity == "true":
                     feature_vector = unknown_entity_embedding.copy()
                     feature_vector.append(1)
-                elif unknown_entity == 'random':
+                elif unknown_entity == "random":
                     # Generate a random float between 0 and 1
                     rand_num = random.random()
                     # 70% chance of being True
@@ -317,7 +353,12 @@ def get_query_graph_data_new(query_graph, statistics, device, unknown_entity='fa
         # Finally, add the edge to the graph
         try:
             tp = torch.cat(
-                (data["entity", str(p), 'entity'].edge_index, torch.tensor([[node_mapping[s]], [node_mapping[o]]])), dim=1)
+                (
+                    data["entity", str(p), "entity"].edge_index,
+                    torch.tensor([[node_mapping[s]], [node_mapping[o]]]),
+                ),
+                dim=1,
+            )
             data["entity", str(p), "entity"].edge_index = tp
 
         except:
@@ -350,10 +391,18 @@ def get_query_graph_data(query_graph, statistics, device):
         if "?" in triple[1]:
             p = 237
             try:
-                ea = torch.cat((data["entity", str(p), "entity"].edge_attr, torch.tensor([variable_embedding])), dim=0)
+                ea = torch.cat(
+                    (
+                        data["entity", str(p), "entity"].edge_attr,
+                        torch.tensor([variable_embedding]),
+                    ),
+                    dim=0,
+                )
                 data["entity", str(p), "entity"].edge_attr = ea
             except:
-                data["entity", str(p), "entity"].edge_attr = torch.tensor([variable_embedding])
+                data["entity", str(p), "entity"].edge_attr = torch.tensor(
+                    [variable_embedding]
+                )
 
         else:
             try:
@@ -362,15 +411,33 @@ def get_query_graph_data(query_graph, statistics, device):
                 print(triple)
                 raise
             try:
-                feature_vector = statistics[triple[1].replace("<", "").replace(">", "")]["embedding"].copy()
-                feature_vector.append(statistics[triple[1].replace("<", "").replace(">", "")]["occurence"] / 16018)
+                feature_vector = statistics[
+                    triple[1].replace("<", "").replace(">", "")
+                ]["embedding"].copy()
+                feature_vector.append(
+                    statistics[triple[1].replace("<", "").replace(">", "")]["occurence"]
+                    / 16018
+                )
 
-                ea = torch.cat((data["entity", str(p), "entity"].edge_attr, torch.tensor([feature_vector])), dim=0)
+                ea = torch.cat(
+                    (
+                        data["entity", str(p), "entity"].edge_attr,
+                        torch.tensor([feature_vector]),
+                    ),
+                    dim=0,
+                )
                 data["entity", str(p), "entity"].edge_attr = ea
             except:
-                feature_vector = statistics[triple[1].replace("<", "").replace(">", "")]["embedding"].copy()
-                feature_vector.append(statistics[triple[1].replace("<", "").replace(">", "")]["occurence"] / 16018)
-                data["entity", str(p), "entity"].edge_attr = torch.tensor([feature_vector])
+                feature_vector = statistics[
+                    triple[1].replace("<", "").replace(">", "")
+                ]["embedding"].copy()
+                feature_vector.append(
+                    statistics[triple[1].replace("<", "").replace(">", "")]["occurence"]
+                    / 16018
+                )
+                data["entity", str(p), "entity"].edge_attr = torch.tensor(
+                    [feature_vector]
+                )
 
         # Adding the embeddings of s and o to
         if s not in node_mapping.keys():
@@ -397,7 +464,12 @@ def get_query_graph_data(query_graph, statistics, device):
                 node_embeddings.append(feature_vector)
         try:
             tp = torch.cat(
-                (data["entity", str(p), 'entity'].edge_index, torch.tensor([[node_mapping[s]], [node_mapping[o]]])), dim=1)
+                (
+                    data["entity", str(p), "entity"].edge_index,
+                    torch.tensor([[node_mapping[s]], [node_mapping[o]]]),
+                ),
+                dim=1,
+            )
             data["entity", str(p), "entity"].edge_index = tp
 
         except:
@@ -406,4 +478,3 @@ def get_query_graph_data(query_graph, statistics, device):
 
     data["entity"].x = torch.tensor(node_embeddings)
     return data
-
