@@ -111,7 +111,7 @@ class RDF2VecTransformer:
         # walks = self.get_walks(kg, entities)
         chunk_size = 10000
         for i in tqdm(range(0, len(entities), chunk_size)):
-            self.get_walks(kg, entities[i : i + chunk_size])
+            self.get_walks(kg, entities[i: i + chunk_size])
             # Counting how many entities have been covered with the walks
             entities_done = []
             for file in os.listdir(WALK_PATH):

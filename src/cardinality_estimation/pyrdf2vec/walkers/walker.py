@@ -186,6 +186,9 @@ class Walker(ABC):
                     )
                 )
             res = []
+        # res = []
+        # for entity in tqdm(entities, total=len(entities), disable=(verbose == 0)):
+        #     res.append(self._proc(entity, kg))
         return self._post_extract(res)
 
     @abstractmethod

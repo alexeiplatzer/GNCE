@@ -54,6 +54,7 @@ def get_embeddings(
     entities=None,
     remote=True,
     sparql_endpoint="http://127.0.0.1:8902/sparql/",
+    n_jobs=12,
 ):
     """
     This function calculates simple occurences as well as rdf2vec embeddings for a given rdf graph
@@ -79,9 +80,7 @@ def get_embeddings(
     # Create the RDF2vec model
     transformer = RDF2VecTransformer(
         Word2Vec(epochs=10, vector_size=100),
-        walkers=[
-            RandomWalker(4, max_walks=5, with_reverse=True, n_jobs=12, md5_bytes=None)
-        ],
+        walkers=[RandomWalker(4, max_walks=5, with_reverse=True, n_jobs=n_jobs, md5_bytes=None)],
         verbose=2,
         batch_mode="onefile",
     )

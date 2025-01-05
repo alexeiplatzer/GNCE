@@ -1,5 +1,5 @@
 import sys
-from ... import PROJECT_ROOT_PATH, PACKAGE_PATH
+from ...constants import PROJECT_ROOT_PATH, PACKAGE_PATH
 
 import argparse
 import os

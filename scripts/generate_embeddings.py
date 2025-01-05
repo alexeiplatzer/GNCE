@@ -25,11 +25,12 @@ if __name__ == "__main__":
     print("Using ", len(entities), " entities for RDF2Vec")
 
     print("Starting...")
-    graph_file = DATASETS_PATH / dataset_name / "graph" / f"{dataset_name}.ttl"
+    graph_file = DATASETS_PATH / dataset_name / "graph" / f"{dataset_name}.nt"
     get_embeddings(
         dataset_name,
         graph_file,
         remote=True,
         entities=entities,
-        sparql_endpoint="http://localhost:8909/sparql/",
+        sparql_endpoint="http://localhost:3030/lubm",
+        n_jobs=1,
     )

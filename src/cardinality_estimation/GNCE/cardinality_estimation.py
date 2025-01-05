@@ -413,8 +413,8 @@ def train_GNCE(
             data = json.load(f)
 
         random.Random(4).shuffle(data)
-        train_data = data[: int(0.8 * len(data))][:100]
-        test_data = data[int(0.8 * len(data)) :][:100]
+        train_data = data[: int(0.8 * len(data))][:800]
+        test_data = data[int(0.8 * len(data)):][:200]
 
     else:
         with open(DATASETPATH / dataset / query_type / "disjoint_train.json", "r") as f:
@@ -432,7 +432,7 @@ def train_GNCE(
     n_atoms, start_time_training, end_time_training = model.train_GNN(
         train_data,
         test_data,
-        epochs=2,
+        epochs=100,
         train=train,
         eval_folder=eval_folder,
         inductive=inductive,

@@ -28,6 +28,7 @@ dependencies = [
     "jsonpointer",
     "lxml",
     "matplotlib",
+    "ml-collections",
     "notebook",
     "pandas",
     "pickleshare",
