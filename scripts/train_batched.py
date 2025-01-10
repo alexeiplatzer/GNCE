@@ -25,7 +25,7 @@ def q_error(pred, gt):
 
 
 if __name__ == "__main__":
-    dataset = "swdf"
+    dataset = "lubm"
     query_type = "star"
 
     with open(f"{DATASETS_PATH}/{dataset}/{query_type}/Joined_Queries.json") as f:
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     random.Random(4).shuffle(data)
     train_data = data[: int(0.8 * len(data))][:]
-    test_data = data[int(0.8 * len(data)) :][:]
+    test_data = data[int(0.8 * len(data)):][:]
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # device = 'cpu'
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     # optimizer = torch.optim.SGD(model.parameters(), lr=0.0001)
 
     criterion = torch.nn.MSELoss()
-    batch_size = 1
+    batch_size = 10
 
     n_graphs = 1000
 
@@ -93,14 +93,17 @@ if __name__ == "__main__":
 
     test_loader = DataLoader(test_graphs, batch_size=batch_size, shuffle=True)
 
-    train_loss = 0
-    train_q_error = 0
-    num_batches = 0
+    # train_loss = 0
+    # train_q_error = 0
+    # num_batches = 0
 
     start_time = time()
     n_epochs = 50
     for epoch in range(n_epochs):
         model.train()
+        train_loss = 0
+        train_q_error = 0
+        num_batches = 0
         for batch in loader:
             batch = batch.to(device)
             out = model(batch)

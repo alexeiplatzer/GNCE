@@ -21,7 +21,7 @@ def q_error(pred, gt):
 
 
 if __name__ == "__main__":
-    dataset = "swdf"
+    dataset = "lubm"
     query_type = "star"
 
     with open(f"{DATASETS_PATH}/{dataset}/{query_type}/Joined_Queries.json") as f:
@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     random.Random(4).shuffle(data)
     train_data = data[: int(0.8 * len(data))][:]
-    test_data = data[int(0.8 * len(data)) :][:]
+    test_data = data[int(0.8 * len(data)):][:]
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # device = 'cpu'

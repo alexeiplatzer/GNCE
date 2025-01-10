@@ -95,7 +95,7 @@ if run_GNCE:
         "total_time": (end_time_gnce - start_time_gnce) * 1000,
     }
     with open(
-        f"{DATASETS_PATH}/{dataset}/Results/{starttime}/GNCE/training_timing.json", "w"
+        DATASETS_PATH / dataset / f"Results/{starttime}/GNCE/training_timing.json", "w"
     ) as file:
         json.dump(training_timing, file, indent=4)
 
