@@ -87,9 +87,7 @@ class RDF2VecTransformer:
     _pos_entities = attr.ib(init=False, type=List[str], factory=list)
     _pos_walks = attr.ib(init=False, type=List[int], factory=list)
 
-    def fit(
-        self, kg: KG, entities: Entities, is_update: bool = False
-    ) -> RDF2VecTransformer:
+    def fit(self, kg: KG, entities: Entities, is_update: bool = False) -> RDF2VecTransformer:
         """Fits the embeddings based on the provided entities.
 
         Args:
@@ -111,13 +109,11 @@ class RDF2VecTransformer:
         # walks = self.get_walks(kg, entities)
         chunk_size = 10000
         for i in tqdm(range(0, len(entities), chunk_size)):
-            self.get_walks(kg, entities[i: i + chunk_size])
+            self.get_walks(kg, entities[i : i + chunk_size])
             # Counting how many entities have been covered with the walks
             entities_done = []
             for file in os.listdir(WALK_PATH):
-                entities_done.append(
-                    file.replace("__", "/").replace("Y", ":").split("_")[0]
-                )
+                entities_done.append(file.replace("__", "/").replace("Y", ":").split("_")[0])
 
             entities_done = set(entities_done)
             print("Covered ", len(entities_done) / len(entities), " of all entities")
@@ -134,10 +130,7 @@ class RDF2VecTransformer:
             print(f"Fitted {n_walks} walks ({toc - tic:0.4f}s)")
             if len(self._walks) != len(walks):
                 n_walks = sum([len(entity_walks) for entity_walks in self._walks])
-                print(
-                    f"> {n_walks} walks extracted "
-                    + f"for {len(self._entities)} entities."
-                )
+                print(f"> {n_walks} walks extracted " + f"for {len(self._entities)} entities.")
         return self
 
     def fit_transform(
@@ -184,8 +177,7 @@ class RDF2VecTransformer:
             if kg.mul_req:
                 asyncio.run(kg.connector.close())
             raise ValueError(
-                "At least one provided entity does not exist in the "
-                + "Knowledge Graph."
+                "At least one provided entity does not exist in the " + "Knowledge Graph."
             )
 
         if self.verbose == 2:
@@ -195,9 +187,7 @@ class RDF2VecTransformer:
         walks: List[List[SWalk]] = []
         tic = time.perf_counter()
         for walker in self.walkers:
-            walks += walker.extract(
-                kg, entities, self.verbose, self.walk_path, self.batch_mode
-            )
+            walks += walker.extract(kg, entities, self.verbose, self.walk_path, self.batch_mode)
         toc = time.perf_counter()
 
         self._update(self._entities, entities)

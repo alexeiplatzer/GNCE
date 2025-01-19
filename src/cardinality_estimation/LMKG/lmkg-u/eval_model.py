@@ -42,14 +42,11 @@ parser.add_argument(
     "--err-csv", type=str, default="results.csv", help="Save result csv to what path?"
 )
 parser.add_argument("--glob", type=str, help="Checkpoints to glob under models/.")
-parser.add_argument(
-    "--blacklist", type=str, help="Remove some globbed checkpoint files."
-)
+parser.add_argument("--blacklist", type=str, help="Remove some globbed checkpoint files.")
 parser.add_argument(
     "--column-masking",
     action="store_true",
-    help="Turn on wildcard skipping.  Requires checkpoints be trained with "
-    "column masking.",
+    help="Turn on wildcard skipping.  Requires checkpoints be trained with " "column masking.",
 )
 
 # MADE.
@@ -217,10 +214,8 @@ def RunN(
                     if i in compressor_elem.split_columns_index:
                         # every column at the beginning will be split into 2 columns
                         how_many_times_compressed = 2
-                        quotient, reminder = (
-                            compressor_elem.split_single_value_for_column(
-                                int(query_part.strip()), i
-                            )
+                        quotient, reminder = compressor_elem.split_single_value_for_column(
+                            int(query_part.strip()), i
                         )
                         # save the reminder for the future
                         all_reminders = list()
@@ -229,10 +224,8 @@ def RunN(
                         # split the column into the required number of columns
                         while how_many_times_compressed < compressor_elem.root:
                             # get the quotient and reminder from the quotient in the previous iteration
-                            quotient, reminder = (
-                                compressor_elem.split_single_value_for_column(
-                                    int(quotient), i
-                                )
+                            quotient, reminder = compressor_elem.split_single_value_for_column(
+                                int(quotient), i
                             )
 
                             # save the reminder, it will represent a separate column
@@ -308,9 +301,7 @@ def RunN(
 def MakeMade(scale, cols_to_train, seed, fixed_ordering=None):
     model = made.MADE(
         nin=len(cols_to_train),
-        hidden_sizes=(
-            [scale] * args.layers if args.layers > 0 else [512, 256, 512, 128, 1024]
-        ),
+        hidden_sizes=([scale] * args.layers if args.layers > 0 else [512, 256, 512, 128, 1024]),
         nout=sum([c.DistributionSize() for c in cols_to_train]),
         input_bins=[c.DistributionSize() for c in cols_to_train],
         input_encoding=args.input_encoding,
@@ -387,9 +378,7 @@ def Main():
     cols_to_train = table.columns
     table.Name()
 
-    Ckpt = collections.namedtuple(
-        "Ckpt", "epoch model_bits bits_gap path loaded_model seed"
-    )
+    Ckpt = collections.namedtuple("Ckpt", "epoch model_bits bits_gap path loaded_model seed")
     parsed_ckpts = []
 
     for s in selected_ckpts:
@@ -448,9 +437,7 @@ def Main():
     if args.inference_opts:
         print("Tracing forward_with_encoded_input()...")
         for est in estimators:
-            encoded_input = est.model.EncodeInput(
-                torch.zeros(1, est.model.nin, device=DEVICE)
-            )
+            encoded_input = est.model.EncodeInput(torch.zeros(1, est.model.nin, device=DEVICE))
 
             # NOTE: this line works with torch 1.0.1.post2 (but not 1.2).
             # The 1.2 version changes the API to

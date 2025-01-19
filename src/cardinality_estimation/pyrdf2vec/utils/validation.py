@@ -31,9 +31,7 @@ def _check_jobs(self, attribute: attr.Attribute, n_jobs: int) -> None:
 
     """
     if n_jobs is not None and n_jobs < -1:
-        raise ValueError(
-            f"'n_jobs' must be None, or equal to -1, or > 0 (got {n_jobs})"
-        )
+        raise ValueError(f"'n_jobs' must be None, or equal to -1, or > 0 (got {n_jobs})")
 
 
 def _check_location(self, attribute: attr.Attribute, location: str) -> None:
@@ -56,9 +54,7 @@ def _check_location(self, attribute: attr.Attribute, location: str) -> None:
             raise ValueError(f"'location' must be a valid URL (got {location})")
         elif not is_remote:
             if not os.path.exists(location) or not os.path.isfile(location):
-                raise FileNotFoundError(
-                    f"'location' must be a valid file (got {location})"
-                )
+                raise FileNotFoundError(f"'location' must be a valid file (got {location})")
 
 
 def _check_max_walks(self, attribute: attr.Attribute, max_walks: int) -> None:

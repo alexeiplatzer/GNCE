@@ -98,9 +98,7 @@ class CardEst(object):
         )
 
 
-def FillInUnqueriedColumnsAndDiscretized(
-    table, columns, operators, vals, discretized_vals
-):
+def FillInUnqueriedColumnsAndDiscretized(table, columns, operators, vals, discretized_vals):
     """Allows for some terms to be unqueried (i.e., wildcard).
 
     Returns cols, ops, vals, where all 3 lists of all size len(table.columns),
@@ -176,9 +174,7 @@ class BaseDistributionEstimation(CardEst):
 
         # self.inp represents the encoding for the input
         with torch.no_grad():
-            self.kZeros = torch.zeros(
-                self.num_samples, self.model.nin, device=self.device
-            )
+            self.kZeros = torch.zeros(self.num_samples, self.model.nin, device=self.device)
 
             self.inp = self.traced_encode_input(self.kZeros)
 
@@ -225,9 +221,7 @@ class BaseDistributionEstimation(CardEst):
                 else:
                     l = self.model.input_bins_encoded_cumsum[natural_idx - 1]
                     r = self.model.input_bins_encoded_cumsum[natural_idx]
-                    self.model.EncodeInput(
-                        None, natural_col=natural_idx, out=inp[:, l:r]
-                    )
+                    self.model.EncodeInput(None, natural_col=natural_idx, out=inp[:, l:r])
             else:
                 # put them in the required format
                 data_to_encode = torch.LongTensor(
@@ -263,8 +257,7 @@ class BaseDistributionEstimation(CardEst):
             if operators[natural_idx] is not None:
                 # the set terms
                 idx = np.where(
-                    columns[natural_idx].all_distinct_values
-                    == original_vals[natural_idx]
+                    columns[natural_idx].all_distinct_values == original_vals[natural_idx]
                 )[0]
 
                 p_x_1 *= probs_i[0][idx].item()
@@ -275,10 +268,8 @@ class BaseDistributionEstimation(CardEst):
 
     def Query(self, columns, operators, vals, discretized_vals):
         """fill the unqueried terms"""
-        columns, operators, vals, discretized_vals = (
-            FillInUnqueriedColumnsAndDiscretized(
-                self.table, columns, operators, vals, discretized_vals
-            )
+        columns, operators, vals, discretized_vals = FillInUnqueriedColumnsAndDiscretized(
+            self.table, columns, operators, vals, discretized_vals
         )
 
         ordering = None
@@ -319,9 +310,7 @@ class BaseDistributionEstimation(CardEst):
                 )
                 self.OnEnd()
 
-                result = np.ceil(p * self.cardinality).astype(
-                    dtype=np.int32, copy=False
-                )
+                result = np.ceil(p * self.cardinality).astype(dtype=np.int32, copy=False)
                 print("result %.3f" % (result if result > 0 else 1))
 
         return result if result > 0 else 1

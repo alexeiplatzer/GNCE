@@ -157,9 +157,7 @@ def read_star_graph_pattern(
                     subject_subgraph_id = nodes_dict[subject_id]
                     predicate_subgraph_id = predicates_dict[predicate_id]
                     object_subgraph_id = nodes_dict[object_id]
-                    a[
-                        predicate_subgraph_id, subject_subgraph_id, object_subgraph_id
-                    ] = 1
+                    a[predicate_subgraph_id, subject_subgraph_id, object_subgraph_id] = 1
 
                     if predicate_id == star_predicate_id and star_mode == 1:
                         for pred_id in range(b):
@@ -184,9 +182,7 @@ def read_star_graph_pattern(
                     subject_subgraph_id = nodes_dict[subject_id]
                     predicate_subgraph_id = predicates_dict[predicate_id]
                     object_subgraph_id = nodes_dict[object_id]
-                    a[
-                        predicate_subgraph_id, subject_subgraph_id, object_subgraph_id
-                    ] = 1
+                    a[predicate_subgraph_id, subject_subgraph_id, object_subgraph_id] = 1
 
                     predicate_nb = 0
                     if "*" not in predicate_id:
@@ -360,9 +356,7 @@ def read_chain_graph_pattern(
                     subject_subgraph_id = nodes_dict[subject_id]
                     predicate_subgraph_id = predicates_dict[predicate_id]
                     object_subgraph_id = nodes_dict[object_id]
-                    a[
-                        predicate_subgraph_id, subject_subgraph_id, object_subgraph_id
-                    ] = 1
+                    a[predicate_subgraph_id, subject_subgraph_id, object_subgraph_id] = 1
                     ep[predicate_subgraph_id, predicate_id] = 1
                     x[subject_subgraph_id, subject_id] = 1
                     x[object_subgraph_id, object_id] = 1
@@ -371,9 +365,7 @@ def read_chain_graph_pattern(
                     subject_subgraph_id = nodes_dict[subject_id]
                     predicate_subgraph_id = predicates_dict[predicate_id]
                     object_subgraph_id = nodes_dict[object_id]
-                    a[
-                        predicate_subgraph_id, subject_subgraph_id, object_subgraph_id
-                    ] = 1
+                    a[predicate_subgraph_id, subject_subgraph_id, object_subgraph_id] = 1
 
                     predicate_nb = 0
                     if "*" not in predicate_id:
@@ -436,13 +428,9 @@ def read_combined(
     """
 
     if "star" in test_mode:
-        return read_star_graph_pattern(
-            d, b, n, e, file_name_star, train_tuples, matrix_mode
-        )
+        return read_star_graph_pattern(d, b, n, e, file_name_star, train_tuples, matrix_mode)
     if "chain" in test_mode:
-        return read_chain_graph_pattern(
-            d, b, n, e, file_name_chain, train_tuples, matrix_mode
-        )
+        return read_chain_graph_pattern(d, b, n, e, file_name_chain, train_tuples, matrix_mode)
 
     X_s, A_s, E_s, y_s, time_start_star = read_star_graph_pattern(
         d, b, n, e, file_name_star, train_tuples, matrix_mode

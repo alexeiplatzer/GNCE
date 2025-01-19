@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     random.Random(4).shuffle(data)
     train_data = data[: int(0.8 * len(data))][:]
-    test_data = data[int(0.8 * len(data)):][:]
+    test_data = data[int(0.8 * len(data)) :][:]
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # device = 'cpu'
@@ -43,9 +43,7 @@ if __name__ == "__main__":
 
     n_graphs = 1000
 
-    statistics = StatisticsLoader(
-        os.path.join(f"{DATASETS_PATH}", dataset, "statistics")
-    )
+    statistics = StatisticsLoader(os.path.join(f"{DATASETS_PATH}", dataset, "statistics"))
 
     # Creating datasets
     # Preparing train set
@@ -108,9 +106,7 @@ if __name__ == "__main__":
             train_loss += loss.item()
 
             batch_q_error = q_error(out, batch.y)
-            train_q_error += torch.sum(
-                batch_q_error
-            ).item()  # Sum q-errors in the batch
+            train_q_error += torch.sum(batch_q_error).item()  # Sum q-errors in the batch
             num_batches += len(batch.y)
         # print(f'Epoch {epoch+1}, Loss: {train_loss.item()}')
         avg_train_loss = train_loss / num_batches
@@ -135,9 +131,7 @@ if __name__ == "__main__":
                     batch_q_error = q_error(out, test_batch.y)
                 except:
                     print("prapa")
-                test_q_error += torch.sum(
-                    batch_q_error
-                ).item()  # Sum q-errors in the batch
+                test_q_error += torch.sum(batch_q_error).item()  # Sum q-errors in the batch
                 num_batches += len(test_batch.y)
 
                 if batch_size == 1:

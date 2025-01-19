@@ -99,9 +99,7 @@ class Column(object):
         return self
 
     def __repr__(self):
-        return "Column({}, distribution_size={})".format(
-            self.name, self.distribution_size
-        )
+        return "Column({}, distribution_size={})".format(self.name, self.distribution_size)
 
 
 class Table(object):
@@ -282,9 +280,7 @@ class CsvTable(Table):
                         current_col_title += 1
             else:
                 # for the columns that should't be split, add them to the correct place
-                compressed_data[modified_columns[current_col_title]] = (
-                    data_column.values
-                )
+                compressed_data[modified_columns[current_col_title]] = data_column.values
 
             # go to the next column
             current_col_title += 1
@@ -293,9 +289,7 @@ class CsvTable(Table):
 
         return compressed_data, modified_columns
 
-    def _load(
-        self, filename, cols, doCompression=False, compression_threshold=1000, **kwargs
-    ):
+    def _load(self, filename, cols, doCompression=False, compression_threshold=1000, **kwargs):
         print("Loading csv...", end=" ")
         print()
         s = time.time()
@@ -342,9 +336,7 @@ class CsvTable(Table):
                 data[col] = data[col].astype(typ, copy=False)
             else:
                 # Both infer_datetime_format and cache are critical for perf.
-                data[col] = pd.to_datetime(
-                    data[col], infer_datetime_format=True, cache=True
-                )
+                data[col] = pd.to_datetime(data[col], infer_datetime_format=True, cache=True)
 
         # Discretize & create Columns.
         if cols is None:
@@ -378,9 +370,7 @@ class TableDataset(data.Dataset):
         print("Discretizing table...", end=" ")
         s = time.time()
         # [cardianlity, num cols].
-        self.tuples_np = np.stack(
-            [self.Discretize(c) for c in self.table.Columns()], axis=1
-        )
+        self.tuples_np = np.stack([self.Discretize(c) for c in self.table.Columns()], axis=1)
         self.tuples = torch.as_tensor(self.tuples_np.astype(np.float32, copy=False))
         print("done, took {:.1f}s".format(time.time() - s))
 

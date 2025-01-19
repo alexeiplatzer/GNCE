@@ -93,9 +93,7 @@ def check_network_estimates(
         if existing_errors_for_bucket is None:
             existing_errors_for_bucket = list()
         # store the errors for the bucket
-        existing_errors_for_bucket.append(
-            abs(int(round(pred_card)) - int(true_cardinality[i]))
-        )
+        existing_errors_for_bucket.append(abs(int(round(pred_card)) - int(true_cardinality[i])))
         # update the dictionary
         errors_per_bucket[position_dictionary] = existing_errors_for_bucket
 
@@ -113,9 +111,7 @@ def check_network_estimates(
             if true_cardinality[i] != 1:
                 correct_estimates_not_one += 1
         else:
-            all_wrong_estimates.append(
-                abs(int(true_cardinality[i]) - int(round(pred_card)))
-            )
+            all_wrong_estimates.append(abs(int(true_cardinality[i]) - int(round(pred_card))))
             # print('wrong estimate ->  true: %d - estimate: %d - estimate_real: %.2f'
             # % (true_cardinality[i],round(float(predicted_cardinality[i][0])), float(predicted_cardinality[i][0])))
             wrong_estimates += 1
@@ -155,9 +151,7 @@ def check_network_estimates(
     final_print_statistics += (
         "correct estimates that are not 1: %d \n" % correct_estimates_not_one
     )
-    final_print_statistics += (
-        "wrong estimates that are not 1: %d \n" % wrong_estimates_not_one
-    )
+    final_print_statistics += "wrong estimates that are not 1: %d \n" % wrong_estimates_not_one
     final_print_statistics += "correct estimates: %d \n" % correct_estimates
     final_print_statistics += "wrong estimates: %d \n" % wrong_estimates
     final_print_statistics += "total number of data: %d \n" % len(predicted_cardinality)
@@ -175,32 +169,17 @@ def check_network_estimates(
         q_loss_for_all_results / len(true_cardinality)
     )  # smaller_than))
     final_print_statistics += "Median-Q-Error: %.3f\n" % (np.median(all_q_errors))
-    final_print_statistics += (
-        "average estimation error: %.3f\n" % average_estimation_error
-    )
-    final_print_statistics += "median estimation error: %.3f\n" % np.median(
-        all_wrong_estimates
-    )
+    final_print_statistics += "average estimation error: %.3f\n" % average_estimation_error
+    final_print_statistics += "median estimation error: %.3f\n" % np.median(all_wrong_estimates)
     final_print_statistics += "maximal estimation error: %d\n" % all_wrong_estimates[0]
     final_print_statistics += (
-        "minimal estimation error: %d\n"
-        % all_wrong_estimates[len(all_wrong_estimates) - 1]
+        "minimal estimation error: %d\n" % all_wrong_estimates[len(all_wrong_estimates) - 1]
     )
-    final_print_statistics += "25th percentile: %.3f\n" % np.percentile(
-        all_wrong_estimates, 25
-    )
-    final_print_statistics += "50th percentile: %.3f\n" % np.percentile(
-        all_wrong_estimates, 50
-    )
-    final_print_statistics += "75th percentile: %.3f\n" % np.percentile(
-        all_wrong_estimates, 75
-    )
-    final_print_statistics += "95th percentile: %.3f\n" % np.percentile(
-        all_wrong_estimates, 95
-    )
-    final_print_statistics += "99th percentile: %.3f\n" % np.percentile(
-        all_wrong_estimates, 99
-    )
+    final_print_statistics += "25th percentile: %.3f\n" % np.percentile(all_wrong_estimates, 25)
+    final_print_statistics += "50th percentile: %.3f\n" % np.percentile(all_wrong_estimates, 50)
+    final_print_statistics += "75th percentile: %.3f\n" % np.percentile(all_wrong_estimates, 75)
+    final_print_statistics += "95th percentile: %.3f\n" % np.percentile(all_wrong_estimates, 95)
+    final_print_statistics += "99th percentile: %.3f\n" % np.percentile(all_wrong_estimates, 99)
     final_print_statistics += "greater than 10 %d\n" % greater_10
     final_print_statistics += "greater than 100 %d\n" % greater_100
     final_print_statistics += "greater than 1000 %d\n" % greater_1000
@@ -219,9 +198,7 @@ def check_network_estimates(
         if True:
             range_key = "$[5^{" + str(key) + "},5^{" + str(key + 1) + "})$"
             sum_all_vals = sum(val for val in q_error_per_range[key])
-            final_q_errors_per_range[range_key] = sum_all_vals / len(
-                q_error_per_range[key]
-            )
+            final_q_errors_per_range[range_key] = sum_all_vals / len(q_error_per_range[key])
 
             existing_median_val = median_q_errors_per_range.get(range_key)
             if existing_median_val is None:

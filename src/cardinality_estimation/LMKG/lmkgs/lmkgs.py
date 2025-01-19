@@ -243,9 +243,7 @@ with tf.device("GPU:0"):
         min_cardinality = min(y)
 
         if do_training:
-            write_MIN_MAX(
-                query_type + "_min_max_" + dataset_name + ".txt", min(y), max(y)
-            )
+            write_MIN_MAX(query_type + "_min_max_" + dataset_name + ".txt", min(y), max(y))
 
         """ Other explored strategies, LMKG currently uses scale 3 """
         if scale == 0:
@@ -264,9 +262,7 @@ with tf.device("GPU:0"):
             if not do_training:
                 global MIN, MAX
                 """ We need the same min and max from the training data during evaluation """
-                MIN, MAX = read_MIN_MAX(
-                    query_type + "_min_max_" + dataset_name + ".txt"
-                )
+                MIN, MAX = read_MIN_MAX(query_type + "_min_max_" + dataset_name + ".txt")
                 MIN = np.log(MIN)
                 MAX = np.log(MAX)
             y = np.log(y)
@@ -322,8 +318,7 @@ with tf.device("GPU:0"):
             print(print_time)
             epoch_metrics = history.history
             epoch_durations = [
-                epoch_times[i + 1] - epoch_times[i]
-                for i in range(0, len(epoch_times) - 1, 2)
+                epoch_times[i + 1] - epoch_times[i] for i in range(0, len(epoch_times) - 1, 2)
             ]
             accumulated_times = np.cumsum(epoch_durations)
 
@@ -365,9 +360,7 @@ with tf.device("GPU:0"):
             # Average Prediction per Query:
         print("The average prediction time is " + str(avg_time_prediction_ms))
         if not do_training:
-            print(
-                "The average prediction time (custom) is " + str(np.average(pred_times))
-            )
+            print("The average prediction time (custom) is " + str(np.average(pred_times)))
         print("The average encoding time is " + str(encoding_avg_time))
         print(
             " Total Time for Training and Encoding: ",
@@ -477,21 +470,15 @@ def run_lmkg(
         default="final_datasets",
         help="Path to the train and eval queries",
     )
-    parser.add_argument(
-        "--query-join", type=int, default=3, help="The size of the join."
-    )
-    parser.add_argument(
-        "--layers", type=int, default=2, help="The number of layers in the NN."
-    )
+    parser.add_argument("--query-join", type=int, default=3, help="The size of the join.")
+    parser.add_argument("--layers", type=int, default=2, help="The number of layers in the NN.")
     parser.add_argument(
         "--neurons",
         type=int,
         default=256,
         help="The number of neurons in each of the layers.",
     )
-    parser.add_argument(
-        "--decay", action="store_true", help="Decay of the learning rate."
-    )
+    parser.add_argument("--decay", action="store_true", help="Decay of the learning rate.")
     parser.add_argument(
         "--test-mode",
         type=str,
@@ -504,9 +491,7 @@ def run_lmkg(
 
     print("GPU AVAILABLE")
     print(tf.test.is_gpu_available())
-    print(
-        "Num GPUs Available: ", len(tf.config.experimental.list_physical_devices("GPU"))
-    )
+    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices("GPU")))
 
     """ parameters for the network"""
     # Fixed parameters
@@ -640,22 +625,12 @@ def run_lmkg(
         if "star" in query_type and "all" not in query_type:
             print("entering for star queries")
             file_name = (
-                datasets_path
-                + "/generated_"
-                + dataset_name
-                + "/star/"
-                + query_type
-                + ".txt"
+                datasets_path + "/generated_" + dataset_name + "/star/" + query_type + ".txt"
             )
         elif "chain" in query_type and "all" not in query_type:
             print("entering for chain queries")
             file_name = (
-                datasets_path
-                + "/generated_"
-                + dataset_name
-                + "/path/"
-                + query_type
-                + ".txt"
+                datasets_path + "/generated_" + dataset_name + "/path/" + query_type + ".txt"
             )
         elif "combined" in query_type:
             print("entering for query size grouping")
@@ -676,9 +651,7 @@ def run_lmkg(
                 + ".txt"
             )
         elif (
-            "allstar" in query_type
-            or "allchain" in query_type
-            or "alltypessizes" in query_type
+            "allstar" in query_type or "allchain" in query_type or "alltypessizes" in query_type
         ):
             all_file_names = []
             num_joins = [2]  # ,3,5,8]
@@ -751,9 +724,7 @@ def run_lmkg(
                 + ".txt"
             )
         elif (
-            "allstar" in query_type
-            or "allchain" in query_type
-            or "alltypessizes" in query_type
+            "allstar" in query_type or "allchain" in query_type or "alltypessizes" in query_type
         ):
             all_file_names = []
             num_joins = [2]  # ,3,5,8]
@@ -835,15 +806,9 @@ def run_lmkg(
         X, A, E, y, encoding_time, sizes = complex_reader.read_combined(
             d, b, n, e, file_name_star, file_name_chain, train_tuples, test_mode
         )
-    elif (
-        "allstar" in query_type
-        or "allchain" in query_type
-        or "alltypessizes" in query_type
-    ):
-        X, A, E, y, encoding_time, sizes = (
-            complex_reader.read_combined_all_sizes_star_or_chain(
-                d, b, n, e, all_file_names, train_tuples
-            )
+    elif "allstar" in query_type or "allchain" in query_type or "alltypessizes" in query_type:
+        X, A, E, y, encoding_time, sizes = complex_reader.read_combined_all_sizes_star_or_chain(
+            d, b, n, e, all_file_names, train_tuples
         )
     elif "complex" in query_type:
         if not do_training:
@@ -939,21 +904,15 @@ if __name__ == "__main__":
         default="final_datasets",
         help="Path to the train and eval queries",
     )
-    parser.add_argument(
-        "--query-join", type=int, default=3, help="The size of the join."
-    )
-    parser.add_argument(
-        "--layers", type=int, default=2, help="The number of layers in the NN."
-    )
+    parser.add_argument("--query-join", type=int, default=3, help="The size of the join.")
+    parser.add_argument("--layers", type=int, default=2, help="The number of layers in the NN.")
     parser.add_argument(
         "--neurons",
         type=int,
         default=256,
         help="The number of neurons in each of the layers.",
     )
-    parser.add_argument(
-        "--decay", action="store_true", help="Decay of the learning rate."
-    )
+    parser.add_argument("--decay", action="store_true", help="Decay of the learning rate.")
     parser.add_argument(
         "--test-mode",
         type=str,
@@ -966,9 +925,7 @@ if __name__ == "__main__":
 
     print("GPU AVAILABLE")
     print(tf.test.is_gpu_available())
-    print(
-        "Num GPUs Available: ", len(tf.config.experimental.list_physical_devices("GPU"))
-    )
+    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices("GPU")))
 
     """ parameters for the network"""
     # Fixed parameters
@@ -1093,22 +1050,12 @@ if __name__ == "__main__":
         if "star" in query_type and "all" not in query_type:
             print("entering for star queries")
             file_name = (
-                datasets_path
-                + "/generated_"
-                + dataset_name
-                + "/star/"
-                + query_type
-                + ".txt"
+                datasets_path + "/generated_" + dataset_name + "/star/" + query_type + ".txt"
             )
         elif "chain" in query_type and "all" not in query_type:
             print("entering for chain queries")
             file_name = (
-                datasets_path
-                + "/generated_"
-                + dataset_name
-                + "/path/"
-                + query_type
-                + ".txt"
+                datasets_path + "/generated_" + dataset_name + "/path/" + query_type + ".txt"
             )
         elif "combined" in query_type:
             print("entering for query size grouping")
@@ -1129,9 +1076,7 @@ if __name__ == "__main__":
                 + ".txt"
             )
         elif (
-            "allstar" in query_type
-            or "allchain" in query_type
-            or "alltypessizes" in query_type
+            "allstar" in query_type or "allchain" in query_type or "alltypessizes" in query_type
         ):
             all_file_names = []
             num_joins = [2]  # ,3,5,8]
@@ -1204,9 +1149,7 @@ if __name__ == "__main__":
                 + ".txt"
             )
         elif (
-            "allstar" in query_type
-            or "allchain" in query_type
-            or "alltypessizes" in query_type
+            "allstar" in query_type or "allchain" in query_type or "alltypessizes" in query_type
         ):
             all_file_names = []
             num_joins = [2]  # ,3,5,8]
@@ -1243,16 +1186,12 @@ if __name__ == "__main__":
     file_name = "final_datasets/freebase_train_test_data_2tp_star.json"
     if "star" in query_type and "all" not in query_type:
         # X, A, E, y, encoding_time = complex_reader.read_queries(file_name, d, b, n, e, query_type ="star")
-        X, A, E, y, encoding_time, sizes = complex_reader.custom_reader(
-            file_name, d, b, n, e
-        )
+        X, A, E, y, encoding_time, sizes = complex_reader.custom_reader(file_name, d, b, n, e)
 
         # X, A, E, y, encoding_time = read_star_graph_pattern(d, b, n, e, file_name, train_tuples, matrix_mode, 0)
     elif "chain" in query_type and "all" not in query_type:
         # X, A, E, y, encoding_time = complex_reader.read_queries(file_name, d, b, n, e, query_type ="chain")
-        X, A, E, y, encoding_time, sizes = complex_reader.custom_reader(
-            file_name, d, b, n, e
-        )
+        X, A, E, y, encoding_time, sizes = complex_reader.custom_reader(file_name, d, b, n, e)
 
         # X, A, E, y, encoding_time = read_chain_graph_pattern(d, b, n, e, file_name, train_tuples, matrix_mode, 0)
     elif "combined" in query_type:
@@ -1261,15 +1200,9 @@ if __name__ == "__main__":
         X, A, E, y, encoding_time, sizes = complex_reader.read_combined(
             d, b, n, e, file_name_star, file_name_chain, train_tuples, test_mode
         )
-    elif (
-        "allstar" in query_type
-        or "allchain" in query_type
-        or "alltypessizes" in query_type
-    ):
-        X, A, E, y, encoding_time, sizes = (
-            complex_reader.read_combined_all_sizes_star_or_chain(
-                d, b, n, e, all_file_names, train_tuples
-            )
+    elif "allstar" in query_type or "allchain" in query_type or "alltypessizes" in query_type:
+        X, A, E, y, encoding_time, sizes = complex_reader.read_combined_all_sizes_star_or_chain(
+            d, b, n, e, all_file_names, train_tuples
         )
     elif "complex" in query_type:
         if not do_training:

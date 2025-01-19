@@ -97,9 +97,7 @@ def query_to_gcare(
             for l in vertex_dict[v][1:-1]:
                 label_str += str(l)
                 label_str += " "
-            f.write(
-                "v " + str(vertex_dict[v][0]) + " " + label_str + str(vertex_dict[v][2])
-            )
+            f.write("v " + str(vertex_dict[v][0]) + " " + label_str + str(vertex_dict[v][2]))
             f.write("\n")
         for e in edge_list:
             f.write("e " + str(e[0]) + " " + str(e[1]) + " " + str(e[2]))

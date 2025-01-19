@@ -54,9 +54,7 @@ class ObjFreqSampler(Sampler):
         super().fit(kg)
         for vertex in kg._vertices:
             if not vertex.predicate:
-                self._counts[vertex.name] = len(
-                    kg.get_neighbors(vertex, is_reverse=True)
-                )
+                self._counts[vertex.name] = len(kg.get_neighbors(vertex, is_reverse=True))
 
     def get_weight(self, hop: Hop) -> int:
         """Gets the weight of a hop in the Knowledge Graph.
@@ -75,8 +73,7 @@ class ObjFreqSampler(Sampler):
         """
         if not self._counts:
             raise ValueError(
-                "You must call the `fit(kg)` function before get the weight of"
-                + " a hop."
+                "You must call the `fit(kg)` function before get the weight of" + " a hop."
             )
         return self._counts[hop[1].name]
 
@@ -146,8 +143,7 @@ class PredFreqSampler(Sampler):
         """
         if not self._counts:
             raise ValueError(
-                "You must call the `fit(kg)` method before get the weight of"
-                + " a hop."
+                "You must call the `fit(kg)` method before get the weight of" + " a hop."
             )
         return self._counts[hop[0].name]
 
@@ -221,7 +217,6 @@ class ObjPredFreqSampler(Sampler):
         """
         if not self._counts:
             raise ValueError(
-                "You must call the `fit(kg)` method before get the weight of"
-                + " a hop."
+                "You must call the `fit(kg)` method before get the weight of" + " a hop."
             )
         return self._counts[(hop[0].name, hop[1].name)]

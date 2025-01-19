@@ -133,9 +133,7 @@ class MADE(nn.Module):
         assert self.input_bins
         # based on the user requirement encode the inputs and outputs
         encoded_bins = list(map(self._get_output_encoded_dist_size, self.input_bins))
-        self.input_bins_encoded = list(
-            map(self._get_input_encoded_dist_size, self.input_bins)
-        )
+        self.input_bins_encoded = list(map(self._get_input_encoded_dist_size, self.input_bins))
         self.input_bins_encoded_cumsum = np.cumsum(
             list(map(self._get_input_encoded_dist_size, self.input_bins))
         )
@@ -150,11 +148,7 @@ class MADE(nn.Module):
             if residual_connections:
                 if h0 == h1:
                     self.net.extend(
-                        [
-                            MaskedResidualBlock(
-                                h0, h1, activation=activation(inplace=False)
-                            )
-                        ]
+                        [MaskedResidualBlock(h0, h1, activation=activation(inplace=False))]
                     )
                 else:
                     self.net.extend(
@@ -306,9 +300,7 @@ class MADE(nn.Module):
             rng = np.random.RandomState(self.seed)
             self.seed = (self.seed + 1) % self.num_masks
             self.m[-1] = (
-                np.arange(self.nin)
-                if self.natural_ordering
-                else rng.permutation(self.nin)
+                np.arange(self.nin) if self.natural_ordering else rng.permutation(self.nin)
             )
             if self.fixed_ordering is not None:
                 self.m[-1] = np.asarray(self.fixed_ordering)
@@ -372,9 +364,7 @@ class MADE(nn.Module):
             for i, dist_size in enumerate(self.input_bins):
                 dist_size = self._get_input_encoded_dist_size(dist_size)
                 # [dist size, hidden]
-                new_mask0.append(
-                    np.concatenate([mask0[i].reshape(1, -1)] * dist_size, axis=0)
-                )
+                new_mask0.append(np.concatenate([mask0[i].reshape(1, -1)] * dist_size, axis=0))
             # [sum(dist size), hidden]
             new_mask0 = np.vstack(new_mask0)
             masks[0] = new_mask0
@@ -496,8 +486,7 @@ class MADE(nn.Module):
                             1,
                         )
                         y_embed.append(
-                            batch_mask * y_onehot
-                            + (1.0 - batch_mask) * self.unk_embeddings[i]
+                            batch_mask * y_onehot + (1.0 - batch_mask) * self.unk_embeddings[i]
                         )
                     else:
                         y_embed.append(y_onehot)
@@ -570,12 +559,8 @@ class MADE(nn.Module):
                             0,
                             1,
                         )
-                        binaries = binaries.to(
-                            torch.float32, non_blocking=True, copy=False
-                        )
-                        y_onehots[i] = (
-                            batch_mask * binaries + (1.0 - batch_mask) * dropped_repr
-                        )
+                        binaries = binaries.to(torch.float32, non_blocking=True, copy=False)
+                        y_onehots[i] = batch_mask * binaries + (1.0 - batch_mask) * dropped_repr
 
                 else:
                     # Encode as plain one-hot.
@@ -679,9 +664,7 @@ class MADE(nn.Module):
         if idx == 0:
             logits_for_var = logits[:, : self.logit_indices[0]]
         else:
-            logits_for_var = logits[
-                :, self.logit_indices[idx - 1] : self.logit_indices[idx]
-            ]
+            logits_for_var = logits[:, self.logit_indices[idx - 1] : self.logit_indices[idx]]
 
         if self.output_encoding != "embed":
             return logits_for_var
@@ -724,9 +707,7 @@ class MADE(nn.Module):
             indices = np.cumsum(self.input_bins)
             for i in range(self.nin):
                 logits = self.forward(sampled)
-                s = torch.multinomial(
-                    torch.softmax(self.logits_for_i(i, logits), -1), 1
-                )
+                s = torch.multinomial(torch.softmax(self.logits_for_i(i, logits), -1), 1)
                 sampled[:, i] = s.view(
                     -1,
                 )

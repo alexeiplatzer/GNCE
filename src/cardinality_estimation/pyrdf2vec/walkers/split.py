@@ -88,9 +88,7 @@ class SplitWalker(RandomWalker):
                 name = vertices[-1] if vertices else walk[i].name
 
                 vertices = [
-                    sub_name
-                    for sub_name in re.split(r"([A-Z][a-z]*)", name)
-                    if sub_name
+                    sub_name for sub_name in re.split(r"([A-Z][a-z]*)", name) if sub_name
                 ]
                 if i % 2 != 1:
                     try:

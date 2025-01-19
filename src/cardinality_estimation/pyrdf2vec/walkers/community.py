@@ -227,9 +227,7 @@ class CommunityWalker(Walker):
             walks.append(sub_walk)
         return list(walks)
 
-    def extract(
-        self, kg: KG, entities: Entities, verbose: int = 0
-    ) -> List[List[SWalk]]:
+    def extract(self, kg: KG, entities: Entities, verbose: int = 0) -> List[List[SWalk]]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.

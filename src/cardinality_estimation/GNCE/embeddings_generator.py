@@ -57,7 +57,8 @@ def get_embeddings(
     n_jobs=12,
 ):
     """
-    This function calculates simple occurences as well as rdf2vec embeddings for a given rdf graph
+    This function calculates simple occurences
+    as well as rdf2vec embeddings for a given rdf graph
     Saves the embeddings and occurrences in one json file per entity
     :param dataset_name: The name of the kg, used to save the statistics
     :param kg_file: path to the .ttl file of the kg
@@ -80,7 +81,9 @@ def get_embeddings(
     # Create the RDF2vec model
     transformer = RDF2VecTransformer(
         Word2Vec(epochs=10, vector_size=100),
-        walkers=[RandomWalker(4, max_walks=5, with_reverse=True, n_jobs=n_jobs, md5_bytes=None)],
+        walkers=[
+            RandomWalker(4, max_walks=5, with_reverse=True, n_jobs=n_jobs, md5_bytes=None)
+        ],
         verbose=2,
         batch_mode="onefile",
     )
@@ -95,24 +98,17 @@ def get_embeddings(
     # Start Time of Occurrence Calculation:
     occurrence_start_time = time.time()
 
-    if occurrence_from_file:
+    with open(kg_file, "r") as file:
+        for line in tqdm(file):
+            line = line.strip().split(" ")  # Assuming the elements are separated by a space
+            s = line[0].replace("<", "").replace(">", "")
+            p = line[1].replace("<", "").replace(">", "")
+            o = line[2].replace("<", "").replace(">", "")
 
-        with open(kg_file, "r") as file:
-            for line in tqdm(file):
-                line = line.strip().split(
-                    " "
-                )  # Assuming the elements are separated by a space
-                s = line[0].replace("<", "").replace(">", "")
-                p = line[1].replace("<", "").replace(">", "")
-                o = line[2].replace("<", "").replace(">", "")
-
-                # Using dict.get() method to eliminate try-except blocks
-                occurrences[s] = occurrences.get(s, 0) + 1
-                occurrences[p] = occurrences.get(p, 0) + 1
-                occurrences[o] = occurrences.get(o, 0) + 1
-
-    else:
-        raise NotImplementedError
+            # Using dict.get() method to eliminate try-except blocks
+            occurrences[s] = occurrences.get(s, 0) + 1
+            occurrences[p] = occurrences.get(p, 0) + 1
+            occurrences[o] = occurrences.get(o, 0) + 1
 
     # Saving occurrences
     with open(dataset_name + "_ocurrences.json", "w") as fp:
@@ -181,9 +177,7 @@ def get_embeddings(
     timing_dict["embedding_total_time"] = embedding_end_time
     timing_dict["n_atoms_embeddings"] = n_atoms_embeddings
     timing_dict["time_per_atom_embedding"] = time_per_atom_embedding
-    timing_dict["time_per_atom_statistic"] = (
-        time_per_atom_occurrence + time_per_atom_embedding
-    )
+    timing_dict["time_per_atom_statistic"] = time_per_atom_occurrence + time_per_atom_embedding
     embedding_timing_file = DATASETS_PATH / dataset_name / "embedding_timing.json"
     with open(embedding_timing_file, "w") as fp:
         json.dump(timing_dict, fp, indent=4)

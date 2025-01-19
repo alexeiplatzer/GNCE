@@ -29,19 +29,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", type=str, default="swdf_star_2", help="Dataset.")
 parser.add_argument("--num-gpus", type=int, default=0, help="#gpus.")
 parser.add_argument("--bs", type=int, default=2048, help="Batch size.")
-parser.add_argument(
-    "--warmups", type=int, default=0, help="Learning rate warmup steps."
-)
-parser.add_argument(
-    "--epochs", type=int, default=10, help="Number of epochs to train for."
-)
+parser.add_argument("--warmups", type=int, default=0, help="Learning rate warmup steps.")
+parser.add_argument("--epochs", type=int, default=10, help="Number of epochs to train for.")
 parser.add_argument("--constant-lr", type=float, default=None, help="Constant LR?")
 
 parser.add_argument(
     "--column-masking",
     action="store_true",
-    help="Column masking training, which permits wildcard skipping"
-    " at querying time.",
+    help="Column masking training, which permits wildcard skipping" " at querying time.",
 )
 
 # MADE.
@@ -118,9 +113,7 @@ def RunEpoch(
                     t = args.warmups
                     d_model = model.embed_size
                     global_steps = len(loader) * epoch_num + step + 1
-                    lr = (d_model**-0.5) * min(
-                        (global_steps**-0.5), global_steps * (t**-1.5)
-                    )
+                    lr = (d_model**-0.5) * min((global_steps**-0.5), global_steps * (t**-1.5))
                 else:
                     lr = 1e-2
 
@@ -162,9 +155,7 @@ def RunEpoch(
                 # determine which unit sees what input vars.
                 xbhat = xbhat.view(-1, model.nout // model.nin, model.nin)
                 # Equivalent to:
-                loss = (
-                    F.cross_entropy(xbhat, xb.long(), reduction="none").sum(-1).mean()
-                )
+                loss = F.cross_entropy(xbhat, xb.long(), reduction="none").sum(-1).mean()
 
             else:
                 loss = model.nll(xbhat, xb).mean()
@@ -223,9 +214,7 @@ def MakeMade(scale, cols_to_train, seed, fixed_ordering=None):
 
     model = made.MADE(
         nin=len(cols_to_train),
-        hidden_sizes=(
-            [scale] * args.layers if args.layers > 0 else [512, 256, 512, 128, 1024]
-        ),
+        hidden_sizes=([scale] * args.layers if args.layers > 0 else [512, 256, 512, 128, 1024]),
         nout=sum([c.DistributionSize() for c in cols_to_train]),
         input_bins=[c.DistributionSize() for c in cols_to_train],
         input_encoding=args.input_encoding,
@@ -347,17 +336,15 @@ def TrainTask(seed=0):
             seed,
         )
     else:
-        PATH = (
-            "models/{}-{:.1f}MB-model{:.3f}-data{:.3f}-{}-{}epochs-seed{}-{}.pt".format(
-                args.dataset,
-                mb,
-                model.model_bits,
-                table_bits,
-                model.name(),
-                args.epochs,
-                seed,
-                time.time(),
-            )
+        PATH = "models/{}-{:.1f}MB-model{:.3f}-data{:.3f}-{}-{}epochs-seed{}-{}.pt".format(
+            args.dataset,
+            mb,
+            model.model_bits,
+            table_bits,
+            model.name(),
+            args.epochs,
+            seed,
+            time.time(),
         )
 
     os.makedirs(os.path.dirname(PATH), exist_ok=True)

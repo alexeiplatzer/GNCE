@@ -122,9 +122,7 @@ class WLWalker(RandomWalker):
             for k, v in self._label_map[vertex].items():
                 self._inv_label_map[vertex][v] = k
 
-    def extract(
-        self, kg: KG, entities: Entities, verbose: int = 0
-    ) -> List[List[SWalk]]:
+    def extract(self, kg: KG, entities: Entities, verbose: int = 0) -> List[List[SWalk]]:
         """Fits the provided sampling strategy and then calls the
         private _extract method that is implemented for each of the
         walking strategies.

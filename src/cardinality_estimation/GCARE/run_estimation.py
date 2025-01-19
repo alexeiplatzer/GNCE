@@ -10,9 +10,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 
-def run_gcare(
-    dataset, query_type, eval_folder, query_filename, inductive, DATASETPATH=None
-):
+def run_gcare(dataset, query_type, eval_folder, query_filename, inductive, DATASETPATH=None):
     methods = ["wj", "cset", "jsub", "impr"]
     # methods = ['impr']
     assert DATASETPATH is not None
@@ -70,21 +68,15 @@ def run_gcare(
             query["exec_time_total"] = pred_time
             result_data.append(query)
         np.save(
-            os.path.join(
-                f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/preds.npy"
-            ),
+            os.path.join(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/preds.npy"),
             preds,
         )
         np.save(
-            os.path.join(
-                f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/gts.npy"
-            ),
+            os.path.join(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/gts.npy"),
             gts,
         )
         np.save(
-            os.path.join(
-                f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/sizes.npy"
-            ),
+            os.path.join(f"{DATASETPATH}/{dataset}/Results/{eval_folder}/{method}/sizes.npy"),
             sizes,
         )
         np.save(

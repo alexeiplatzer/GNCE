@@ -113,9 +113,7 @@ class KG:
 
     connector = attr.ib(init=False, default=None, type=SPARQLConnector, repr=False)
 
-    _is_remote = attr.ib(
-        default=False, type=bool, validator=attr.validators.instance_of(bool)
-    )
+    _is_remote = attr.ib(default=False, type=bool, validator=attr.validators.instance_of(bool))
 
     _inv_transition_matrix = attr.ib(
         init=False,
@@ -130,25 +128,21 @@ class KG:
         factory=lambda: defaultdict(set),
     )
 
-    _entity_hops = attr.ib(
-        init=False, repr=False, type=Dict[str, List[Hop]], factory=dict
-    )
+    _entity_hops = attr.ib(init=False, repr=False, type=Dict[str, List[Hop]], factory=dict)
 
     _entities = attr.ib(init=False, type=Set[Vertex], repr=False, factory=set)
     _vertices = attr.ib(init=False, type=Set[Vertex], repr=False, factory=set)
 
     def __attrs_post_init__(self):
         if self.location is not None:
-            self._is_remote = self.location.startswith(
-                "http://"
-            ) or self.location.startswith("https://")
+            self._is_remote = self.location.startswith("http://") or self.location.startswith(
+                "https://"
+            )
 
             if self._is_remote is True:
                 self.connector = SPARQLConnector(self.location, cache=self.cache)
             elif self.location is not None:
-                for subj, pred, obj in rdflib.Graph().parse(
-                    self.location, format=self.fmt
-                ):
+                for subj, pred, obj in rdflib.Graph().parse(self.location, format=self.fmt):
                     subj = Vertex(str(subj))
                     obj = Vertex(str(obj))
                     self.add_walk(
@@ -283,16 +277,12 @@ class KG:
                 for res in responses
             ]
             return [
-                literals_responses[
-                    len(self.literals) * i : len(self.literals) * (i + 1) :
-                ]
+                literals_responses[len(self.literals) * i : len(self.literals) * (i + 1) :]
                 for i in range(len(entities))
             ]
         entity_literals = []
         for entity in tqdm(entities, disable=True if verbose == 0 else False):
-            entity_literal = [
-                self.get_pliterals(entity, pred) for pred in self.literals
-            ]
+            entity_literal = [self.get_pliterals(entity, pred) for pred in self.literals]
             entity_literals.append(self._cast_literals(entity_literal))
         return entity_literals
 
@@ -419,9 +409,7 @@ class KG:
             entities,
             asyncio.run(self.connector.afetch(queries)),
         ):
-            hops = self._res2hops(
-                Vertex(entity), res["results"]["bindings"]  # type: ignore
-            )
+            hops = self._res2hops(Vertex(entity), res["results"]["bindings"])  # type: ignore
             self._entity_hops.update({entity: hops})
 
     @cachedmethod(operator.attrgetter("cache"))

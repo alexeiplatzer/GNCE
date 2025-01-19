@@ -41,9 +41,7 @@ class Sampler(ABC):
 
     """
 
-    inverse = attr.ib(
-        default=False, type=bool, validator=attr.validators.instance_of(bool)
-    )
+    inverse = attr.ib(default=False, type=bool, validator=attr.validators.instance_of(bool))
 
     split = attr.ib(default=False, validator=attr.validators.instance_of(bool))
 

@@ -7,9 +7,7 @@ import random
 from .query_graph import QueryGraph
 
 
-def star_to_triples(
-    query_parts, dict_join, store_join_ids, var_id, special_format=False
-):
+def star_to_triples(query_parts, dict_join, store_join_ids, var_id, special_format=False):
     """
     Star query converted to triples
     :param query_parts: actual star query of for s-p1-o1-p2-o2
@@ -174,9 +172,7 @@ def read_complex_queries(files, d, b, n, e, limit=100_000_000):
                 join_pairs = []
                 # which ids need to be joined
                 for j in j_s:
-                    left_join_idx = (
-                        0 if j[0] == "first" else (len(query_parts1.split("-")) - 1)
-                    )
+                    left_join_idx = 0 if j[0] == "first" else (len(query_parts1.split("-")) - 1)
                     right_join_idx = (
                         0 if j[1] == "first" else (len(query_parts2.split("-")) - 1)
                     )

@@ -82,7 +82,6 @@ class PageRankSampler(Sampler):
         """
         if not self._pageranks:
             raise ValueError(
-                "You must call the `fit(kg)` method before get the weight of"
-                + " a hop."
+                "You must call the `fit(kg)` method before get the weight of" + " a hop."
             )
         return self._pageranks[hop[1].name]

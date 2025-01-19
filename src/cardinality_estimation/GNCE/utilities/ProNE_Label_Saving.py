@@ -24,9 +24,7 @@ file.close()
 with open(loading_path / "Datasets" / dataset / "id_to_id_mapping.json", "r") as f:
     id_to_id_mapping = json.load(f)
 
-with open(
-    loading_path / "Datasets" / dataset / "id_to_id_mapping_predicate.json", "r"
-) as f:
+with open(loading_path / "Datasets" / dataset / "id_to_id_mapping_predicate.json", "r") as f:
     id_to_id_mapping_predicate = json.load(f)
 
 id_to_id_mapping_inv = {v: k for k, v in id_to_id_mapping.items()}

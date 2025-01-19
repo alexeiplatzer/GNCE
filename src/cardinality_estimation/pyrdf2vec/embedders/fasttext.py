@@ -169,9 +169,7 @@ class RDFFastTextKeyedVectors(FastTextKeyedVectors):
                 dtype=np.uint32,
             )
 
-    def compute_ngrams_bytes(
-        self, entity: str, minn: int = 0, maxn: int = 0
-    ) -> List[bytes]:
+    def compute_ngrams_bytes(self, entity: str, minn: int = 0, maxn: int = 0) -> List[bytes]:
         """Reimplementation of the compute_ngrams_bytes method of gensim. This
            overwrite is needed to call our compute_ngrams_bytes method.
 

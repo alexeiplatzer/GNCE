@@ -87,9 +87,8 @@ class WideSampler(Sampler):
         """
         if not (self._pred_degs or self._obj_degs or self._neighbor_counts):
             raise ValueError(
-                "You must call the `fit(kg)` method before get the weight of"
-                + " a hop."
+                "You must call the `fit(kg)` method before get the weight of" + " a hop."
             )
-        return (
-            self._neighbor_counts[hop[0].name] + self._neighbor_counts[hop[1].name]
-        ) * ((self._pred_degs[hop[0].name] + self._obj_degs[hop[1].name]) / 2)
+        return (self._neighbor_counts[hop[0].name] + self._neighbor_counts[hop[1].name]) * (
+            (self._pred_degs[hop[0].name] + self._obj_degs[hop[1].name]) / 2
+        )
