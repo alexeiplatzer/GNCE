@@ -122,16 +122,17 @@ class StatisticsLoader:
 
 
 def get_query_graph_data_new(
-    query_graph, statistics, device, unknown_entity="false", n_atoms: int = None
+    query_graph, statistics, device, unknown_entity="false", n_atoms: int = 0
 ):
     """
     This function is used to get the graph data object from a query graph
-    :param query_graph: Dict representing the query graph of the form {"triples": [triple1, triple2, ...], "y": cardinality,
+    :param query_graph: Dict representing the query graph of the form
+    {"triples": [triple1, triple2, ...], "y": cardinality,
     "query": String of sparql query, "x": List of occurring entities}
     :param statistics: Dict or dict like loader for the embeddings of entities
     :param device: cpu or cuda
-    :param unknown entity: Determines if an entity receives its embedding('false'), randomly, embedding
-    or random vector('random') or always a random embedding('true')
+    :param unknown_entity: Determines if an entity receives its embedding('false'), randomly,
+    embedding or random vector('random') or always a random embedding('true')
     :return: Graph data object
     """
 
@@ -357,11 +358,8 @@ def get_query_graph_data_new(
 
     data["entity"].x = torch.tensor(node_embeddings)
 
-    if n_atoms is not None:
-        n_atoms += len(atom_set)
-        return data, n_atoms
-    else:
-        return data
+    n_atoms += len(atom_set)
+    return data, n_atoms
 
 
 def get_query_graph_data(query_graph, statistics, device):

@@ -34,5 +34,5 @@ def print_graph(end_idx):
 
 
 if __name__ == "__main__":
-    # print_queries(start_idx=0, end_idx=1)
-    print_graph(end_idx=5)
+    print_queries(start_idx=0, end_idx=1)
+    # print_graph(end_idx=5)

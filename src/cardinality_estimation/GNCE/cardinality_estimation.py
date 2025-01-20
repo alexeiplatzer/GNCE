@@ -255,7 +255,7 @@ def train_GNN(
             gts.append(y)
             abs_errors.append(np.abs(pred - y))
             q_errors.append(np.max([np.abs(pred) / y, y / np.abs(pred)]))
-            sizes.append(len(datapoint["triples"]))
+            sizes.append(len(data["triples"]))
 
             points_processed += 1
 
